@@ -1,0 +1,7 @@
+﻿using CleanArchitecture.Cmms.Domain.Abstractions;
+
+namespace CleanArchitecture.Cmms.Domain.Technicians.Events
+{
+    public sealed record TechnicianUnassignedFromWorkOrderEvent(Guid TechnicianId, Guid WorkOrderId, DateTime? OccurredOn = null) : IDomainEvent;
+
+}
