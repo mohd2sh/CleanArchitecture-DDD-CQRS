@@ -1,6 +1,6 @@
 namespace CleanArchitecture.Cmms.Domain.Abstractions;
 
-internal abstract class Entity<TId> : IHasDomainEvents
+public abstract class Entity<TId> : IHasDomainEvents
 {
     public TId Id { get; protected set; } = default!;
 

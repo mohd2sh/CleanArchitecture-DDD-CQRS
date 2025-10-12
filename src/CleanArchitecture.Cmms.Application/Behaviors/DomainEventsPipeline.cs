@@ -1,5 +1,4 @@
-﻿using CleanArchitecture.Cmms.Application.Abstractions.Messaging;
-using CleanArchitecture.Cmms.Application.Abstractions.Messaging.Models;
+﻿using CleanArchitecture.Cmms.Application.Abstractions.Messaging.Models;
 using CleanArchitecture.Cmms.Application.Abstractions.Persistence;
 using CleanArchitecture.Cmms.Domain.Abstractions;
 

@@ -9,7 +9,7 @@ namespace CleanArchitecture.Cmms.Api.Middlewares
     public sealed class ExceptionHandlingMiddleware : IMiddleware
     {
         private readonly ILogger<ExceptionHandlingMiddleware> _logger;
-
+        private readonly JsonSerializerOptions _jsonOptions = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         public ExceptionHandlingMiddleware(ILogger<ExceptionHandlingMiddleware> logger)
             => _logger = logger;
 
@@ -73,8 +73,7 @@ namespace CleanArchitecture.Cmms.Api.Middlewares
             context.Response.ContentType = "application/problem+json";
             context.Response.StatusCode = (int)status;
 
-            var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-            await context.Response.WriteAsync(JsonSerializer.Serialize(problem, options));
+            await context.Response.WriteAsync(JsonSerializer.Serialize(problem, _jsonOptions));
         }
     }
 }

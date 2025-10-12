@@ -4,6 +4,7 @@ using CleanArchitecture.Cmms.Domain.Technicians;
 using CleanArchitecture.Cmms.Domain.Technicians.ValueObjects;
 using CleanArchitecture.Cmms.Domain.WorkOrders;
 using CleanArchitecture.Cmms.Domain.WorkOrders.ValueObjects;
+using CleanArchitecture.Cmms.Infrastructure.Persistence.EfCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace CleanArchitecture.Cmms.Infrastructure.Persistence

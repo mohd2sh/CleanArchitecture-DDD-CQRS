@@ -1,5 +1,5 @@
 ﻿using CleanArchitecture.Cmms.Application.Abstractions.Messaging;
-using CleanArchitecture.Cmms.Application.Abstractions.Persistence;
+using CleanArchitecture.Cmms.Application.Abstractions.Persistence.Repositories;
 using CleanArchitecture.Cmms.Application.Primitives;
 using CleanArchitecture.Cmms.Domain.Technicians;
 using CleanArchitecture.Cmms.Domain.WorkOrders;

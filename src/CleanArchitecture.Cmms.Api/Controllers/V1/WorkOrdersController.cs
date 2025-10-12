@@ -1,5 +1,5 @@
 ﻿using Asp.Versioning;
-using CleanArchitecture.Cmms.Api.Controllers.V1.Requests;
+using CleanArchitecture.Cmms.Api.Controllers.V1.Requests.WorkOrders;
 using CleanArchitecture.Cmms.Application.Abstractions.Messaging;
 using CleanArchitecture.Cmms.Application.Primitives;
 using CleanArchitecture.Cmms.Application.WorkOrders.Commands.AssignTechnician;
@@ -65,22 +65,11 @@ namespace CleanArchitecture.Cmms.Api.Controllers.V1
         [ProducesResponseType(typeof(PaginatedList<WorkOrderListItemDto>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.InternalServerError)]
-        public async Task<IActionResult> GetActive([FromQuery] GetActiveWorkOrdersRequest request, CancellationToken ct)
+        public async Task<IActionResult> GetActive([FromQuery] int pageNumber, [FromQuery] int pageSize, CancellationToken ct)
         {
-            var query = new GetActiveWorkOrdersQuery(request.Pagination);
+            var query = new GetActiveWorkOrdersQuery(new PaginationParams() { PageNumber = pageNumber, PageSize = pageSize });
             var result = await _mediator.Send(query, ct);
             return Ok(result);
         }
-
-
-        //[HttpGet("{id:guid}")]
-        //[ProducesResponseType(typeof(WorkOrderDetailsDto), (int)HttpStatusCode.OK)]
-        //[ProducesResponseType((int)HttpStatusCode.NotFound)]
-        //public async Task<IActionResult> GetById(Guid id, CancellationToken ct)
-        //{
-        //    var query = new GetWorkOrderByIdQuery(id);
-        //    var result = await _mediator.Send(query, ct);
-        //    return result is not null ? Ok(result) : NotFound();
-        //}
     }
 }

@@ -4,6 +4,7 @@ using CleanArchitecture.Cmms.Api.Middlewares;
 using CleanArchitecture.Cmms.Application;
 using CleanArchitecture.Cmms.Infrastructure;
 using CleanArchitecture.Cmms.Infrastructure.Persistence;
+using CleanArchitecture.Cmms.Infrastructure.Persistence.EfCore;
 using Serilog;
 
 
@@ -76,7 +77,7 @@ try
 
     app.MapControllers();
 
-    app.Run();
+    await app.RunAsync();
 }
 catch (Exception ex)
 {
@@ -85,5 +86,5 @@ catch (Exception ex)
 }
 finally
 {
-    Log.CloseAndFlush();
+    await Log.CloseAndFlushAsync();
 }

@@ -31,8 +31,10 @@ namespace CleanArchitecture.Cmms.Domain.Technicians
 
         public static Technician Create(string name, SkillLevel skillLevel)
         {
-            Technician technician = new Technician(Guid.NewGuid(), name, skillLevel);
+            var technician = new Technician(Guid.NewGuid(), name, skillLevel);
+
             technician.Raise(new TechnicianCreatedEvent(technician.Id, name, skillLevel));
+
             return technician;
         }
 
@@ -91,6 +93,6 @@ namespace CleanArchitecture.Cmms.Domain.Technicians
             Raise(new TechnicianStatusChangedEvent(Id, Status));
         }
 
-        public bool IsAvailable => Status == TechnicianStatus.Available;
+        public bool IsAvailable() => Status == TechnicianStatus.Available;
     }
 }

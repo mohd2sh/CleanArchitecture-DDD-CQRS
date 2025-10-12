@@ -1,8 +1,7 @@
-﻿using MediatR;
+﻿namespace CleanArchitecture.Cmms.Application.Abstractions.Messaging;
 
-namespace CleanArchitecture.Cmms.Application.Abstractions.Messaging;
-
-public interface ICommandPipeline<TCommand, TResponse>
-    : IPipelineBehavior<TCommand, TResponse>
+public interface ICommandPipeline<TCommand, TResponse> : IPipeline<TCommand, TResponse>
     where TCommand : ICommand<TResponse>
-{ }
+{
+
+}
