@@ -1,11 +1,13 @@
-﻿using CleanArchitecture.Cmms.Application.Abstractions.Messaging;
-using CleanArchitecture.Cmms.Application.Abstractions.Persistence.Repositories;
-using CleanArchitecture.Cmms.Application.Primitives;
+﻿using CleanArchitecture.Cmms.Application.Abstractions.Persistence.Repositories;
 using CleanArchitecture.Cmms.Domain.Technicians;
 using CleanArchitecture.Cmms.Domain.WorkOrders;
 
 namespace CleanArchitecture.Cmms.Application.WorkOrders.Commands.AssignTechnician
 {
+
+    /// <summary>
+    /// The AssignTechnicianCommand is viewed as a domain service that interact with two Aggregate roots.
+    /// </summary>
     internal sealed class AssignTechnicianCommandHandler
     : ICommandHandler<AssignTechnicianCommand, Result>
     {
@@ -19,13 +21,13 @@ namespace CleanArchitecture.Cmms.Application.WorkOrders.Commands.AssignTechnicia
             _technicianRepository = technicianRepository;
         }
 
-        public async Task<Result> Handle(AssignTechnicianCommand request, CancellationToken ct)
+        public async Task<Result> Handle(AssignTechnicianCommand request, CancellationToken cancellationToken)
         {
-            var technician = await _technicianRepository.GetByIdAsync(request.TechnicianId, ct);
+            var technician = await _technicianRepository.GetByIdAsync(request.TechnicianId, cancellationToken);
             if (technician is null)
                 return "Technician not found.";
 
-            var workOrder = await _workOrderRepository.GetByIdAsync(request.WorkOrderId, ct);
+            var workOrder = await _workOrderRepository.GetByIdAsync(request.WorkOrderId, cancellationToken);
             if (workOrder is null)
                 return "Work order not found.";
 
@@ -33,9 +35,9 @@ namespace CleanArchitecture.Cmms.Application.WorkOrders.Commands.AssignTechnicia
 
             workOrder.AssignTechnician(technician.Id);
 
-            await _technicianRepository.UpdateAsync(technician, ct);
+            await _technicianRepository.UpdateAsync(technician, cancellationToken);
 
-            await _workOrderRepository.UpdateAsync(workOrder, ct);
+            await _workOrderRepository.UpdateAsync(workOrder, cancellationToken);
 
             return Result.Success();
         }

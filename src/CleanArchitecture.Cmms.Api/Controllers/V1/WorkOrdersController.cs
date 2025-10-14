@@ -29,10 +29,10 @@ namespace CleanArchitecture.Cmms.Api.Controllers.V1
         [ProducesResponseType(typeof(Result<Guid>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.InternalServerError)]
-        public async Task<IActionResult> Create([FromBody] CreateWorkOrderRequest request, CancellationToken ct)
+        public async Task<IActionResult> Create([FromBody] CreateWorkOrderRequest request, CancellationToken cancellationToken)
         {
-            var command = new CreateWorkOrderCommand(request.Title, request.Site, request.Area, request.Zone);
-            var result = await _mediator.Send(command, ct);
+            var command = new CreateWorkOrderCommand(request.AssetId, request.Title, request.Site, request.Area, request.Zone);
+            var result = await _mediator.Send(command, cancellationToken);
             return result.IsSuccess ? Ok(result) : BadRequest(result.Error);
         }
 
@@ -41,10 +41,10 @@ namespace CleanArchitecture.Cmms.Api.Controllers.V1
         [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.InternalServerError)]
-        public async Task<IActionResult> Assign(Guid id, [FromBody] AssignTechnicianRequest request, CancellationToken ct)
+        public async Task<IActionResult> Assign(Guid id, [FromBody] AssignTechnicianRequest request, CancellationToken cancellationToken)
         {
             var command = new AssignTechnicianCommand(id, request.TechnicianId);
-            var result = await _mediator.Send(command, ct);
+            var result = await _mediator.Send(command, cancellationToken);
             return result.IsSuccess ? Ok(result) : BadRequest(result.Error);
         }
 
@@ -53,10 +53,10 @@ namespace CleanArchitecture.Cmms.Api.Controllers.V1
         [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.InternalServerError)]
-        public async Task<IActionResult> Complete(Guid id, CancellationToken ct)
+        public async Task<IActionResult> Complete(Guid id, CancellationToken cancellationToken)
         {
             var command = new CompleteWorkOrderCommand(id);
-            var result = await _mediator.Send(command, ct);
+            var result = await _mediator.Send(command, cancellationToken);
             return result.IsSuccess ? Ok(result) : BadRequest(result.Error);
         }
 
@@ -65,10 +65,10 @@ namespace CleanArchitecture.Cmms.Api.Controllers.V1
         [ProducesResponseType(typeof(PaginatedList<WorkOrderListItemDto>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.InternalServerError)]
-        public async Task<IActionResult> GetActive([FromQuery] int pageNumber, [FromQuery] int pageSize, CancellationToken ct)
+        public async Task<IActionResult> GetActive([FromQuery] int pageNumber, [FromQuery] int pageSize, CancellationToken cancellationToken)
         {
             var query = new GetActiveWorkOrdersQuery(new PaginationParams() { PageNumber = pageNumber, PageSize = pageSize });
-            var result = await _mediator.Send(query, ct);
+            var result = await _mediator.Send(query, cancellationToken);
             return Ok(result);
         }
     }

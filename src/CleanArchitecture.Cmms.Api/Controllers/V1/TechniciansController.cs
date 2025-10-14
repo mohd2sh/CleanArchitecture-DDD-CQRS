@@ -29,10 +29,10 @@ namespace CleanArchitecture.Cmms.Api.Controllers.V1
         [ProducesResponseType(typeof(Result<Guid>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.InternalServerError)]
-        public async Task<IActionResult> Create([FromBody] CreateTechnicianRequest request, CancellationToken ct)
+        public async Task<IActionResult> Create([FromBody] CreateTechnicianRequest request, CancellationToken cancellationToken)
         {
             var command = new CreateTechnicianCommand(request.Name, request.SkillLevelName, request.SkillLevelRank);
-            var result = await _mediator.Send(command, ct);
+            var result = await _mediator.Send(command, cancellationToken);
             return result.IsSuccess ? Ok(result) : BadRequest(result.Error);
         }
 
@@ -41,10 +41,10 @@ namespace CleanArchitecture.Cmms.Api.Controllers.V1
         [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.InternalServerError)]
-        public async Task<IActionResult> CompleteAssignment(Guid id, Guid workOrderId, [FromBody] CompleteAssignmentRequest request, CancellationToken ct)
+        public async Task<IActionResult> CompleteAssignment(Guid id, Guid workOrderId, [FromBody] CompleteAssignmentRequest request, CancellationToken cancellationToken)
         {
             var command = new CompleteAssignmentCommand(id, workOrderId, request.CompletedOn);
-            var result = await _mediator.Send(command, ct);
+            var result = await _mediator.Send(command, cancellationToken);
             return result.IsSuccess ? Ok(result) : BadRequest(result.Error);
         }
 
@@ -53,10 +53,10 @@ namespace CleanArchitecture.Cmms.Api.Controllers.V1
         [ProducesResponseType(typeof(Result<TechnicianDto>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.InternalServerError)]
-        public async Task<IActionResult> GetById(Guid id, CancellationToken ct)
+        public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
         {
             var query = new GetTechnicianByIdQuery(id);
-            var result = await _mediator.Send(query, ct);
+            var result = await _mediator.Send(query, cancellationToken);
             return result.IsSuccess ? Ok(result) : NotFound(result.Error);
         }
 
@@ -64,11 +64,11 @@ namespace CleanArchitecture.Cmms.Api.Controllers.V1
         [ProducesResponseType(typeof(Result<PaginatedList<TechnicianDto>>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.InternalServerError)]
-        public async Task<IActionResult> GetAvailable([FromQuery] int take = 1, [FromQuery] int skip = 20, CancellationToken ct = default)
+        public async Task<IActionResult> GetAvailable([FromQuery] int take = 20, [FromQuery] int skip = 0, CancellationToken cancellationToken = default)
         {
             var query = new GetAvailableTechniciansQuery(take, skip);
 
-            var result = await _mediator.Send(query, ct);
+            var result = await _mediator.Send(query, cancellationToken);
 
             return Ok(result);
         }
@@ -77,10 +77,10 @@ namespace CleanArchitecture.Cmms.Api.Controllers.V1
         [ProducesResponseType(typeof(Result<IReadOnlyList<TechnicianAssignmentDto>>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.InternalServerError)]
-        public async Task<IActionResult> GetAssignments(Guid id, [FromQuery] int skip, [FromQuery] int take, [FromQuery] bool onlyActive = false, CancellationToken ct = default)
+        public async Task<IActionResult> GetAssignments(Guid id, [FromQuery] int skip, [FromQuery] int take, [FromQuery] bool onlyActive = false, CancellationToken cancellationToken = default)
         {
             var query = new GetTechnicianAssignmentsQuery(id, skip, take, onlyActive);
-            var result = await _mediator.Send(query, ct);
+            var result = await _mediator.Send(query, cancellationToken);
             return result.IsSuccess ? Ok(result) : BadRequest(result.Error);
         }
     }

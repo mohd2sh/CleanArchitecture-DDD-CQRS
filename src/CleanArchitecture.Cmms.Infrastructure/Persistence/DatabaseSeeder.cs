@@ -26,9 +26,7 @@ namespace CleanArchitecture.Cmms.Infrastructure.Persistence
                 await context.Technicians.AddRangeAsync(techs, ct);
             }
 
-            if (!await context.Assets.AnyAsync(ct))
-            {
-                var assets = new List<Asset>
+            var assets = new List<Asset>
             {
                 Asset.Create("Boiler Pump", "Mechanical",
                     AssetTag.Create("ASSET-1001"),
@@ -37,6 +35,9 @@ namespace CleanArchitecture.Cmms.Infrastructure.Persistence
                     AssetTag.Create("ASSET-2002"),
                     AssetLocation.Create("Plant-B", "Roof", "Zone-1"))
             };
+
+            if (!await context.Assets.AnyAsync(ct))
+            {
                 await context.Assets.AddRangeAsync(assets, ct);
             }
 
@@ -44,10 +45,8 @@ namespace CleanArchitecture.Cmms.Infrastructure.Persistence
             {
                 var workOrders = new List<WorkOrder>
             {
-                WorkOrder.Create("Replace filter on HVAC Unit",
-                    new Location("Plant-B", "Roof", "Zone-1")),
-                WorkOrder.Create("Inspect Boiler Pump",
-                    new Location("Plant-A", "Floor-1", "Zone-3"))
+                WorkOrder.Create(assets[0].Id,"Replace filter on HVAC Unit",
+                    new Location("Plant-B", "Roof", "Zone-1"))
             };
                 await context.WorkOrders.AddRangeAsync(workOrders, ct);
             }

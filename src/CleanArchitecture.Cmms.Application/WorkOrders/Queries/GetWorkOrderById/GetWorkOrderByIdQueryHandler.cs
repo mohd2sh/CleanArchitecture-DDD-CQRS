@@ -1,6 +1,4 @@
-﻿using CleanArchitecture.Cmms.Application.Abstractions.Messaging;
-using CleanArchitecture.Cmms.Application.Primitives;
-using CleanArchitecture.Cmms.Application.WorkOrders.Dtos;
+﻿using CleanArchitecture.Cmms.Application.WorkOrders.Dtos;
 using CleanArchitecture.Cmms.Application.WorkOrders.Interfaces;
 
 namespace CleanArchitecture.Cmms.Application.WorkOrders.Queries.GetWorkOrderById
@@ -15,9 +13,9 @@ namespace CleanArchitecture.Cmms.Application.WorkOrders.Queries.GetWorkOrderById
             _repository = repository;
         }
 
-        public async Task<Result<WorkOrderDto>> Handle(GetWorkOrderByIdQuery request, CancellationToken ct)
+        public async Task<Result<WorkOrderDto>> Handle(GetWorkOrderByIdQuery request, CancellationToken cancellationToken)
         {
-            var entity = await _repository.GetWorkOrderByIdQuery(request.Id, ct);
+            var entity = await _repository.GetWorkOrderByIdQuery(request.Id, cancellationToken);
 
             if (entity is null)
                 return $"Work order with ID '{request.Id}' not found.";

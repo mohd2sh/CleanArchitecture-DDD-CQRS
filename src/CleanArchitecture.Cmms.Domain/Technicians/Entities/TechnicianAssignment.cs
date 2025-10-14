@@ -27,8 +27,7 @@ namespace CleanArchitecture.Cmms.Domain.Technicians.Entities
             if (IsCompleted)
                 return;
 
-            CompletedOn = CompletedOn;
+            CompletedOn = completedOn;
         }
-
     }
 }

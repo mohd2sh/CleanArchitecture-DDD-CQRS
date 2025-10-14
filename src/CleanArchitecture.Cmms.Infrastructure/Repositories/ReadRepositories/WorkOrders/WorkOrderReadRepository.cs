@@ -28,7 +28,7 @@ namespace CleanArchitecture.Cmms.Infrastructure.Repositories.ReadRepositories.Wo
                 w.Status
             FROM WorkOrders w
             LEFT JOIN Technicians t ON w.TechnicianId = t.Id
-            LEFT JOIN Assets a ON w.Id = a.Id
+            LEFT JOIN Assets a ON w.AssetId = a.Id
             WHERE w.Status <> @Completed";
 
             var param = new { Completed = WorkOrderStatus.Completed.ToString() };

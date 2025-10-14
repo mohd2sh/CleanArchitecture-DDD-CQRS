@@ -1,9 +1,7 @@
-﻿using CleanArchitecture.Cmms.Application.Abstractions.Messaging;
-using CleanArchitecture.Cmms.Application.Primitives;
-
-namespace CleanArchitecture.Cmms.Application.WorkOrders.Commands.CreateWorkOrder
+﻿namespace CleanArchitecture.Cmms.Application.WorkOrders.Commands.CreateWorkOrder
 {
     public sealed record CreateWorkOrderCommand(
+        Guid AssetId,
         string Title,
         string Building,
         string Floor,

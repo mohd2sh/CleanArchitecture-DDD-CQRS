@@ -23,6 +23,9 @@ namespace CleanArchitecture.Cmms.Infrastructure.Persistence.Configurations
             builder.Property(w => w.TechnicianId)
                    .IsRequired(false);
 
+            builder.Property(w => w.AssetId)
+                  .IsRequired(true);
+
             // Value Object: Location
             builder.OwnsOne(w => w.Location, location =>
             {

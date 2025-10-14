@@ -9,13 +9,14 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System.Data;
 
 namespace CleanArchitecture.Cmms.Infrastructure;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration config)
+    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration config, string environment)
     {
         services.AddDbContext<WriteDbContext>(opt =>
           opt.UseSqlServer(
@@ -29,9 +30,14 @@ public static class ServiceCollectionExtensions
 
         //For queries we used IReadRepo using Dapper + Ef ReadDbContext
         services.AddDbContext<ReadDbContext>(opt =>
+        {
             opt.UseSqlServer(
                 config.GetConnectionString("ReadDb") ?? config.GetConnectionString("WriteDb"),
-                sql => sql.MigrationsAssembly(typeof(ReadDbContext).Assembly.FullName)));
+                sql => sql.MigrationsAssembly(typeof(ReadDbContext).Assembly.FullName));
+
+            if (environment == "Development")
+                opt.LogTo(Console.WriteLine, LogLevel.Information);
+        });
 
         services.AddScoped(typeof(IReadRepository<,>), typeof(EfReadRepository<,>));
 

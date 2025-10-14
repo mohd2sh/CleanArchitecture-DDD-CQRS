@@ -36,6 +36,11 @@ namespace CleanArchitecture.Cmms.Domain.Assets
             return asset;
         }
 
+        public bool IsAvailable()
+        {
+            return Status == AssetStatus.Active;
+        }
+
         public void ChangeStatus(AssetStatus newStatus)
         {
             if (Status == newStatus)

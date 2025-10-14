@@ -1,4 +1,5 @@
 ﻿using CleanArchitecture.Cmms.Application.Abstractions.Persistence.Repositories;
+using CleanArchitecture.Cmms.Domain.Assets;
 using CleanArchitecture.Cmms.Domain.WorkOrders;
 using CleanArchitecture.Cmms.Domain.WorkOrders.ValueObjects;
 
@@ -6,20 +7,33 @@ namespace CleanArchitecture.Cmms.Application.WorkOrders.Commands.CreateWorkOrder
 {
     internal sealed class CreateWorkOrderCommandHandler : ICommandHandler<CreateWorkOrderCommand, Result<Guid>>
     {
-        private readonly IRepository<WorkOrder, Guid> _repository;
+        private readonly IRepository<WorkOrder, Guid> _workOrderRepository;
+        private readonly IRepository<Asset, Guid> _assetRepository;
 
-        public CreateWorkOrderCommandHandler(IRepository<WorkOrder, Guid> repository)
+        public CreateWorkOrderCommandHandler(IRepository<WorkOrder, Guid> workOrderRepository, IRepository<Asset, Guid> assetRepository)
         {
-            _repository = repository;
+            _workOrderRepository = workOrderRepository;
+            _assetRepository = assetRepository;
         }
 
         public async Task<Result<Guid>> Handle(CreateWorkOrderCommand request, CancellationToken cancellationToken)
         {
-            Location location = Location.Create(request.Building, request.Floor, request.Room);
+            //TODO: get available asset or confirm availability?
+            var asset = await _assetRepository.GetByIdAsync(request.AssetId, cancellationToken);
 
-            WorkOrder workOrder = WorkOrder.Create(request.Title, location);
+            if (asset is null)
+                return "Asset not found.";
 
-            await _repository.AddAsync(workOrder, cancellationToken);
+            if (!asset.IsAvailable())
+            {
+                return "Asset is not available for work order.";
+            }
+
+            var location = Location.Create(request.Building, request.Floor, request.Room);
+
+            var workOrder = WorkOrder.Create(request.AssetId, request.Title, location);
+
+            await _workOrderRepository.AddAsync(workOrder, cancellationToken);
 
             return workOrder.Id;
         }
