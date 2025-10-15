@@ -24,8 +24,8 @@ namespace CleanArchitecture.Cmms.Application.Assets.Queries.GetActiveAssets
             var criteria = Criteria<Asset>.New()
                 .Where(a => a.Status == AssetStatus.Active)
                 .OrderByAsc(a => a.Name)
-                .Skip((request.PageNumber - 1) * request.PageSize)
-                .Take(request.PageSize)
+                .Skip(request.Pagination.Skip)
+                .Take(request.Pagination.Take)
                 .Build();
 
             var paginatedAssets = await _repository.ListAsync(criteria, cancellationToken);

@@ -2,7 +2,7 @@
 
 namespace CleanArchitecture.Cmms.Domain.Technicians.ValueObjects
 {
-    public sealed record SkillLevel(string LevelName, int Rank) : ValueObject
+    internal sealed record SkillLevel(string LevelName, int Rank) : ValueObject
     {
         public static SkillLevel Apprentice => new("Apprentice", 1);
         public static SkillLevel Journeyman => new("Journeyman", 2);

@@ -17,7 +17,7 @@ namespace CleanArchitecture.Cmms.Infrastructure.Repositories.ReadRepositories.Wo
             return await QuerySingleAsync<WorkOrderDto>(sql, ct: ct);
         }
 
-        public async Task<PaginatedList<WorkOrderListItemDto>> GetActiveWithTechnicianAndAssetAsync(PaginationParams pagination, CancellationToken ct)
+        public async Task<PaginatedList<WorkOrderListItemDto>> GetActiveWithTechnicianAndAssetAsync(PaginationParam pagination, CancellationToken ct)
         {
             const string sql = @"
             SELECT 
@@ -26,9 +26,9 @@ namespace CleanArchitecture.Cmms.Infrastructure.Repositories.ReadRepositories.Wo
                 ISNULL(t.Name, 'Unassigned') AS TechnicianName,
                 ISNULL(a.Name, 'N/A') AS AssetName,
                 w.Status
-            FROM WorkOrders w
-            LEFT JOIN Technicians t ON w.TechnicianId = t.Id
-            LEFT JOIN Assets a ON w.AssetId = a.Id
+            FROM workOrders.WorkOrders w
+            LEFT JOIN technicians.Technicians t ON w.TechnicianId = t.Id
+            LEFT JOIN assets.Assets a ON w.AssetId = a.Id
             WHERE w.Status <> @Completed";
 
             var param = new { Completed = WorkOrderStatus.Completed.ToString() };

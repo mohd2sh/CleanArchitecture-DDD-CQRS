@@ -23,8 +23,8 @@ namespace CleanArchitecture.Cmms.Application.Technicians.Queries.GetTechnicianAs
                 .Where(p => p.Id == request.TechnicianId)
                 .Include(p => p.Assignments)
                 .OrderByAsc(p => p.Name)
-                .Skip(request.Skip)
-                .Take(request.Take)
+                .Skip(request.Pagination.Skip)
+                .Take(request.Pagination.Take)
                 .Build();
 
             var technicians = await _repository.ListAsync(criteria, cancellationToken);

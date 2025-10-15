@@ -31,7 +31,7 @@ namespace CleanArchitecture.Cmms.Domain.Assets
         {
             Asset asset = new Asset(Guid.NewGuid(), name, type, tag, location);
 
-            asset.Raise(new AssetCreatedEvent(asset.Id, name, type, tag, location));
+            asset.Raise(new AssetCreatedEvent(asset.Id, name, type, tag.Value));
 
             return asset;
         }
@@ -56,7 +56,7 @@ namespace CleanArchitecture.Cmms.Domain.Assets
                 return;
 
             Location = newLocation;
-            Raise(new AssetLocationUpdatedEvent(Id, newLocation));
+            Raise(new AssetLocationUpdatedEvent(Id));
         }
 
         public void SetUnderMaintenance(string description, string performedBy, DateTime startedOn)

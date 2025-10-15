@@ -2,7 +2,7 @@
 
 namespace CleanArchitecture.Cmms.Domain.WorkOrders.ValueObjects
 {
-    public sealed record Location(string Building, string Floor, string Room) : ValueObject
+    internal sealed record Location(string Building, string Floor, string Room) : ValueObject
     {
         public static Location Create(string building, string floor, string room)
             => new(building, floor, room);

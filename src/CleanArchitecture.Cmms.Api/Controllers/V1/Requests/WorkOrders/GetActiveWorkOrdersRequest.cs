@@ -2,5 +2,5 @@
 
 namespace CleanArchitecture.Cmms.Api.Controllers.V1.Requests.WorkOrders
 {
-    public sealed record GetActiveWorkOrdersRequest(PaginationParams Pagination);
+    public sealed record GetActiveWorkOrdersRequest(PaginationParam Pagination);
 }

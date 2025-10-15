@@ -21,8 +21,8 @@ namespace CleanArchitecture.Cmms.Application.Technicians.Queries.GetAvailableTec
             var criteria = Criteria<Technician>.New()
                  .Where(p => p.Status == TechnicianStatus.Available)
                  .OrderByAsc(p => p.Name)
-                 .Skip(request.Skip)
-                 .Take(request.Take)
+                 .Skip(request.Pagination.PageNumber)
+                 .Take(request.Pagination.PageSize)
                  .Build();
 
             var technicians = await _repository.ListAsync(criteria, cancellationToken);

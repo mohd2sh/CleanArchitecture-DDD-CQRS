@@ -1,6 +1,4 @@
-﻿using CleanArchitecture.Cmms.Application.Abstractions.Messaging;
-using CleanArchitecture.Cmms.Application.Abstractions.Persistence.Repositories;
-using CleanArchitecture.Cmms.Application.Primitives;
+﻿using CleanArchitecture.Cmms.Application.Abstractions.Persistence.Repositories;
 using CleanArchitecture.Cmms.Domain.WorkOrders;
 
 namespace CleanArchitecture.Cmms.Application.WorkOrders.Commands.AddStep
@@ -15,16 +13,16 @@ namespace CleanArchitecture.Cmms.Application.WorkOrders.Commands.AddStep
             _repository = repository;
         }
 
-        public async Task<Result> Handle(AddStepCommand request, CancellationToken ct)
+        public async Task<Result> Handle(AddStepCommand request, CancellationToken cancellationToken)
         {
-            var workOrder = await _repository.GetByIdAsync(request.WorkOrderId, ct);
+            var workOrder = await _repository.GetByIdAsync(request.WorkOrderId, cancellationToken);
 
             if (workOrder is null)
                 return "Work order not found.";
 
             workOrder.AddStep(request.Title);
 
-            await _repository.UpdateAsync(workOrder, ct);
+            await _repository.UpdateAsync(workOrder, cancellationToken);
 
             return Result.Success();
         }

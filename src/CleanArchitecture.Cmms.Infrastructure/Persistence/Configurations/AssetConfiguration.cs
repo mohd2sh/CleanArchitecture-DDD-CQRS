@@ -8,7 +8,9 @@ namespace CleanArchitecture.Cmms.Infrastructure.Persistence.Configurations
     {
         public void Configure(EntityTypeBuilder<Asset> builder)
         {
-            builder.ToTable("Assets");
+            var schema = "assets";
+
+            builder.ToTable("Assets", schema);
 
             builder.HasKey(a => a.Id);
 
@@ -52,10 +54,9 @@ namespace CleanArchitecture.Cmms.Infrastructure.Persistence.Configurations
                         .IsRequired();
             });
 
-            // Owned Collection: MaintenanceRecord
             builder.OwnsMany(a => a.MaintenanceRecords, record =>
             {
-                record.ToTable("MaintenanceRecords");
+                record.ToTable("MaintenanceRecords", schema);
 
                 record.WithOwner().HasForeignKey("AssetId");
                 record.HasKey("Id");

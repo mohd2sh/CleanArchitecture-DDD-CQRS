@@ -2,7 +2,7 @@
 
 namespace CleanArchitecture.Cmms.Domain.Assets.ValueObjects
 {
-    public sealed record AssetTag(string Value) : ValueObject
+    internal sealed record AssetTag(string Value) : ValueObject
     {
         public static AssetTag Create(string tag)
         {

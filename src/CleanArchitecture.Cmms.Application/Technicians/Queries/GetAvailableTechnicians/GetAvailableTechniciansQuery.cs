@@ -2,6 +2,6 @@
 
 namespace CleanArchitecture.Cmms.Application.Technicians.Queries.GetAvailableTechnicians
 {
-    public sealed record GetAvailableTechniciansQuery(int Take, int Skip) : IQuery<PaginatedList<TechnicianDto>>;
+    public sealed record GetAvailableTechniciansQuery(PaginationParam Pagination) : IQuery<PaginatedList<TechnicianDto>>;
 
 }

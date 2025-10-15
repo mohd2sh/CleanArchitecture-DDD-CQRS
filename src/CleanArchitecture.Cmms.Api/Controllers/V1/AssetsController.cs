@@ -74,7 +74,7 @@ namespace CleanArchitecture.Cmms.Api.Controllers.V1
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> GetActive([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 20, CancellationToken cancellationToken = default)
         {
-            var query = new GetActiveAssetsQuery(pageNumber, pageSize);
+            var query = new GetActiveAssetsQuery(new PaginationParam(pageNumber, pageSize));
             var result = await _mediator.Send(query, cancellationToken);
             return result.IsSuccess ? Ok(result) : BadRequest(result.Error);
         }

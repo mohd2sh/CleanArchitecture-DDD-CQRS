@@ -8,7 +8,9 @@ namespace CleanArchitecture.Cmms.Infrastructure.Persistence.Configurations
     {
         public void Configure(EntityTypeBuilder<Technician> builder)
         {
-            builder.ToTable("Technicians");
+            var schema = "technicians";
+
+            builder.ToTable("Technicians", schema);
 
             builder.HasKey(t => t.Id);
 
@@ -37,7 +39,7 @@ namespace CleanArchitecture.Cmms.Infrastructure.Persistence.Configurations
 
             builder.OwnsMany(t => t.Certifications, cert =>
             {
-                cert.ToTable("TechnicianCertifications");
+                cert.ToTable("TechnicianCertifications", schema);
 
                 cert.WithOwner().HasForeignKey("TechnicianId");
 
@@ -60,7 +62,7 @@ namespace CleanArchitecture.Cmms.Infrastructure.Persistence.Configurations
 
             builder.OwnsMany(t => t.Assignments, assignment =>
             {
-                assignment.ToTable("TechnicianAssignments");
+                assignment.ToTable("TechnicianAssignments", schema);
 
                 assignment.WithOwner().HasForeignKey("TechnicianId");
                 assignment.HasKey("Id");

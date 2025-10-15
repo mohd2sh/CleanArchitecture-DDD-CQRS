@@ -4,10 +4,4 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
-  <ItemGroup>
-    <Folder Include="Assets\Entities\" />
-    <Folder Include="Assets\Rules\" />
-    <Folder Include="Technicians\Rules\" />
-    <Folder Include="WorkOrders\Rules\" />
-  </ItemGroup>
 </Project>

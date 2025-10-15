@@ -8,7 +8,9 @@ namespace CleanArchitecture.Cmms.Infrastructure.Persistence.Configurations
     {
         public void Configure(EntityTypeBuilder<WorkOrder> builder)
         {
-            builder.ToTable("WorkOrders");
+            var schema = "workorders";
+
+            builder.ToTable("WorkOrders", schema);
 
             builder.HasKey(w => w.Id);
 
@@ -42,7 +44,7 @@ namespace CleanArchitecture.Cmms.Infrastructure.Persistence.Configurations
             // Child Entity: TaskStep
             builder.OwnsMany(w => w.Steps, step =>
             {
-                step.ToTable("WorkOrderSteps");
+                step.ToTable("WorkOrderSteps", schema);
 
                 step.WithOwner().HasForeignKey("WorkOrderId");
                 step.HasKey("Id");
@@ -65,7 +67,7 @@ namespace CleanArchitecture.Cmms.Infrastructure.Persistence.Configurations
             // Child Entity: Comment
             builder.OwnsMany(w => w.Comments, comment =>
             {
-                comment.ToTable("WorkOrderComments");
+                comment.ToTable("WorkOrderComments", schema);
 
                 comment.WithOwner().HasForeignKey("WorkOrderId");
                 comment.HasKey("Id");

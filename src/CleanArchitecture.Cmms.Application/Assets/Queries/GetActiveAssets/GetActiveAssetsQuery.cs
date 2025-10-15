@@ -2,6 +2,6 @@
 
 namespace CleanArchitecture.Cmms.Application.Assets.Queries.GetActiveAssets
 {
-    public sealed record GetActiveAssetsQuery(int PageNumber = 1, int PageSize = 20)
+    public sealed record GetActiveAssetsQuery(PaginationParam Pagination)
     : IQuery<Result<PaginatedList<AssetDto>>>;
 }

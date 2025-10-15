@@ -67,7 +67,7 @@ namespace CleanArchitecture.Cmms.Api.Controllers.V1
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> GetActive([FromQuery] int pageNumber, [FromQuery] int pageSize, CancellationToken cancellationToken)
         {
-            var query = new GetActiveWorkOrdersQuery(new PaginationParams() { PageNumber = pageNumber, PageSize = pageSize });
+            var query = new GetActiveWorkOrdersQuery(new PaginationParam { PageNumber = pageNumber, PageSize = pageSize });
             var result = await _mediator.Send(query, cancellationToken);
             return Ok(result);
         }

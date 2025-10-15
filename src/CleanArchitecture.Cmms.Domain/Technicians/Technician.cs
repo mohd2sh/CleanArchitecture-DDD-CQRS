@@ -33,7 +33,7 @@ namespace CleanArchitecture.Cmms.Domain.Technicians
         {
             var technician = new Technician(Guid.NewGuid(), name, skillLevel);
 
-            technician.Raise(new TechnicianCreatedEvent(technician.Id, name, skillLevel));
+            technician.Raise(new TechnicianCreatedEvent(technician.Id, name, skillLevel.LevelName));
 
             return technician;
         }

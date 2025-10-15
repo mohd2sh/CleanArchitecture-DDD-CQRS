@@ -2,7 +2,7 @@
 
 namespace CleanArchitecture.Cmms.Domain.Assets.ValueObjects
 {
-    public sealed record AssetLocation(string Site, string Area, string Zone) : ValueObject
+    internal sealed record AssetLocation(string Site, string Area, string Zone) : ValueObject
     {
         public static AssetLocation Create(string site, string area, string zone)
             => new(site, area, zone);

@@ -1,5 +1,4 @@
 ﻿using CleanArchitecture.Cmms.Domain.Abstractions;
-using CleanArchitecture.Cmms.Domain.Assets.ValueObjects;
 
 namespace CleanArchitecture.Cmms.Domain.Assets.Events
 {
@@ -7,7 +6,6 @@ namespace CleanArchitecture.Cmms.Domain.Assets.Events
      Guid AssetId,
      string Name,
      string Type,
-     AssetTag Tag,
-     AssetLocation Location,
+     string TagValue,
      DateTime? OccurredOn = null) : IDomainEvent;
 }

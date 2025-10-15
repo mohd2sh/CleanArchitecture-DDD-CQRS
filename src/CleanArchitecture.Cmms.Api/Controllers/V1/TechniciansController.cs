@@ -32,7 +32,9 @@ namespace CleanArchitecture.Cmms.Api.Controllers.V1
         public async Task<IActionResult> Create([FromBody] CreateTechnicianRequest request, CancellationToken cancellationToken)
         {
             var command = new CreateTechnicianCommand(request.Name, request.SkillLevelName, request.SkillLevelRank);
+
             var result = await _mediator.Send(command, cancellationToken);
+
             return result.IsSuccess ? Ok(result) : BadRequest(result.Error);
         }
 
@@ -44,7 +46,9 @@ namespace CleanArchitecture.Cmms.Api.Controllers.V1
         public async Task<IActionResult> CompleteAssignment(Guid id, Guid workOrderId, [FromBody] CompleteAssignmentRequest request, CancellationToken cancellationToken)
         {
             var command = new CompleteAssignmentCommand(id, workOrderId, request.CompletedOn);
+
             var result = await _mediator.Send(command, cancellationToken);
+
             return result.IsSuccess ? Ok(result) : BadRequest(result.Error);
         }
 
@@ -56,7 +60,9 @@ namespace CleanArchitecture.Cmms.Api.Controllers.V1
         public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
         {
             var query = new GetTechnicianByIdQuery(id);
+
             var result = await _mediator.Send(query, cancellationToken);
+
             return result.IsSuccess ? Ok(result) : NotFound(result.Error);
         }
 
@@ -64,9 +70,9 @@ namespace CleanArchitecture.Cmms.Api.Controllers.V1
         [ProducesResponseType(typeof(Result<PaginatedList<TechnicianDto>>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.InternalServerError)]
-        public async Task<IActionResult> GetAvailable([FromQuery] int take = 20, [FromQuery] int skip = 0, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> GetAvailable([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 20, CancellationToken cancellationToken = default)
         {
-            var query = new GetAvailableTechniciansQuery(take, skip);
+            var query = new GetAvailableTechniciansQuery(new PaginationParam(pageNumber, pageSize));
 
             var result = await _mediator.Send(query, cancellationToken);
 
@@ -77,10 +83,12 @@ namespace CleanArchitecture.Cmms.Api.Controllers.V1
         [ProducesResponseType(typeof(Result<IReadOnlyList<TechnicianAssignmentDto>>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.InternalServerError)]
-        public async Task<IActionResult> GetAssignments(Guid id, [FromQuery] int skip, [FromQuery] int take, [FromQuery] bool onlyActive = false, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> GetAssignments(Guid id, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 20, [FromQuery] bool onlyActive = false, CancellationToken cancellationToken = default)
         {
-            var query = new GetTechnicianAssignmentsQuery(id, skip, take, onlyActive);
+            var query = new GetTechnicianAssignmentsQuery(id, new PaginationParam(pageNumber, pageSize), onlyActive);
+
             var result = await _mediator.Send(query, cancellationToken);
+
             return result.IsSuccess ? Ok(result) : BadRequest(result.Error);
         }
     }

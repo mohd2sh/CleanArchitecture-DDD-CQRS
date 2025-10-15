@@ -5,18 +5,18 @@ using System.Reflection;
 
 namespace CleanArchitecture.Cmms.Application;
 
-public static class ApplicationDependencyInjection
+public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
-        var assembly = typeof(ApplicationDependencyInjection).Assembly;
+        var assembly = typeof(ServiceCollectionExtensions).Assembly;
 
         // Register Command & Query Handlers
         AddCommandAndQueryHandlers(services, assembly);
 
         AddCommandPipelines(services);
 
-        services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(ApplicationDependencyInjection).Assembly));
+        services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(ServiceCollectionExtensions).Assembly));
 
         services.AddScoped<IMediator, MediatRAdapter>();
 

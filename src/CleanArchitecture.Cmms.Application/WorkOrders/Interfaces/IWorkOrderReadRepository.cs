@@ -6,7 +6,7 @@ namespace CleanArchitecture.Cmms.Application.WorkOrders.Interfaces
 {
     public interface IWorkOrderReadRepository : IReadRepository
     {
-        Task<PaginatedList<WorkOrderListItemDto>> GetActiveWithTechnicianAndAssetAsync(PaginationParams pagination, CancellationToken ct);
+        Task<PaginatedList<WorkOrderListItemDto>> GetActiveWithTechnicianAndAssetAsync(PaginationParam pagination, CancellationToken ct);
         Task<WorkOrderDto?> GetWorkOrderByIdQuery(Guid id, CancellationToken ct);
     }
 }
