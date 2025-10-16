@@ -1,7 +1,8 @@
-namespace CleanArchitecture.Cmms.Domain.Abstractions;
-
-public class DomainException : Exception
+namespace CleanArchitecture.Cmms.Domain.Abstractions
 {
-    public DomainException(string message) : base(message) { }
-    public DomainException(string message, Exception? inner) : base(message, inner) { }
+    public class DomainException : Exception
+    {
+        public DomainException(string message) : base(message) { }
+        public DomainException(string message, Exception? inner) : base(message, inner) { }
+    }
 }
