@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace CleanArchitecture.Cmms.Infrastructure.Persistence.Configurations
 {
-    internal sealed class WorkOrderConfiguration : IEntityTypeConfiguration<WorkOrder>
+    internal sealed class WorkOrderConfiguration : AuditableEntityConfiguration<WorkOrder, Guid>
     {
-        public void Configure(EntityTypeBuilder<WorkOrder> builder)
+        protected override void ConfigureCore(EntityTypeBuilder<WorkOrder> builder)
         {
             var schema = "workorders";
 
@@ -58,8 +58,6 @@ namespace CleanArchitecture.Cmms.Infrastructure.Persistence.Configurations
 
                 step.Property(s => s.Completed)
                     .IsRequired();
-
-                //step.Property<DateTime>("CreatedOn"); //TODO:
 
                 step.HasIndex("WorkOrderId");
             });

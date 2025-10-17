@@ -1,4 +1,5 @@
-﻿using CleanArchitecture.Cmms.Application.Abstractions.Persistence.Repositories;
+﻿using CleanArchitecture.Cmms.Application.Abstractions.Common;
+using CleanArchitecture.Cmms.Application.Abstractions.Persistence.Repositories;
 using CleanArchitecture.Cmms.Domain.Technicians;
 using CleanArchitecture.Cmms.Domain.WorkOrders;
 
@@ -13,12 +14,16 @@ namespace CleanArchitecture.Cmms.Application.WorkOrders.Commands.AssignTechnicia
     {
         private readonly IRepository<WorkOrder, Guid> _workOrderRepository;
         private readonly IRepository<Technician, Guid> _technicianRepository;
+        private readonly IDateTimeProvider _dateTimeProvider;
+
         public AssignTechnicianCommandHandler(
         IRepository<WorkOrder, Guid> workOrderRepository,
-        IRepository<Technician, Guid> technicianRepository)
+        IRepository<Technician, Guid> technicianRepository,
+        IDateTimeProvider dateTimeProvider)
         {
             _workOrderRepository = workOrderRepository;
             _technicianRepository = technicianRepository;
+            _dateTimeProvider = dateTimeProvider;
         }
 
         public async Task<Result> Handle(AssignTechnicianCommand request, CancellationToken cancellationToken)
@@ -31,7 +36,7 @@ namespace CleanArchitecture.Cmms.Application.WorkOrders.Commands.AssignTechnicia
             if (workOrder is null)
                 return "Work order not found.";
 
-            technician.AddAssignedOrder(workOrder.Id, DateTime.UtcNow);//TODO: IDateTimeProvider
+            technician.AddAssignedOrder(workOrder.Id, _dateTimeProvider.UtcNow);
 
             workOrder.AssignTechnician(technician.Id);
 

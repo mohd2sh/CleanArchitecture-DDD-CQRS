@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace CleanArchitecture.Cmms.Infrastructure.Persistence.Configurations
 {
-    internal sealed class TechnicianConfiguration : IEntityTypeConfiguration<Technician>
+    internal sealed class TechnicianConfiguration : AuditableEntityConfiguration<Technician, Guid>
     {
-        public void Configure(EntityTypeBuilder<Technician> builder)
+        protected override void ConfigureCore(EntityTypeBuilder<Technician> builder)
         {
             var schema = "technicians";
 

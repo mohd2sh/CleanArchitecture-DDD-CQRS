@@ -1,4 +1,5 @@
-﻿using CleanArchitecture.Cmms.Application.Abstractions.Persistence.Repositories;
+﻿using CleanArchitecture.Cmms.Application.Abstractions.Common;
+using CleanArchitecture.Cmms.Application.Abstractions.Persistence.Repositories;
 using CleanArchitecture.Cmms.Domain.Technicians;
 using CleanArchitecture.Cmms.Domain.WorkOrders;
 
@@ -9,13 +10,16 @@ namespace CleanArchitecture.Cmms.Application.WorkOrders.Commands.CompleteWorkOrd
     {
         private readonly IRepository<WorkOrder, Guid> _workOrderRepository;
         private readonly IRepository<Technician, Guid> _technicianRepository;
+        private readonly IDateTimeProvider _dateTimeProvider;
 
         public CompleteWorkOrderCommandHandler(
             IRepository<WorkOrder, Guid> workOrderRepository,
-            IRepository<Technician, Guid> technicianRepository)
+            IRepository<Technician, Guid> technicianRepository,
+            IDateTimeProvider dateTimeProvider)
         {
             _workOrderRepository = workOrderRepository;
             _technicianRepository = technicianRepository;
+            _dateTimeProvider = dateTimeProvider;
         }
 
         public async Task<Result> Handle(CompleteWorkOrderCommand request, CancellationToken cancellationToken)
@@ -37,7 +41,7 @@ namespace CleanArchitecture.Cmms.Application.WorkOrders.Commands.CompleteWorkOrd
 
             await _workOrderRepository.UpdateAsync(workOrder, cancellationToken);
 
-            technician.CompleteAssignment(workOrder.Id, DateTime.UtcNow);//ToDO: IDateTimeProvider
+            technician.CompleteAssignment(workOrder.Id, _dateTimeProvider.UtcNow);
 
             await _technicianRepository.UpdateAsync(technician, cancellationToken);
 

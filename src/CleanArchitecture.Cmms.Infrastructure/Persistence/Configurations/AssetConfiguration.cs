@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace CleanArchitecture.Cmms.Infrastructure.Persistence.Configurations
 {
-    internal sealed class AssetConfiguration : IEntityTypeConfiguration<Asset>
+    internal sealed class AssetConfiguration : AuditableEntityConfiguration<Asset, Guid>
     {
-        public void Configure(EntityTypeBuilder<Asset> builder)
+        protected override void ConfigureCore(EntityTypeBuilder<Asset> builder)
         {
             var schema = "assets";
 

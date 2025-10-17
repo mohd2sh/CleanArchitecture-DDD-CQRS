@@ -1,8 +1,11 @@
+﻿
 namespace CleanArchitecture.Cmms.Domain.Abstractions
 {
-    internal interface IHasDomainEvents
+    public interface IEntity<TId>
     {
         IReadOnlyCollection<IDomainEvent> DomainEvents { get; }
+        TId Id { get; }
+
         void ClearDomainEvents();
     }
 }

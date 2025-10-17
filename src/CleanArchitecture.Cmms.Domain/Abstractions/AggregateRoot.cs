@@ -1,6 +1,6 @@
 ﻿namespace CleanArchitecture.Cmms.Domain.Abstractions
 {
-    internal abstract class AggregateRoot<TId> : Entity<TId>, IAggregateRoot
+    internal abstract class AggregateRoot<TId> : AuditableEntity<TId>, IAggregateRoot
     {
         protected AggregateRoot()
         {

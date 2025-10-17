@@ -18,7 +18,6 @@ namespace CleanArchitecture.Cmms.Application.WorkOrders.Commands.CreateWorkOrder
 
         public async Task<Result<Guid>> Handle(CreateWorkOrderCommand request, CancellationToken cancellationToken)
         {
-            //TODO: get available asset or confirm availability?
             var asset = await _assetRepository.GetByIdAsync(request.AssetId, cancellationToken);
 
             if (asset is null)

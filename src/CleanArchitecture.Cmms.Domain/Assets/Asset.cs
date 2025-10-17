@@ -6,7 +6,7 @@ using CleanArchitecture.Cmms.Domain.Assets.ValueObjects;
 
 namespace CleanArchitecture.Cmms.Domain.Assets
 {
-    internal sealed class Asset : Entity<Guid>, IAggregateRoot
+    internal sealed class Asset : AggregateRoot<Guid>
     {
         private readonly List<MaintenanceRecord> _maintenanceRecords = new();
         public string Name { get; private set; }

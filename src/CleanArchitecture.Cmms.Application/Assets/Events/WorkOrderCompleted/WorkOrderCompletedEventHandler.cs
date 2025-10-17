@@ -1,4 +1,5 @@
-﻿using CleanArchitecture.Cmms.Application.Abstractions.Messaging.Models;
+﻿using CleanArchitecture.Cmms.Application.Abstractions.Common;
+using CleanArchitecture.Cmms.Application.Abstractions.Messaging.Models;
 using CleanArchitecture.Cmms.Application.Abstractions.Persistence.Repositories;
 using CleanArchitecture.Cmms.Domain.Assets;
 using CleanArchitecture.Cmms.Domain.WorkOrders.Events;
@@ -10,11 +11,13 @@ namespace CleanArchitecture.Cmms.Application.Assets.Events.WorkOrderCompleted
     : INotificationHandler<DomainEventNotification<WorkOrderCompletedEvent>>
     {
         private readonly IRepository<Asset, Guid> _assetRepository;
+        private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ILogger<WorkOrderCompletedEventHandler> _logger;
 
-        public WorkOrderCompletedEventHandler(IRepository<Asset, Guid> assetRepository, ILogger<WorkOrderCompletedEventHandler> logger)
+        public WorkOrderCompletedEventHandler(IRepository<Asset, Guid> assetRepository, IDateTimeProvider dateTimeProvider, ILogger<WorkOrderCompletedEventHandler> logger)
         {
             _assetRepository = assetRepository;
+            _dateTimeProvider = dateTimeProvider;
             _logger = logger;
         }
 
@@ -32,8 +35,7 @@ namespace CleanArchitecture.Cmms.Application.Assets.Events.WorkOrderCompleted
                 return;
             }
 
-            //TODO: IDatetimeProvider
-            asset.CompleteMaintenance(DateTime.UtcNow, "Work order completed successfully");
+            asset.CompleteMaintenance(_dateTimeProvider.UtcNow, "Work order completed successfully");
         }
     }
 }

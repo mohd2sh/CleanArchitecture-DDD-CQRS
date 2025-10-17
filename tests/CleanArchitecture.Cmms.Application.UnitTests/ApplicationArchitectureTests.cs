@@ -142,12 +142,12 @@ namespace CleanArchitecture.Cmms.Application.UnitTests
         public void Handlers_Should_Not_Return_Domain_Types()
         {
             // Arrange
-            var domainAssembly = typeof(Entity<>).Assembly;
+            var domainAssembly = typeof(IEntity<>).Assembly;
             var domainTypes = domainAssembly.GetTypes()
                 .Where(t => t.IsAssignableTo(typeof(ValueObject)) ||
                             t.IsAssignableTo(typeof(IAggregateRoot)) ||
                             (t.BaseType != null && t.BaseType.IsGenericType &&
-                             t.BaseType.GetGenericTypeDefinition() == typeof(Entity<>)))
+                             t.BaseType.GetGenericTypeDefinition() == typeof(IEntity<>)))
                 .Select(t => t.FullName)
                 .ToHashSet();
 

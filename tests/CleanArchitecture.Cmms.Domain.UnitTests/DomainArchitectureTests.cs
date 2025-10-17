@@ -169,6 +169,8 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests
                 .ImplementInterface(aggregateRootType)
                 .Or()
                 .Inherit(valueObjectType)
+                .And()
+                .AreNotAbstract()
                 .GetTypes();
 
             // Act

@@ -6,7 +6,7 @@ namespace CleanArchitecture.Cmms.Application.Abstractions.Persistence.Repositori
     //Marker and base for any transactional repo.
     public interface IRepository<T> { }
 
-    public interface IRepository<T, TId> : IRepository<T> where T : Entity<TId>, IAggregateRoot
+    public interface IRepository<T, TId> : IRepository<T> where T : IAggregateRoot
     {
         Task<T?> GetByIdAsync(TId id, CancellationToken cancellationToken = default);
         Task<T?> FirstOrDefaultAsync(Criteria<T> c, CancellationToken cancellationToken = default);

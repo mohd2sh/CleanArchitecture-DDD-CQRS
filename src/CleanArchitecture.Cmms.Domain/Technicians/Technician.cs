@@ -6,7 +6,7 @@ using CleanArchitecture.Cmms.Domain.Technicians.ValueObjects;
 
 namespace CleanArchitecture.Cmms.Domain.Technicians
 {
-    internal sealed class Technician : Entity<Guid>, IAggregateRoot
+    internal sealed class Technician : AggregateRoot<Guid>
     {
         private readonly List<TechnicianAssignment> _assignments = new();
 
