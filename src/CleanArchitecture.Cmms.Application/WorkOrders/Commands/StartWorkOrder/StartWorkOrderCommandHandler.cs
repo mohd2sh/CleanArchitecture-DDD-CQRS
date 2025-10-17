@@ -1,6 +1,4 @@
-﻿using CleanArchitecture.Cmms.Application.Abstractions.Messaging;
-using CleanArchitecture.Cmms.Application.Abstractions.Persistence.Repositories;
-using CleanArchitecture.Cmms.Application.Primitives;
+﻿using CleanArchitecture.Cmms.Application.Abstractions.Persistence.Repositories;
 using CleanArchitecture.Cmms.Domain.WorkOrders;
 
 namespace CleanArchitecture.Cmms.Application.WorkOrders.Commands.StartWorkOrder

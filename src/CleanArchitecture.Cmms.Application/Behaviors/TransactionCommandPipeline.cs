@@ -1,4 +1,3 @@
-using CleanArchitecture.Cmms.Application.Abstractions.Messaging;
 using CleanArchitecture.Cmms.Application.Abstractions.Persistence;
 using MediatR;
 using Microsoft.Extensions.Logging;
