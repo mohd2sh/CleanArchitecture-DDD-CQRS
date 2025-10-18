@@ -1,7 +1,7 @@
+using System.Reflection;
 using CleanArchitecture.Cmms.Application.Behaviors;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
-using System.Reflection;
 
 namespace CleanArchitecture.Cmms.Application;
 
@@ -18,8 +18,6 @@ public static class ServiceCollectionExtensions
 
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(ServiceCollectionExtensions).Assembly));
 
-        services.AddScoped<IMediator, MediatRAdapter>();
-
         //Fluent Validation
         services.AddValidatorsFromAssembly(assembly, includeInternalTypes: true);
 
@@ -32,7 +30,6 @@ public static class ServiceCollectionExtensions
         services.AddTransient(typeof(MediatR.IPipelineBehavior<,>), typeof(ValidationPipeline<,>));
         services.AddTransient(typeof(MediatR.IPipelineBehavior<,>), typeof(TransactionCommandPipeline<,>));
         services.AddTransient(typeof(MediatR.IPipelineBehavior<,>), typeof(DomainEventsPipeline<,>));
-        services.AddTransient(typeof(MediatR.IPipelineBehavior<,>), typeof(TestQueryPipeline<,>));
     }
 
     private static void AddCommandAndQueryHandlers(IServiceCollection services, Assembly assembly)

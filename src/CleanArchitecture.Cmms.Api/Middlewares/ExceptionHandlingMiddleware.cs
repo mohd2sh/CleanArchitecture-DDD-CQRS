@@ -1,15 +1,21 @@
-﻿using CleanArchitecture.Cmms.Domain.Abstractions;
+﻿using System.Net;
+using System.Text.Json;
+using CleanArchitecture.Cmms.Application.Primitives;
+using CleanArchitecture.Cmms.Domain.Abstractions;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
-using System.Net;
-using System.Text.Json;
 
 namespace CleanArchitecture.Cmms.Api.Middlewares
 {
     public sealed class ExceptionHandlingMiddleware : IMiddleware
     {
         private readonly ILogger<ExceptionHandlingMiddleware> _logger;
-        private readonly JsonSerializerOptions _jsonOptions = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+        private readonly JsonSerializerOptions _jsonOptions = new()
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            WriteIndented = false
+        };
+
         public ExceptionHandlingMiddleware(ILogger<ExceptionHandlingMiddleware> logger)
             => _logger = logger;
 
@@ -29,39 +35,57 @@ namespace CleanArchitecture.Cmms.Api.Middlewares
         {
             _logger.LogError(ex, "Unhandled exception occurred.");
 
-            var (status, title, detail) = ex switch
+            switch (ex)
             {
-                ValidationException validationEx => (
-                    HttpStatusCode.BadRequest,
-                    "Validation failed",
-                    string.Join("; ", validationEx.Errors.Select(e => $"{e.PropertyName}: {e.ErrorMessage}"))
-                ),
+                case DomainException domainEx:
+                    await WriteResultResponseAsync(context, domainEx);
+                    break;
 
-                DomainException domainEx => (
-                    HttpStatusCode.BadRequest,
-                    "Domain rule violated",
-                    domainEx.Message
-                ),
+                case ValidationException validationEx:
+                    await WriteResultResponseAsync(context, validationEx);
+                    break;
 
-                KeyNotFoundException keyEx => (
-                    HttpStatusCode.NotFound,
-                    "Resource not found",
-                    keyEx.Message
-                ),
+                case KeyNotFoundException keyEx:
+                    await WriteProblemResponseAsync(
+                        context,
+                        HttpStatusCode.NotFound,
+                        "Resource not found",
+                        keyEx.Message
+                    );
+                    break;
 
-                UnauthorizedAccessException => (
-                    HttpStatusCode.Unauthorized,
-                    "Unauthorized",
-                    "Access denied."
-                ),
+                case UnauthorizedAccessException:
+                    await WriteProblemResponseAsync(
+                        context,
+                        HttpStatusCode.Unauthorized,
+                        "Unauthorized",
+                        "Access denied."
+                    );
+                    break;
 
-                _ => (
-                    HttpStatusCode.InternalServerError,
-                    "Internal Server Error",
-                    ex.Message
-                )
-            };
+                default:
+                    await WriteProblemResponseAsync(
+                        context,
+                        HttpStatusCode.InternalServerError,
+                        "Internal Server Error",
+                        "An unexpected error occurred."
+                    );
+                    break;
+            }
+        }
 
+        private async Task WriteResultResponseAsync(HttpContext context, Exception ex)
+        {
+            var result = Result.Failure(ex.Message);
+
+            context.Response.ContentType = "application/json";
+            context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+
+            await context.Response.WriteAsync(JsonSerializer.Serialize(result, _jsonOptions));
+        }
+
+        private async Task WriteProblemResponseAsync(HttpContext context, HttpStatusCode status, string title, string detail)
+        {
             var problem = new ProblemDetails
             {
                 Title = title,

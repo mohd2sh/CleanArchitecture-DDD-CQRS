@@ -1,8 +1,11 @@
+using System.Data;
 using CleanArchitecture.Cmms.Application.Abstractions.Common;
+using CleanArchitecture.Cmms.Application.Abstractions.Messaging;
 using CleanArchitecture.Cmms.Application.Abstractions.Persistence;
 using CleanArchitecture.Cmms.Application.Abstractions.Persistence.Repositories;
 using CleanArchitecture.Cmms.Application.WorkOrders.Interfaces;
 using CleanArchitecture.Cmms.Infrastructure.Common;
+using CleanArchitecture.Cmms.Infrastructure.Messaging;
 using CleanArchitecture.Cmms.Infrastructure.Persistence.EfCore;
 using CleanArchitecture.Cmms.Infrastructure.Persistence.EfCore.Interceptors;
 using CleanArchitecture.Cmms.Infrastructure.Repositories.ReadRepositories;
@@ -13,7 +16,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System.Data;
 
 namespace CleanArchitecture.Cmms.Infrastructure;
 
@@ -24,6 +26,8 @@ public static class ServiceCollectionExtensions
         AddWriteDbServices(services, config);
 
         AddReadDbServices(services, config, environment);
+
+        services.AddScoped<IMediator, MediatRAdapter>();
 
         services.AddSingleton<IDateTimeProvider, SystemDateTimeProvider>();
 

@@ -3,6 +3,6 @@
 namespace CleanArchitecture.Cmms.Application.WorkOrders.Queries.GetActiveWorkOrder
 {
     public sealed record GetActiveWorkOrdersQuery(PaginationParam Pagination)
-    : IQuery<PaginatedList<WorkOrderListItemDto>>;
+    : IQuery<Result<PaginatedList<WorkOrderListItemDto>>>;
 
 }

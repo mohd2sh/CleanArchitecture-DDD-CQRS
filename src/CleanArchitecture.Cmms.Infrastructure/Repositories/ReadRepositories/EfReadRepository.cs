@@ -36,7 +36,7 @@ namespace CleanArchitecture.Cmms.Infrastructure.Repositories.ReadRepositories
 
             var items = await query.ToListAsync(cancellationToken);
 
-            return PaginatedList<T>.Create(items, totalCount, criteria.Skip, criteria.Take);
+            return PaginatedList<T>.CreateFromOffset(items, totalCount, criteria.Skip, criteria.Take);
         }
     }
 }

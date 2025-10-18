@@ -19,7 +19,7 @@
             => new(items, totalCount, pageNumber, pageSize);
 
 
-        public static PaginatedList<T> Create(IReadOnlyList<T> items, int totalCount, int? skip, int? take)
+        public static PaginatedList<T> CreateFromOffset(IReadOnlyList<T> items, int totalCount, int? skip, int? take)
         {
             var pageNumber = skip.HasValue && take.HasValue && take.Value > 0 ? (skip.Value / take.Value) + 1 : 1;
 
