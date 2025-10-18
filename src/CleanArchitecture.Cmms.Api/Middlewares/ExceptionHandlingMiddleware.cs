@@ -76,7 +76,15 @@ namespace CleanArchitecture.Cmms.Api.Middlewares
 
         private async Task WriteResultResponseAsync(HttpContext context, Exception ex)
         {
-            var result = Result.Failure(ex.Message);
+            var error = ex switch
+            {
+                DomainException domainEx => 
+                    Error.Failure(domainEx.Error.Code, domainEx.Error.Message),
+                ValidationException => Error.Validation("Validation.Failure", ex.Message),
+                _ => Error.Failure("General.Failure", ex.Message)
+            };
+            
+            var result = Result.Failure(error);
 
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = (int)HttpStatusCode.BadRequest;

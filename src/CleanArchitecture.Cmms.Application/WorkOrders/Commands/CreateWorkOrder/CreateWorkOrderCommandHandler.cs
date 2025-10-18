@@ -1,4 +1,5 @@
 ﻿using CleanArchitecture.Cmms.Application.Abstractions.Persistence.Repositories;
+using CleanArchitecture.Cmms.Application.Assets;
 using CleanArchitecture.Cmms.Domain.Assets;
 using CleanArchitecture.Cmms.Domain.WorkOrders;
 using CleanArchitecture.Cmms.Domain.WorkOrders.ValueObjects;
@@ -21,11 +22,11 @@ namespace CleanArchitecture.Cmms.Application.WorkOrders.Commands.CreateWorkOrder
             var asset = await _assetRepository.GetByIdAsync(request.AssetId, cancellationToken);
 
             if (asset is null)
-                return "Asset not found.";
+                return Application.Assets.AssetErrors.NotFound;
 
             if (!asset.IsAvailable())
             {
-                return "Asset is not available for work order.";
+                return Application.Assets.AssetErrors.NotAvailable;
             }
 
             var location = Location.Create(request.Building, request.Floor, request.Room);

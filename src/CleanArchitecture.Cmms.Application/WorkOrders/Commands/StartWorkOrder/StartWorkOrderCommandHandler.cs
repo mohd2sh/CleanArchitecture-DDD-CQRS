@@ -1,4 +1,4 @@
-﻿using CleanArchitecture.Cmms.Application.Abstractions.Persistence.Repositories;
+using CleanArchitecture.Cmms.Application.Abstractions.Persistence.Repositories;
 using CleanArchitecture.Cmms.Domain.WorkOrders;
 
 namespace CleanArchitecture.Cmms.Application.WorkOrders.Commands.StartWorkOrder
@@ -17,7 +17,7 @@ namespace CleanArchitecture.Cmms.Application.WorkOrders.Commands.StartWorkOrder
             var workOrder = await _repository.GetByIdAsync(request.WorkOrderId, ct);
 
             if (workOrder is null)
-                return "Work order not found.";
+                return WorkOrderErrors.NotFound;
 
             workOrder.Start();
 

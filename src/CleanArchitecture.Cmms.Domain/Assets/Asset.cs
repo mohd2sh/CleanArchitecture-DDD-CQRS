@@ -62,7 +62,7 @@ namespace CleanArchitecture.Cmms.Domain.Assets
         public void SetUnderMaintenance(string description, string performedBy, DateTime startedOn)
         {
             if (Status == AssetStatus.UnderMaintenance)
-                throw new DomainException($"Asset '{Name}' is already under maintenance.");
+                throw new DomainException(AssetErrors.AlreadyUnderMaintenance);
 
             Status = AssetStatus.UnderMaintenance;
 
@@ -76,7 +76,7 @@ namespace CleanArchitecture.Cmms.Domain.Assets
         public void CompleteMaintenance(DateTime completedOn, string notes)
         {
             if (Status != AssetStatus.UnderMaintenance)
-                throw new DomainException($"Asset '{Name}' is not under maintenance.");
+                throw new DomainException(AssetErrors.NotUnderMaintenance);
 
             Status = AssetStatus.Active;
             Raise(new AssetStatusChangedEvent(Id, Status));

@@ -1,5 +1,7 @@
 ﻿using CleanArchitecture.Cmms.Application.Abstractions.Common;
 using CleanArchitecture.Cmms.Application.Abstractions.Persistence.Repositories;
+using CleanArchitecture.Cmms.Application.Technicians;
+using CleanArchitecture.Cmms.Application.WorkOrders;
 using CleanArchitecture.Cmms.Domain.Technicians;
 using CleanArchitecture.Cmms.Domain.WorkOrders;
 
@@ -27,15 +29,15 @@ namespace CleanArchitecture.Cmms.Application.WorkOrders.Commands.CompleteWorkOrd
             var workOrder = await _workOrderRepository.GetByIdAsync(request.WorkOrderId, cancellationToken);
 
             if (workOrder is null)
-                return "Work order not found.";
+                return Application.WorkOrders.WorkOrderErrors.NotFound;
 
             if (workOrder.TechnicianId is null)
-                return "Cannot complete a work order without an assigned technician.";
+                return Application.WorkOrders.WorkOrderErrors.TechnicianRequired;
 
             var technician = await _technicianRepository.GetByIdAsync(workOrder.TechnicianId.Value, cancellationToken);
 
             if (technician is null)
-                return "Cannot complete a work order without an a technician";
+                return Application.Technicians.TechnicianErrors.NotFound;
 
             workOrder.Complete();
 

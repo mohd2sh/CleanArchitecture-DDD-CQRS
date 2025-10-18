@@ -1,5 +1,7 @@
-﻿using CleanArchitecture.Cmms.Application.Abstractions.Common;
+using CleanArchitecture.Cmms.Application.Abstractions.Common;
 using CleanArchitecture.Cmms.Application.Abstractions.Persistence.Repositories;
+using CleanArchitecture.Cmms.Application.Technicians;
+using CleanArchitecture.Cmms.Application.WorkOrders;
 using CleanArchitecture.Cmms.Domain.Technicians;
 using CleanArchitecture.Cmms.Domain.WorkOrders;
 
@@ -29,12 +31,14 @@ namespace CleanArchitecture.Cmms.Application.WorkOrders.Commands.AssignTechnicia
         public async Task<Result> Handle(AssignTechnicianCommand request, CancellationToken cancellationToken)
         {
             var technician = await _technicianRepository.GetByIdAsync(request.TechnicianId, cancellationToken);
+
             if (technician is null)
-                return "Technician not found.";
+                return Application.Technicians.TechnicianErrors.NotFound;
 
             var workOrder = await _workOrderRepository.GetByIdAsync(request.WorkOrderId, cancellationToken);
+
             if (workOrder is null)
-                return "Work order not found.";
+                return Application.WorkOrders.WorkOrderErrors.NotFound;
 
             technician.AddAssignedOrder(workOrder.Id, _dateTimeProvider.UtcNow);
 

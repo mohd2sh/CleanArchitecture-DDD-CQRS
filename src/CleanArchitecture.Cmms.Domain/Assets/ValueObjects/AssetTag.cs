@@ -1,4 +1,4 @@
-﻿using CleanArchitecture.Cmms.Domain.Abstractions;
+using CleanArchitecture.Cmms.Domain.Abstractions;
 
 namespace CleanArchitecture.Cmms.Domain.Assets.ValueObjects
 {
@@ -16,7 +16,7 @@ namespace CleanArchitecture.Cmms.Domain.Assets.ValueObjects
         public static AssetTag Create(string tag)
         {
             if (string.IsNullOrWhiteSpace(tag))
-                throw new DomainException("Asset tag cannot be empty.");
+                throw new DomainException(AssetErrors.TagRequired);
 
             return new(tag.Trim());
         }

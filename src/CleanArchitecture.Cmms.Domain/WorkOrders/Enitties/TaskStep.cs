@@ -1,16 +1,19 @@
-﻿using CleanArchitecture.Cmms.Domain.Abstractions;
+using CleanArchitecture.Cmms.Domain.Abstractions;
 
 namespace CleanArchitecture.Cmms.Domain.WorkOrders.Enitties
 {
     internal sealed class TaskStep : Entity<Guid>
     {
         private TaskStep() { }
-        internal TaskStep(string description)
+        private TaskStep(string description)
         {
             Id = Guid.NewGuid();
             Description = description;
             Completed = false;
         }
+
+        public static TaskStep Create(string description)
+            => new(description);
 
         public string Description { get; private set; } = default!;
         public bool Completed { get; private set; }

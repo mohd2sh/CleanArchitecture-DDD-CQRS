@@ -106,31 +106,45 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests
         }
 
         [Fact]
-        public void Entities_ValueObject_AggregateRoots_Should_Have_Private_Constructors()
+        public void Entities_ValueObjects_AggregateRoots_Should_Have_Only_Private_Constructors()
         {
             // Arrange
             Type entityType = typeof(Entity<>);
-            Type valueObject = typeof(ValueObject);
+            Type valueObjectType = typeof(ValueObject);
             Type aggregateRootType = typeof(IAggregateRoot);
 
-            IEnumerable<Type> candidates = Types
+            var candidates = Types
                 .InAssembly(DomainAssembly)
                 .That()
                 .Inherit(entityType)
                 .Or()
-                .Inherit(valueObject)
+                .Inherit(valueObjectType)
                 .Or()
                 .ImplementInterface(aggregateRootType)
-                .GetTypes();
+                .GetTypes()
+                .Where(t => !t.IsAbstract)
+                .ToList();
 
             // Act
-            List<ConstructorInfo> invalid = candidates
-                .SelectMany(t => t.GetConstructors(BindingFlags.Public | BindingFlags.Instance))
-                .ToList();
+            var invalid = new List<string>();
+
+            foreach (var type in candidates)
+            {
+                var ctors = type.GetConstructors(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+
+                foreach (var ctor in ctors)
+                {
+                    if (ctor.IsPublic || ctor.IsAssembly || ctor.IsFamily)
+                    {
+                        invalid.Add($"{type.Name} ({ctor})");
+                        break;
+                    }
+                }
+            }
 
             // Assert
             Assert.True(!invalid.Any(),
-                $"Entities and AggregateRoots should not have public constructors. Found in: {string.Join(", ", invalid.Select(c => c.DeclaringType?.Name))}");
+                $"Entities, ValueObjects, and AggregateRoots should have only private constructors. Violations: {string.Join(", ", invalid)}");
         }
 
 

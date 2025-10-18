@@ -1,4 +1,4 @@
-﻿using CleanArchitecture.Cmms.Domain.Abstractions;
+using CleanArchitecture.Cmms.Domain.Abstractions;
 
 namespace CleanArchitecture.Cmms.Domain.Technicians.ValueObjects
 {
@@ -22,10 +22,10 @@ namespace CleanArchitecture.Cmms.Domain.Technicians.ValueObjects
         public static SkillLevel Create(string levelName, int rank)
         {
             if (string.IsNullOrWhiteSpace(levelName))
-                throw new DomainException("Level name cannot be empty");
+                throw new DomainException(TechnicianErrors.LevelNameRequired);
 
             if (rank <= 0)
-                throw new DomainException("Rank must be positive");
+                throw new DomainException(TechnicianErrors.InvalidRank);
 
             return new SkillLevel(levelName.Trim(), rank);
         }

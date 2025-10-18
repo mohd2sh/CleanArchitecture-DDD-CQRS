@@ -41,7 +41,7 @@ namespace CleanArchitecture.Cmms.Domain.Technicians
         public void AddCertification(Certification certification)
         {
             if (_certifications.Any(c => c.Equals(certification)))
-                throw new DomainException($"Technician already has certification: {certification.Code}");
+                throw new DomainException(TechnicianErrors.CertificationExists);
 
             _certifications.Add(certification);
             Raise(new TechnicianCertificationAddedEvent(Id, certification.Code));
@@ -50,13 +50,13 @@ namespace CleanArchitecture.Cmms.Domain.Technicians
         public void AddAssignedOrder(Guid workOrderId, DateTime assignedOn)
         {
             if (Status == TechnicianStatus.Unavailable)
-                throw new DomainException("Technician is unavailable.");
+                throw new DomainException(TechnicianErrors.Unavailable);
 
             if (_assignments.Any(a => a.WorkOrderId == workOrderId && !a.IsCompleted))
-                throw new DomainException("Technician already assigned to this active work order.");
+                throw new DomainException(TechnicianErrors.AlreadyAssigned);
 
             if (_assignments.Count(a => !a.IsCompleted) >= MaxConcurrentAssignments)
-                throw new DomainException("Technician reached maximum concurrent work orders.");
+                throw new DomainException(TechnicianErrors.MaxAssignmentsReached);
 
             var assignment = TechnicianAssignment.Create(workOrderId, assignedOn);
             _assignments.Add(assignment);
@@ -68,7 +68,7 @@ namespace CleanArchitecture.Cmms.Domain.Technicians
         {
             var assignment = _assignments.FirstOrDefault(a => a.WorkOrderId == workOrderId);
             if (assignment is null)
-                throw new DomainException("Assignment not found.");
+                throw new DomainException(TechnicianErrors.AssignmentNotFound);
 
             assignment.CompleteAssignment(completedOn);
 
