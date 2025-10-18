@@ -52,8 +52,6 @@ public static class ServiceCollectionExtensions
         );
 
 
-        services.AddDbContext<WriteDbContext>(opt => opt.UseSqlServer(config.GetConnectionString("WriteDb")));
-
         services.AddScoped(typeof(IRepository<,>), typeof(EfRepository<,>));
 
         services.AddScoped<IUnitOfWork, EfUnitOfWork>();
@@ -61,12 +59,14 @@ public static class ServiceCollectionExtensions
 
     private static void AddReadDbServices(IServiceCollection services, IConfiguration config, string environment)
     {
-        //For queries we used IReadRepo using Dapper + Ef ReadDbContext
+        //For queries use IReadRepository using Dapper + Ef ReadDbContext
         services.AddDbContext<ReadDbContext>(opt =>
         {
             opt.UseSqlServer(
                 config.GetConnectionString("ReadDb") ?? config.GetConnectionString("WriteDb"),
                 sql => sql.MigrationsAssembly(typeof(ReadDbContext).Assembly.FullName));
+
+            opt.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
 
             if (environment == "Development")
                 opt.LogTo(Console.WriteLine, LogLevel.Information);

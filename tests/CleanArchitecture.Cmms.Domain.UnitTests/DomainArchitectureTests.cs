@@ -1,6 +1,6 @@
-﻿using CleanArchitecture.Cmms.Domain.Abstractions;
-using NetArchTest.Rules;
 using System.Reflection;
+using CleanArchitecture.Cmms.Domain.Abstractions;
+using NetArchTest.Rules;
 
 namespace CleanArchitecture.Cmms.Domain.UnitTests
 {
@@ -106,16 +106,19 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests
         }
 
         [Fact]
-        public void Entities_And_AggregateRoots_Should_Have_Private_Constructors()
+        public void Entities_ValueObject_AggregateRoots_Should_Have_Private_Constructors()
         {
             // Arrange
             Type entityType = typeof(Entity<>);
+            Type valueObject = typeof(ValueObject);
             Type aggregateRootType = typeof(IAggregateRoot);
 
             IEnumerable<Type> candidates = Types
                 .InAssembly(DomainAssembly)
                 .That()
                 .Inherit(entityType)
+                .Or()
+                .Inherit(valueObject)
                 .Or()
                 .ImplementInterface(aggregateRootType)
                 .GetTypes();

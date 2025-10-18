@@ -2,8 +2,17 @@
 
 namespace CleanArchitecture.Cmms.Domain.Assets.ValueObjects
 {
-    internal sealed record AssetTag(string Value) : ValueObject
+    internal sealed record AssetTag : ValueObject
     {
+        public string Value { get; }
+
+        private AssetTag() { } //For Ef
+
+        private AssetTag(string value)
+        {
+            Value = value;
+        }
+
         public static AssetTag Create(string tag)
         {
             if (string.IsNullOrWhiteSpace(tag))

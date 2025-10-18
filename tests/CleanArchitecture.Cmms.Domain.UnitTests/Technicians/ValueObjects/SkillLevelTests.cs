@@ -41,8 +41,8 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests.Technicians.ValueObjects
         public void Equality_Should_Be_Value_Based()
         {
             // Arrange
-            SkillLevel levelA = new SkillLevel("Custom", 5);
-            SkillLevel levelB = new SkillLevel("Custom", 5);
+            SkillLevel levelA = SkillLevel.Create("Custom", 5);
+            SkillLevel levelB = SkillLevel.Create("Custom", 5);
 
             // Act
             bool areEqual = levelA == levelB;

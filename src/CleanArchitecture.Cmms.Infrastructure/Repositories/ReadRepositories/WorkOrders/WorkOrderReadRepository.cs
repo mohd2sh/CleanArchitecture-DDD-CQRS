@@ -1,8 +1,8 @@
-﻿using CleanArchitecture.Cmms.Application.Primitives;
+using System.Data;
+using CleanArchitecture.Cmms.Application.Primitives;
 using CleanArchitecture.Cmms.Application.WorkOrders.Dtos;
 using CleanArchitecture.Cmms.Application.WorkOrders.Interfaces;
 using CleanArchitecture.Cmms.Domain.WorkOrders.Enums;
-using System.Data;
 
 namespace CleanArchitecture.Cmms.Infrastructure.Repositories.ReadRepositories.WorkOrders
 {
@@ -10,11 +10,11 @@ namespace CleanArchitecture.Cmms.Infrastructure.Repositories.ReadRepositories.Wo
     {
         public WorkOrderReadRepository(IDbConnection connection) : base(connection) { }
 
-        public async Task<WorkOrderDto?> GetWorkOrderByIdQuery(Guid id, CancellationToken ct)
+        public async Task<WorkOrderDto?> GetWorkOrderById(Guid id, CancellationToken ct)
         {
-            const string sql = "SELECT Id, Title, Status FROM WorkOrders WHERE Id = @Id";
+            const string sql = "SELECT Id, Title, Status FROM workorders.WorkOrders WHERE Id = @Id";
 
-            return await QuerySingleAsync<WorkOrderDto>(sql, ct: ct);
+            return await QuerySingleAsync<WorkOrderDto>(sql, param: new { Id = id }, ct: ct);
         }
 
         public async Task<PaginatedList<WorkOrderListItemDto>> GetActiveWithTechnicianAndAssetAsync(PaginationParam pagination, CancellationToken ct)

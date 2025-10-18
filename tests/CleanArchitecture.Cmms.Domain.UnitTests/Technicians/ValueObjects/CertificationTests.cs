@@ -8,7 +8,7 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests.Technicians.ValueObjects
         public void IsValid_Should_Return_True_When_No_Expiry()
         {
             // Arrange
-            Certification certification = new Certification("ELEC-1", DateTime.UtcNow.AddYears(-1), null);
+            Certification certification = Certification.Create("ELEC-1", DateTime.UtcNow.AddYears(-1), null);
             DateTime nowUtc = DateTime.UtcNow;
 
             // Act
@@ -22,7 +22,7 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests.Technicians.ValueObjects
         public void IsValid_Should_Return_True_When_Expiry_In_Future()
         {
             // Arrange
-            Certification certification = new Certification("ELEC-1", DateTime.UtcNow.AddYears(-1), DateTime.UtcNow.AddDays(10));
+            Certification certification = Certification.Create("ELEC-1", DateTime.UtcNow.AddYears(-1), DateTime.UtcNow.AddDays(10));
             DateTime nowUtc = DateTime.UtcNow;
 
             // Act
@@ -36,7 +36,7 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests.Technicians.ValueObjects
         public void IsValid_Should_Return_False_When_Expired()
         {
             // Arrange
-            Certification certification = new Certification("ELEC-1", DateTime.UtcNow.AddYears(-2), DateTime.UtcNow.AddDays(-1));
+            Certification certification = Certification.Create("ELEC-1", DateTime.UtcNow.AddYears(-2), DateTime.UtcNow.AddDays(-1));
             DateTime nowUtc = DateTime.UtcNow;
 
             // Act
@@ -50,8 +50,8 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests.Technicians.ValueObjects
         public void Equality_Should_Be_Value_Based()
         {
             // Arrange
-            Certification first = new Certification("ELEC-1", new DateTime(2024, 1, 1), new DateTime(2026, 1, 1));
-            Certification second = new Certification("ELEC-1", new DateTime(2024, 1, 1), new DateTime(2026, 1, 1));
+            Certification first = Certification.Create("ELEC-1", new DateTime(2024, 1, 1), new DateTime(2026, 1, 1));
+            Certification second = Certification.Create("ELEC-1", new DateTime(2024, 1, 1), new DateTime(2026, 1, 1));
 
             // Act
             bool areEqual = first == second;
@@ -64,7 +64,7 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests.Technicians.ValueObjects
         public void ToString_Should_Format_Code_And_IssuedOn()
         {
             // Arrange
-            Certification certification = new Certification("ELEC-1", new DateTime(2024, 5, 10), null);
+            Certification certification = Certification.Create("ELEC-1", new DateTime(2024, 5, 10), null);
 
             // Act
             string text = certification.ToString();

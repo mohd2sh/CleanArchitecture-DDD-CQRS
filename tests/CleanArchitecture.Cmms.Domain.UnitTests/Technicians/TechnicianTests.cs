@@ -32,7 +32,7 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests.Technicians
         {
             // Arrange
             Technician technician = Technician.Create("Tech One", SkillLevel.Apprentice);
-            Certification hvacCertification = new Certification("HVAC-1", DateTime.UtcNow.Date, DateTime.UtcNow.Date.AddYears(1));
+            Certification hvacCertification = Certification.Create("HVAC-1", DateTime.UtcNow.Date, DateTime.UtcNow.Date.AddYears(1));
 
             // Act
             technician.AddCertification(hvacCertification);
@@ -48,7 +48,7 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests.Technicians
         {
             // Arrange
             Technician technician = Technician.Create("Tech One", SkillLevel.Apprentice);
-            Certification hvacCertification = new Certification("HVAC-1", DateTime.UtcNow.Date, DateTime.UtcNow.Date.AddYears(1));
+            Certification hvacCertification = Certification.Create("HVAC-1", DateTime.UtcNow.Date, DateTime.UtcNow.Date.AddYears(1));
             technician.AddCertification(hvacCertification);
 
             // Act

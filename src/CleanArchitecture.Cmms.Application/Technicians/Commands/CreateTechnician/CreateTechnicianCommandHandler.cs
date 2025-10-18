@@ -16,7 +16,7 @@ namespace CleanArchitecture.Cmms.Application.Technicians.Commands.CreateTechnici
 
         public async Task<Result<Guid>> Handle(CreateTechnicianCommand request, CancellationToken cancellationToken)
         {
-            var skillLevel = new SkillLevel(request.SkillLevelName, request.SkillLevelRank);
+            var skillLevel = SkillLevel.Create(request.SkillLevelName, request.SkillLevelRank);
 
             var technician = Technician.Create(request.Name, skillLevel);
 

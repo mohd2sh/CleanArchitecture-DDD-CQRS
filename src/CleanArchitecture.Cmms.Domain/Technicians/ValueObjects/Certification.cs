@@ -2,8 +2,24 @@
 
 namespace CleanArchitecture.Cmms.Domain.Technicians.ValueObjects
 {
-    internal sealed record Certification(string Code, DateTime IssuedOn, DateTime? ExpiresOn) : ValueObject
+    internal sealed record Certification : ValueObject
     {
+        public string Code { get; private set; }
+        public DateTime IssuedOn { get; private set; }
+        public DateTime? ExpiresOn { get; private set; }
+
+        private Certification(string code, DateTime issuedOn, DateTime? expiresOn)
+        {
+            Code = code;
+            IssuedOn = issuedOn;
+            ExpiresOn = expiresOn;
+        }
+
+        private Certification() { }
+
+        public static Certification Create(string code, DateTime issuedOn, DateTime? expiresOn)
+            => new(code.Trim(), issuedOn, expiresOn);
+
         public bool IsValid(DateTime nowUtc)
             => ExpiresOn is null || ExpiresOn > nowUtc;
 

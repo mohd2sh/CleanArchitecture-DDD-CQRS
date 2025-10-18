@@ -2,8 +2,23 @@
 
 namespace CleanArchitecture.Cmms.Domain.WorkOrders.ValueObjects
 {
-    internal sealed record Location(string Building, string Floor, string Room) : ValueObject
+    internal sealed record Location : ValueObject
     {
+        public string Building { get; }
+        public string Floor { get; }
+        public string Room { get; }
+
+        private Location(string building, string floor, string room)
+        {
+            Building = building;
+            Floor = floor;
+            Room = room;
+        }
+
+
+        private Location() { } // EF Core
+
+
         public static Location Create(string building, string floor, string room)
             => new(building, floor, room);
 
