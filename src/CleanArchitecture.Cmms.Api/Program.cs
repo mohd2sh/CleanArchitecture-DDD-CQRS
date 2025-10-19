@@ -1,5 +1,7 @@
 using Asp.Versioning;
 using Asp.Versioning.ApiExplorer;
+using CleanArchitecture.Cmms.Api.Configurations;
+using CleanArchitecture.Cmms.Api.Filters;
 using CleanArchitecture.Cmms.Api.Middlewares;
 using CleanArchitecture.Cmms.Application;
 using CleanArchitecture.Cmms.Infrastructure;
@@ -21,9 +23,13 @@ try
 
     builder.Services.AddApplication();
     builder.Services.AddInfrastructure(builder.Configuration, builder.Environment.EnvironmentName);
-    builder.Services.AddControllers();
+    builder.Services.AddControllers(options =>
+    {
+        options.Filters.Add<ResultToHttpStatusFilter>();
+    });
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
+    builder.Services.ConfigureOptions<ConfigureSwaggerOptions>();
 
     builder.Services.AddApiVersioning(options =>
     {
@@ -81,7 +87,6 @@ try
 }
 catch (Exception ex)
 {
-
     Log.Fatal(ex, "Application terminated unexpectedly");
 }
 finally

@@ -1,5 +1,6 @@
 using CleanArchitecture.Cmms.Application.WorkOrders.Dtos;
 using CleanArchitecture.Cmms.Application.WorkOrders.Interfaces;
+using CleanArchitecture.Cmms.Application.WorkOrders;
 
 namespace CleanArchitecture.Cmms.Application.WorkOrders.Queries.GetWorkOrderById
 {
@@ -18,7 +19,7 @@ namespace CleanArchitecture.Cmms.Application.WorkOrders.Queries.GetWorkOrderById
             var entity = await _repository.GetWorkOrderById(request.Id, cancellationToken);
 
             if (entity is null)
-                return $"Work order with ID '{request.Id}' not found.";
+                return WorkOrderErrors.NotFound;
 
             var dto = new WorkOrderDto(entity.Id, entity.Title, entity.Status.ToString());
 

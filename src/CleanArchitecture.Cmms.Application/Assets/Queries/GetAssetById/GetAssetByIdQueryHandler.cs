@@ -1,6 +1,7 @@
 ﻿using CleanArchitecture.Cmms.Application.Abstractions.Persistence.Repositories;
 using CleanArchitecture.Cmms.Application.Assets.Dtos;
 using CleanArchitecture.Cmms.Domain.Assets;
+using CleanArchitecture.Cmms.Application.Assets;
 
 namespace CleanArchitecture.Cmms.Application.Assets.Queries.GetAssetById
 {
@@ -18,7 +19,7 @@ namespace CleanArchitecture.Cmms.Application.Assets.Queries.GetAssetById
         {
             var asset = await _repository.GetByIdAsync(request.AssetId, cancellationToken);
             if (asset is null)
-                return $"Asset {request.AssetId} not found.";
+                return AssetErrors.NotFound;
 
             var dto = new AssetDto
             {

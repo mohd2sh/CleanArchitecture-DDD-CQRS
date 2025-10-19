@@ -1,6 +1,7 @@
 ﻿using CleanArchitecture.Cmms.Application.Abstractions.Persistence.Repositories;
 using CleanArchitecture.Cmms.Domain.Assets;
 using CleanArchitecture.Cmms.Domain.Assets.ValueObjects;
+using CleanArchitecture.Cmms.Application.Assets;
 
 namespace CleanArchitecture.Cmms.Application.Assets.Commands.UpdateAssetLocation
 {
@@ -19,7 +20,7 @@ namespace CleanArchitecture.Cmms.Application.Assets.Commands.UpdateAssetLocation
             var asset = await _repository.GetByIdAsync(request.AssetId, cancellationToken);
 
             if (asset is null)
-                return $"Asset {request.AssetId} not found.";
+                return AssetErrors.NotFound;
 
             var newLocation = AssetLocation.Create(request.Site, request.Area, request.Zone);
 

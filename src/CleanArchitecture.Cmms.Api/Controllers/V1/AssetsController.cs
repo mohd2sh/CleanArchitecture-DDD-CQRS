@@ -1,4 +1,5 @@
-﻿using Asp.Versioning;
+using System.Net;
+using Asp.Versioning;
 using CleanArchitecture.Cmms.Api.Controllers.V1.Requests.Assets;
 using CleanArchitecture.Cmms.Application.Abstractions.Messaging;
 using CleanArchitecture.Cmms.Application.Assets.Commands.CreateAsset;
@@ -8,7 +9,6 @@ using CleanArchitecture.Cmms.Application.Assets.Queries.GetActiveAssets;
 using CleanArchitecture.Cmms.Application.Assets.Queries.GetAssetById;
 using CleanArchitecture.Cmms.Application.Primitives;
 using Microsoft.AspNetCore.Mvc;
-using System.Net;
 
 namespace CleanArchitecture.Cmms.Api.Controllers.V1
 {
@@ -26,8 +26,6 @@ namespace CleanArchitecture.Cmms.Api.Controllers.V1
 
         [HttpPost]
         [ProducesResponseType(typeof(Result<Guid>), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> Create([FromBody] CreateAssetRequest request, CancellationToken cancellationToken)
         {
             var command = new CreateAssetCommand(
@@ -40,43 +38,37 @@ namespace CleanArchitecture.Cmms.Api.Controllers.V1
 
             var result = await _mediator.Send(command, cancellationToken);
 
-            return result.IsSuccess ? Ok(result) : BadRequest(result.Error);
+            return Ok(result);
         }
 
         [HttpPut("{id:guid}/location")]
         [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> UpdateLocation(Guid id, [FromBody] UpdateAssetLocationRequest request, CancellationToken cancellationToken)
         {
             var command = new UpdateAssetLocationCommand(id, request.Site, request.Area, request.Zone);
 
             var result = await _mediator.Send(command, cancellationToken);
 
-            return result.IsSuccess ? Ok(result) : BadRequest(result.Error);
+            return Ok(result);
         }
 
 
         [HttpGet("{id:guid}")]
         [ProducesResponseType(typeof(Result<AssetDto>), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.NotFound)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
         {
             var query = new GetAssetByIdQuery(id);
             var result = await _mediator.Send(query, cancellationToken);
-            return result.IsSuccess ? Ok(result) : NotFound(result.Error);
+            return Ok(result);
         }
 
         [HttpGet("active")]
         [ProducesResponseType(typeof(Result<PaginatedList<AssetDto>>), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> GetActive([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 20, CancellationToken cancellationToken = default)
         {
             var query = new GetActiveAssetsQuery(new PaginationParam(pageNumber, pageSize));
             var result = await _mediator.Send(query, cancellationToken);
-            return result.IsSuccess ? Ok(result) : BadRequest(result.Error);
+            return Ok(result);
         }
     }
 }

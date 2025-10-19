@@ -1,5 +1,6 @@
 ﻿using CleanArchitecture.Cmms.Application.Abstractions.Persistence.Repositories;
 using CleanArchitecture.Cmms.Domain.Technicians;
+using CleanArchitecture.Cmms.Application.Technicians;
 
 namespace CleanArchitecture.Cmms.Application.Technicians.Commands.CompleteAssignment
 {
@@ -18,7 +19,7 @@ namespace CleanArchitecture.Cmms.Application.Technicians.Commands.CompleteAssign
             var technician = await _repository.GetByIdAsync(request.TechnicianId, cancellationToken);
 
             if (technician is null)
-                return $"Technician {request.TechnicianId} not found.";
+                return TechnicianErrors.NotFound;
 
 
             technician.CompleteAssignment(request.WorkOrderId, request.CompletedOn);

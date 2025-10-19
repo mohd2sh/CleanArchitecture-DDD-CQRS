@@ -1,4 +1,4 @@
-﻿using CleanArchitecture.Cmms.Application.Abstractions.Persistence;
+using CleanArchitecture.Cmms.Application.Abstractions.Persistence;
 using CleanArchitecture.Cmms.Application.Abstractions.Persistence.Repositories;
 using CleanArchitecture.Cmms.Application.Technicians.Dtos;
 using CleanArchitecture.Cmms.Domain.Technicians;
@@ -29,7 +29,7 @@ namespace CleanArchitecture.Cmms.Application.Technicians.Queries.GetTechnicianAs
 
             var technicians = await _repository.ListAsync(criteria, cancellationToken);
             if (technicians == null || technicians.Items.Count == 0)
-                return "Technician not found.";
+                return TechnicianErrors.NotFound;
 
             var assignmentsDto = technicians.Items
                 .SelectMany(t => t.Assignments)

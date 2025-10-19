@@ -1,5 +1,6 @@
 ﻿using CleanArchitecture.Cmms.Application.Abstractions.Persistence.Repositories;
 using CleanArchitecture.Cmms.Domain.WorkOrders;
+using CleanArchitecture.Cmms.Application.WorkOrders;
 
 namespace CleanArchitecture.Cmms.Application.WorkOrders.Commands.AddStep
 {
@@ -18,7 +19,7 @@ namespace CleanArchitecture.Cmms.Application.WorkOrders.Commands.AddStep
             var workOrder = await _repository.GetByIdAsync(request.WorkOrderId, cancellationToken);
 
             if (workOrder is null)
-                return "Work order not found.";
+                return WorkOrderErrors.NotFound;
 
             workOrder.AddStep(request.Title);
 

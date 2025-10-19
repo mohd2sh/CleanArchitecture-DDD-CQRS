@@ -8,7 +8,7 @@ namespace CleanArchitecture.Cmms.Domain.Assets;
 /// Provides error messages for Asset domain invariants.
 /// </summary>
 [ErrorCodeDefinition("Asset")]
-internal static class AssetErrors
+public static class AssetErrors
 {
     [DomainError]
     public static readonly DomainError AlreadyUnderMaintenance = DomainError.Create(

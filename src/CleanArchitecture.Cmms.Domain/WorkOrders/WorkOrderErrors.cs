@@ -7,7 +7,7 @@ namespace CleanArchitecture.Cmms.Domain.WorkOrders;
 /// Provides error messages for Work Order domain invariants.
 /// </summary>
 [ErrorCodeDefinition("WorkOrder")]
-internal static class WorkOrderErrors
+public static class WorkOrderErrors
 {
     [DomainError]
     public static readonly DomainError TitleRequired = DomainError.Create(

@@ -1,4 +1,4 @@
-﻿using CleanArchitecture.Cmms.Application.Abstractions.Persistence.Repositories;
+using CleanArchitecture.Cmms.Application.Abstractions.Persistence.Repositories;
 using CleanArchitecture.Cmms.Application.Technicians.Dtos;
 using CleanArchitecture.Cmms.Domain.Technicians;
 
@@ -19,9 +19,8 @@ namespace CleanArchitecture.Cmms.Application.Technicians.Queries.GetTechnicianBy
             var technician = await _repository.GetByIdAsync(request.TechnicianId, cancellationToken);
 
             if (technician is null)
-                return $"Technician {request.TechnicianId} not found.";
+                return TechnicianErrors.NotFound;
 
-            //TODO: create a mapping Technician=> TechnicianDto
             var dto = new TechnicianDto
             {
                 Id = technician.Id,

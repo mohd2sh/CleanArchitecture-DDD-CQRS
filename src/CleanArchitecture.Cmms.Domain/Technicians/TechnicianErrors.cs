@@ -8,7 +8,7 @@ namespace CleanArchitecture.Cmms.Domain.Technicians;
 /// Provides error messages for Technician domain invariants.
 /// </summary>
 [ErrorCodeDefinition("Technician")]
-internal static class TechnicianErrors
+public static class TechnicianErrors
 {
     [DomainError]
     public static readonly DomainError Unavailable = DomainError.Create(

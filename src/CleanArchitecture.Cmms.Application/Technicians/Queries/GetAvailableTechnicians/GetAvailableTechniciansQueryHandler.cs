@@ -1,4 +1,4 @@
-﻿using CleanArchitecture.Cmms.Application.Abstractions.Persistence;
+using CleanArchitecture.Cmms.Application.Abstractions.Persistence;
 using CleanArchitecture.Cmms.Application.Abstractions.Persistence.Repositories;
 using CleanArchitecture.Cmms.Application.Technicians.Dtos;
 using CleanArchitecture.Cmms.Domain.Technicians;
@@ -7,7 +7,7 @@ using CleanArchitecture.Cmms.Domain.Technicians.Enums;
 namespace CleanArchitecture.Cmms.Application.Technicians.Queries.GetAvailableTechnicians
 {
     internal sealed class GetAvailableTechniciansQueryHandler
-    : IQueryHandler<GetAvailableTechniciansQuery, PaginatedList<TechnicianDto>>
+    : IQueryHandler<GetAvailableTechniciansQuery, Result<PaginatedList<TechnicianDto>>>
     {
         private readonly IReadRepository<Technician, Guid> _repository;
 
@@ -16,7 +16,7 @@ namespace CleanArchitecture.Cmms.Application.Technicians.Queries.GetAvailableTec
             _repository = repository;
         }
 
-        public async Task<PaginatedList<TechnicianDto>> Handle(GetAvailableTechniciansQuery request, CancellationToken cancellationToken)
+        public async Task<Result<PaginatedList<TechnicianDto>>> Handle(GetAvailableTechniciansQuery request, CancellationToken cancellationToken)
         {
             var criteria = Criteria<Technician>.New()
                  .Where(p => p.Status == TechnicianStatus.Available)
