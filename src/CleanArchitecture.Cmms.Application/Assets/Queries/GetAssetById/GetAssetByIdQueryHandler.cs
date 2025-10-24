@@ -1,7 +1,6 @@
-﻿using CleanArchitecture.Cmms.Application.Abstractions.Persistence.Repositories;
+using CleanArchitecture.Cmms.Application.Abstractions.Persistence.Repositories;
 using CleanArchitecture.Cmms.Application.Assets.Dtos;
 using CleanArchitecture.Cmms.Domain.Assets;
-using CleanArchitecture.Cmms.Application.Assets;
 
 namespace CleanArchitecture.Cmms.Application.Assets.Queries.GetAssetById
 {

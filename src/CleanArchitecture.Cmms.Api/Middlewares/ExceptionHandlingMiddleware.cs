@@ -1,9 +1,11 @@
 ﻿using System.Net;
 using System.Text.Json;
+using CleanArchitecture.Cmms.Application.Assets;
 using CleanArchitecture.Cmms.Application.Primitives;
 using CleanArchitecture.Cmms.Domain.Abstractions;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CleanArchitecture.Cmms.Api.Middlewares
 {
@@ -43,6 +45,10 @@ namespace CleanArchitecture.Cmms.Api.Middlewares
 
                 case ValidationException validationEx:
                     await WriteResultResponseAsync(context, validationEx);
+                    break;
+
+                case DbUpdateConcurrencyException concurrencyEx:
+                    await WriteConcurrencyResponseAsync(context, concurrencyEx);
                     break;
 
                 case KeyNotFoundException keyEx:
@@ -88,6 +94,18 @@ namespace CleanArchitecture.Cmms.Api.Middlewares
 
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+
+            await context.Response.WriteAsync(JsonSerializer.Serialize(result, _jsonOptions));
+        }
+
+        private async Task WriteConcurrencyResponseAsync(HttpContext context, DbUpdateConcurrencyException ex)
+        {
+            _logger.LogWarning(ex, "Concurrency conflict occurred.");
+            
+            var result = Result.Failure(AssetErrors.ConcurrencyConflict);
+
+            context.Response.ContentType = "application/json";
+            context.Response.StatusCode = (int)HttpStatusCode.Conflict;
 
             await context.Response.WriteAsync(JsonSerializer.Serialize(result, _jsonOptions));
         }

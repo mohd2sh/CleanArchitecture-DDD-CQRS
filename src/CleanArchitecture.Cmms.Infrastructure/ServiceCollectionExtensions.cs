@@ -1,5 +1,6 @@
 using System.Data;
 using CleanArchitecture.Cmms.Application.Abstractions.Common;
+using CleanArchitecture.Cmms.Application.Abstractions.Events;
 using CleanArchitecture.Cmms.Application.Abstractions.Messaging;
 using CleanArchitecture.Cmms.Application.Abstractions.Persistence;
 using CleanArchitecture.Cmms.Application.Abstractions.Persistence.Repositories;
@@ -27,7 +28,8 @@ public static class ServiceCollectionExtensions
 
         AddReadDbServices(services, config, environment);
 
-        services.AddScoped<IMediator, MediatRAdapter>();
+        services.AddScoped<IMediator, CustomMediator>();
+        services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
 
         services.AddSingleton<IDateTimeProvider, SystemDateTimeProvider>();
 

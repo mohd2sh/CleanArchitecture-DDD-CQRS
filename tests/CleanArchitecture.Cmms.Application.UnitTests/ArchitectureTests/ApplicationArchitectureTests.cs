@@ -1,7 +1,10 @@
 using System.Reflection;
 using CleanArchitecture.Cmms.Application.Abstractions.Messaging;
+using CleanArchitecture.Cmms.Application.Abstractions.Persistence.Repositories;
+using CleanArchitecture.Cmms.Application.Behaviors;
 using CleanArchitecture.Cmms.Application.Primitives;
 using CleanArchitecture.Cmms.Domain.Abstractions;
+using Microsoft.Extensions.DependencyInjection;
 using NetArchTest.Rules;
 
 namespace CleanArchitecture.Cmms.Application.UnitTests.ArchitectureTests;
@@ -282,5 +285,101 @@ public class ApplicationArchitectureTests
 
         Assert.True(invalid.Count == 0,
             $"All CQRS requests should return Result or Result<T>. Invalid: {string.Join(", ", invalid)}");
+    }
+
+
+    [Fact]
+    public void ServiceCollectionExtensions_ShouldRegister_DomainEventsPipelineAfterTransactionPipeline()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+
+        // Act
+        services.AddApplication();
+
+        // Get all pipeline registrations
+        var pipelineBehaviors = services
+            .Where(sd => sd.ServiceType.IsGenericType &&
+                         sd.ServiceType.GetGenericTypeDefinition() == typeof(ICommandPipeline<,>))
+            .ToList();
+
+        // Find the indices using typeof instead of strings
+        var transactionIndex = pipelineBehaviors
+            .FindIndex(sd => sd.ImplementationType?.GetGenericTypeDefinition() == typeof(TransactionCommandPipeline<,>));
+
+        var domainEventsIndex = pipelineBehaviors
+            .FindIndex(sd => sd.ImplementationType?.GetGenericTypeDefinition() == typeof(DomainEventsPipeline<,>));
+
+        // Assert
+        Assert.True(transactionIndex >= 0, "TransactionCommandPipeline must be registered");
+        Assert.True(domainEventsIndex >= 0, "DomainEventsPipeline must be registered");
+
+        // Critical: DomainEventsPipeline must come AFTER TransactionCommandPipeline
+        Assert.True(domainEventsIndex > transactionIndex,
+            $"CRITICAL: DomainEventsPipeline (index {domainEventsIndex}) must be registered AFTER " +
+            $"TransactionCommandPipeline (index {transactionIndex}).\n\n" +
+            $"Current order will cause domain events to execute OUTSIDE the transaction,\n" +
+            $"breaking ACID guarantees and preventing rollback on event handler failures.\n\n" +
+            $"Fix: In ServiceCollectionExtensions, ensure\n" +
+            $"TransactionCommandPipeline is registered BEFORE DomainEventsPipeline.");
+    }
+
+
+    [Fact]
+    public void CommandHandlers_Should_Use_Repository_From_Same_BoundedContext()
+    {
+        var handlers = Types
+            .InAssembly(ApplicationAssembly)
+            .That()
+            .ImplementInterface(typeof(ICommandHandler<,>))
+            .GetTypes();
+
+        var violations = new List<string>();
+
+        foreach (var handler in handlers.Where(t => !t.IsAbstract))
+        {
+            var handlerContext = ExtractBoundedContext(handler.Namespace, "Application");
+
+            // Collect injected IRepository<T,> types (via fields or ctor)
+            var ctorParamTypes = handler
+                .GetConstructors(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                .SelectMany(c => c.GetParameters().Select(p => p.ParameterType));
+
+            var fieldTypes = handler
+                .GetFields(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly)
+                .Select(f => f.FieldType);
+
+            var repoTypes = ctorParamTypes.Concat(fieldTypes)
+                .Where(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IRepository<,>))
+                .Select(t => t.GetGenericArguments()[0]) // the aggregate type
+                .Distinct();
+
+            foreach (var aggregateType in repoTypes)
+            {
+                var aggregateContext = ExtractBoundedContext(aggregateType.Namespace, "Domain");
+
+                if (!string.Equals(handlerContext, aggregateContext, StringComparison.Ordinal))
+                {
+                    violations.Add($"{handler.FullName} uses IRepository<{aggregateType.Name}> from context '{aggregateContext}' (handler context: '{handlerContext}')");
+                }
+            }
+        }
+
+        Assert.True(!violations.Any(),
+            "CommandHandlers must use IRepository of their own bounded context:\n - " + string.Join("\n - ", violations));
+    }
+
+    private static string ExtractBoundedContext(string? ns, string marker)
+    {
+        // Example:
+        // CleanArchitecture.Cmms.Application.Assets.Commands.UpdateAssetLocation  -> marker=Application -> Assets
+        // CleanArchitecture.Cmms.Domain.Assets.Entities.Asset                     -> marker=Domain -> Assets
+        if (string.IsNullOrWhiteSpace(ns)) return string.Empty;
+
+        var parts = ns.Split('.');
+        var idx = Array.FindIndex(parts, p => p.Equals(marker, StringComparison.Ordinal));
+        if (idx < 0 || idx + 1 >= parts.Length) return string.Empty;
+
+        return parts[idx + 1]; // token immediately after Application/Domain
     }
 }

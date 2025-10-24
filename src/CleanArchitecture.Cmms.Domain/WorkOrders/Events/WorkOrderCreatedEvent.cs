@@ -1,4 +1,4 @@
-﻿using CleanArchitecture.Cmms.Domain.Abstractions;
+using CleanArchitecture.Cmms.Domain.Abstractions;
 
 namespace CleanArchitecture.Cmms.Domain.WorkOrders.Events
 {
@@ -8,9 +8,9 @@ namespace CleanArchitecture.Cmms.Domain.WorkOrders.Events
         public string Title { get; }
         public Guid AssetId { get; }
         public DateTime? OccurredOn { get; } = DateTime.UtcNow;
-        public WorkOrderCreatedEvent(Guid id, Guid assetId, string title)
+        public WorkOrderCreatedEvent(Guid workOrderId, Guid assetId, string title)
         {
-            WorkOrderId = id;
+            WorkOrderId = workOrderId;
             AssetId = assetId;
             Title = title;
         }

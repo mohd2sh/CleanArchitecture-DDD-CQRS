@@ -1,5 +1,5 @@
-﻿using CleanArchitecture.Cmms.Application.Abstractions.Common;
-using CleanArchitecture.Cmms.Application.Abstractions.Messaging.Models;
+using CleanArchitecture.Cmms.Application.Abstractions.Common;
+using CleanArchitecture.Cmms.Application.Abstractions.Events;
 using CleanArchitecture.Cmms.Application.Abstractions.Persistence.Repositories;
 using CleanArchitecture.Cmms.Domain.Assets;
 using CleanArchitecture.Cmms.Domain.WorkOrders.Events;
@@ -7,7 +7,7 @@ using CleanArchitecture.Cmms.Domain.WorkOrders.Events;
 namespace CleanArchitecture.Cmms.Application.Assets.Events.WorkOrderCreatedEventHandler
 {
     internal sealed class WorkOrderCreatedEventHandler
-    : INotificationHandler<DomainEventNotification<WorkOrderCreatedEvent>>
+    : IDomainEventHandler<WorkOrderCreatedEvent>
     {
         private readonly IRepository<Asset, Guid> _assetRepository;
         private readonly IDateTimeProvider _dateTimeProvider;
@@ -20,14 +20,15 @@ namespace CleanArchitecture.Cmms.Application.Assets.Events.WorkOrderCreatedEvent
         }
 
         public async Task Handle(
-            DomainEventNotification<WorkOrderCreatedEvent> notification,
+            WorkOrderCreatedEvent domainEvent,
             CancellationToken cancellationToken)
         {
-            var domainEvent = notification.DomainEvent;
-
             var asset = await _assetRepository.GetByIdAsync(domainEvent.AssetId, cancellationToken);
+
             if (asset is null)
-                return;
+            {
+                throw new Abstractions.Common.ApplicationException(AssetErrors.NotFound);
+            }
 
             asset.SetUnderMaintenance(
                 description: $"Work order '{domainEvent.Title}' created",

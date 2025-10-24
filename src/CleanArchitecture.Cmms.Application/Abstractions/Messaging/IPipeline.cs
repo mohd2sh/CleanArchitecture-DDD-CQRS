@@ -1,8 +1,9 @@
-﻿using MediatR;
+﻿namespace CleanArchitecture.Cmms.Application.Abstractions.Messaging;
 
-namespace CleanArchitecture.Cmms.Application.Abstractions.Messaging
+public interface IPipeline<in TRequest, TResponse> where TRequest : notnull
 {
-    public interface IPipeline<in TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : notnull
-    {
-    }
+    Task<TResponse> Handle(
+        TRequest request,
+        PipelineDelegate<TResponse> next,
+        CancellationToken cancellationToken = default);
 }

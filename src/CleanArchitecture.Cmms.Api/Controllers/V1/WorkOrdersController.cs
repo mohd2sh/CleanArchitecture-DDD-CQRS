@@ -6,6 +6,7 @@ using CleanArchitecture.Cmms.Application.Primitives;
 using CleanArchitecture.Cmms.Application.WorkOrders.Commands.AssignTechnician;
 using CleanArchitecture.Cmms.Application.WorkOrders.Commands.CompleteWorkOrder;
 using CleanArchitecture.Cmms.Application.WorkOrders.Commands.CreateWorkOrder;
+using CleanArchitecture.Cmms.Application.WorkOrders.Commands.StartWorkOrder;
 using CleanArchitecture.Cmms.Application.WorkOrders.Dtos;
 using CleanArchitecture.Cmms.Application.WorkOrders.Queries.GetActiveWorkOrder;
 using CleanArchitecture.Cmms.Application.WorkOrders.Queries.GetWorkOrderById;
@@ -45,6 +46,14 @@ namespace CleanArchitecture.Cmms.Api.Controllers.V1
             return Ok(result);
         }
 
+        [HttpPost("{id:guid}/start")]
+        [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> Start(Guid id, CancellationToken cancellationToken)
+        {
+            var command = new StartWorkOrderCommand(id);
+            var result = await _mediator.Send(command, cancellationToken);
+            return Ok(result);
+        }
 
         [HttpPost("{id:guid}/complete")]
         [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]

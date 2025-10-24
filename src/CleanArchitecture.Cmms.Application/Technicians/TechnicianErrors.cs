@@ -13,19 +13,4 @@ public static class TechnicianErrors
     public static readonly Error NotFound = Error.NotFound(
         "Technician.NotFound",
         "Technician not found.");
-
-    [ApplicationError]
-    public static readonly Error Unavailable = Error.Validation(
-        "Technician.Unavailable",
-        Domain.Technicians.TechnicianErrors.Unavailable.Message);
-
-    [ApplicationError]
-    public static readonly Error AlreadyAssigned = Error.Conflict(
-        "Technician.AlreadyAssigned",
-        Domain.Technicians.TechnicianErrors.AlreadyAssigned.Message);
-
-    [ApplicationError]
-    public static readonly Error MaxAssignmentsReached = Error.Conflict(
-        "Technician.MaxAssignmentsReached",
-        Domain.Technicians.TechnicianErrors.MaxAssignmentsReached.Message);
 }

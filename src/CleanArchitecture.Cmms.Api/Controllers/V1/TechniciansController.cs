@@ -3,7 +3,6 @@ using Asp.Versioning;
 using CleanArchitecture.Cmms.Api.Controllers.V1.Requests.Technicans;
 using CleanArchitecture.Cmms.Application.Abstractions.Messaging;
 using CleanArchitecture.Cmms.Application.Primitives;
-using CleanArchitecture.Cmms.Application.Technicians.Commands.CompleteAssignment;
 using CleanArchitecture.Cmms.Application.Technicians.Commands.CreateTechnician;
 using CleanArchitecture.Cmms.Application.Technicians.Dtos;
 using CleanArchitecture.Cmms.Application.Technicians.Queries.GetAvailableTechnicians;
@@ -30,18 +29,6 @@ namespace CleanArchitecture.Cmms.Api.Controllers.V1
         public async Task<IActionResult> Create([FromBody] CreateTechnicianRequest request, CancellationToken cancellationToken)
         {
             var command = new CreateTechnicianCommand(request.Name, request.SkillLevelName, request.SkillLevelRank);
-
-            var result = await _mediator.Send(command, cancellationToken);
-
-            return Ok(result);
-        }
-
-
-        [HttpPost("{id:guid}/assignments/{workOrderId:guid}/complete")]
-        [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> CompleteAssignment(Guid id, Guid workOrderId, [FromBody] CompleteAssignmentRequest request, CancellationToken cancellationToken)
-        {
-            var command = new CompleteAssignmentCommand(id, workOrderId, request.CompletedOn);
 
             var result = await _mediator.Send(command, cancellationToken);
 

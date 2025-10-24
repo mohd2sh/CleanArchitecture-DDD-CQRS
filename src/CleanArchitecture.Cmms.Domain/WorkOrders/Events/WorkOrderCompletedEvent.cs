@@ -8,9 +8,9 @@ public sealed class WorkOrderCompletedEvent : IDomainEvent
     public Guid AssetId { get; }
     public Guid TechnicianId { get; }
     public DateTime? OccurredOn { get; } = DateTime.UtcNow;
-    public WorkOrderCompletedEvent(Guid id, Guid assetId, Guid technicianId)
+    public WorkOrderCompletedEvent(Guid workOrderId, Guid assetId, Guid technicianId)
     {
-        WorkOrderId = id;
+        WorkOrderId = workOrderId;
         AssetId = assetId;
         TechnicianId = technicianId;
     }

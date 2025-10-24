@@ -245,5 +245,54 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests
             Assert.True(!invalid.Any(),
                 $"ValueObjects must be sealed. Found: {string.Join(", ", invalid.Select(t => t.Name))}");
         }
+
+        [Fact]
+        public void DomainEvents_Should_HaveValidConstructorForSerialization()
+        {
+            // Arrange
+            var domainEventTypes = Types
+                .InAssembly(DomainAssembly)
+                .That()
+                .ImplementInterface(typeof(IDomainEvent))
+                .GetTypes();
+
+            var violations = new List<string>();
+
+            foreach (var eventType in domainEventTypes)
+            {
+                var constructors = eventType.GetConstructors(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+
+                // Check if has parameterless constructor
+                var hasParameterlessConstructor = constructors.Any(c => c.GetParameters().Length == 0);
+
+                if (hasParameterlessConstructor)
+                {
+                    continue; // Valid: has parameterless constructor
+                }
+
+                // Check if has parameterized constructor with matching property names
+                var properties = eventType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+                var propertyNames = properties.Select(p => p.Name.ToLowerInvariant()).ToHashSet();
+
+                var hasValidParameterizedConstructor = constructors.Any(ctor =>
+                {
+                    var parameters = ctor.GetParameters();
+                    if (parameters.Length == 0) return true;
+
+                    // All parameters must match property names (case-insensitive)
+                    return parameters.All(p => propertyNames.Contains(p.Name!.ToLowerInvariant()));
+                });
+
+                //If there are other valid ways to serialize, they can be added here..
+                if (!hasValidParameterizedConstructor)
+                {
+                    violations.Add($"{eventType.Name}: Must have either a parameterless constructor OR " +
+                                  $"a parameterized constructor where all parameters match property names (case-insensitive)");
+                }
+            }
+
+            Assert.True(violations.Count == 0,
+                "Domain events must support JSON serialization:\n - " + string.Join("\n - ", violations));
+        }
     }
 }

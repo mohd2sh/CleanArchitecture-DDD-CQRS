@@ -28,4 +28,9 @@ public static class AssetErrors
     public static readonly Error NotUnderMaintenance = Error.Validation(
         "Asset.NotUnderMaintenance",
         Domain.Assets.AssetErrors.NotUnderMaintenance.Message);
+
+    [ApplicationError]
+    public static readonly Error ConcurrencyConflict = Error.Conflict(
+        "Asset.ConcurrencyConflict",
+        "Asset was modified by another user. Please refresh and try again.");
 }

@@ -1,14 +1,19 @@
-﻿using CleanArchitecture.Cmms.Domain.Abstractions;
+using CleanArchitecture.Cmms.Domain.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace CleanArchitecture.Cmms.Infrastructure.Persistence.Configurations
 {
     internal abstract class AuditableEntityConfiguration<TEntity, TId> : IEntityTypeConfiguration<TEntity>
-        where TEntity : AuditableEntity<TId>
+        where TEntity : AggregateRoot<TId>
     {
         public void Configure(EntityTypeBuilder<TEntity> builder)
         {
+
+            builder.Property(e => e.RowVersion)
+                .IsRowVersion()
+                .IsConcurrencyToken();
+
             builder.Property(e => e.CreatedOn)
                 .HasDefaultValueSql("GETUTCDATE()")
                 .IsRequired();

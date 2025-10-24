@@ -7,6 +7,7 @@ using CleanArchitecture.Cmms.Application;
 using CleanArchitecture.Cmms.Infrastructure;
 using CleanArchitecture.Cmms.Infrastructure.Persistence;
 using CleanArchitecture.Cmms.Infrastructure.Persistence.EfCore;
+using CleanArchitecture.Cmms.Outbox;
 using Serilog;
 
 
@@ -23,6 +24,10 @@ try
 
     builder.Services.AddApplication();
     builder.Services.AddInfrastructure(builder.Configuration, builder.Environment.EnvironmentName);
+
+    // Add outbox with same connection string (shares database)
+    builder.Services.AddOutbox(builder.Configuration.GetConnectionString("WriteDb")!);
+
     builder.Services.AddControllers(options =>
     {
         options.Filters.Add<ResultToHttpStatusFilter>();

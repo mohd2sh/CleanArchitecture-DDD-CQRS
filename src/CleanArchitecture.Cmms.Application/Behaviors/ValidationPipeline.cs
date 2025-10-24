@@ -1,5 +1,4 @@
-﻿using FluentValidation;
-using MediatR;
+using FluentValidation;
 
 namespace CleanArchitecture.Cmms.Application.Behaviors
 {
@@ -13,7 +12,7 @@ namespace CleanArchitecture.Cmms.Application.Behaviors
             _validators = validators;
         }
 
-        public async Task<TResult> Handle(TRequest request, RequestHandlerDelegate<TResult> next, CancellationToken cancellationToken)
+        public async Task<TResult> Handle(TRequest request, PipelineDelegate<TResult> next, CancellationToken cancellationToken = default)
         {
             if (!_validators.Any())
                 return await next();

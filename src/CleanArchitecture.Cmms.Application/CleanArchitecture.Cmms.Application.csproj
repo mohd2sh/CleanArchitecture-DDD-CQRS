@@ -6,11 +6,11 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.0.0" />
-    <PackageReference Include="MediatR" Version="12.2.0" />
     <PackageReference Include="FluentValidation" Version="12.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CleanArchitecture.Cmms.Domain\CleanArchitecture.Cmms.Domain.csproj" />
+    <ProjectReference Include="..\CleanArchitecture.Cmms.Outbox.Abstractions\CleanArchitecture.Cmms.Outbox.Abstractions.csproj" />
   </ItemGroup>
 </Project>

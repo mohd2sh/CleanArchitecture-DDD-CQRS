@@ -1,4 +1,3 @@
-using CleanArchitecture.Cmms.Application.Abstractions.Messaging.Models;
 using CleanArchitecture.Cmms.Application.WorkOrders.EventsHandlers;
 using CleanArchitecture.Cmms.Domain.WorkOrders.Events;
 using Microsoft.Extensions.Logging;
@@ -24,10 +23,9 @@ public class WorkOrderCreatedEventHandlerTests
         var assetId = Guid.NewGuid();
 
         var workOrderCreatedEvent = new WorkOrderCreatedEvent(workOrderId, assetId, "Order 1");
-        var notification = new DomainEventNotification<WorkOrderCreatedEvent>(workOrderCreatedEvent);
 
         // Act
-        await _sut.Handle(notification, CancellationToken.None);
+        await _sut.Handle(workOrderCreatedEvent, CancellationToken.None);
 
         // Assert
         _loggerMock.Verify(
@@ -47,10 +45,9 @@ public class WorkOrderCreatedEventHandlerTests
         var workOrderId = Guid.NewGuid();
         var assetId = Guid.NewGuid();
         var workOrderCreatedEvent = new WorkOrderCreatedEvent(workOrderId, assetId, "Title");
-        var notification = new DomainEventNotification<WorkOrderCreatedEvent>(workOrderCreatedEvent);
 
         // Act
-        await _sut.Handle(notification, CancellationToken.None);
+        await _sut.Handle(workOrderCreatedEvent, CancellationToken.None);
 
         // Assert
         _loggerMock.Verify(

@@ -25,6 +25,8 @@
     <ProjectReference Include="..\CleanArchitecture.Cmms.Application\CleanArchitecture.Cmms.Application.csproj" />
     <ProjectReference Include="..\CleanArchitecture.Cmms.Domain\CleanArchitecture.Cmms.Domain.csproj" />
     <ProjectReference Include="..\CleanArchitecture.Cmms.Infrastructure\CleanArchitecture.Cmms.Infrastructure.csproj" />
+    <ProjectReference Include="..\CleanArchitecture.Cmms.Outbox\CleanArchitecture.Cmms.Outbox.csproj" />
+    <ProjectReference Include="..\CleanArchitecture.Cmms.Outbox.Abstractions\CleanArchitecture.Cmms.Outbox.Abstractions.csproj" />
   </ItemGroup>
 
 </Project>
