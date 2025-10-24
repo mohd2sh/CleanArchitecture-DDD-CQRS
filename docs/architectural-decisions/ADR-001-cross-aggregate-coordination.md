@@ -253,10 +253,6 @@ This is **explicitly endorsed** by DDD authorities.
 > **"Some concepts from the domain aren't natural to model as objects. Forcing the required domain functionality to be the responsibility of an ENTITY or VALUE either distorts the definition of a model-based object or adds meaningless artificial objects. A SERVICE is an operation offered as an interface that stands alone in the model, without encapsulating state... When a significant process or transformation in the domain is not a natural responsibility of an ENTITY or VALUE OBJECT, add an operation to the model as a standalone interface declared as a SERVICE."**  
 > — Eric Evans, Domain-Driven Design, Chapter 5
 
-**Vaughn Vernon on Application Services:**
-
-> **"Use a Domain Service when an operation crosses multiple aggregates. The Domain Service will coordinate the operation by loading the necessary aggregates, invoking behavior on them, and committing the Unit of Work."**  
-> — Vaughn Vernon, IDDD, Chapter 7
 
 **Pros:**
 -  DDD-legitimate pattern (endorsed by Evans & Vernon)
@@ -275,10 +271,22 @@ This is **explicitly endorsed** by DDD authorities.
 **When to Use:**
 - Complex orchestration logic (if-then-else across aggregates)
 - Operations requiring bidirectional data flow
-- Need computed value from one aggregate for another
 - Pragmatic exception for tightly coupled operations
 
-**Verdict:**  **Legitimate DDD Pattern** - Use for complex cases
+**⚠️ Design Smell Warning:**
+
+If you find yourself needing a computed value from one aggregate to create or modify another aggregate, this is a strong indicator of poor domain modeling. As Vaughn Vernon states:
+
+> **"If you think you need to query one aggregate to get data to modify another, you are probably missing a concept in your model. The data you need should already be in the aggregate you're modifying, or it should be passed in as a command parameter."**  
+> — Vaughn Vernon, Implementing Domain-Driven Design, Chapter 10
+
+**Better Approaches:**
+- Include necessary data in the command (denormalization)
+- Use eventual consistency with domain events
+- Rethink your aggregate boundaries
+- Consider if the data truly belongs in a different aggregate
+
+**Verdict:**  **Legitimate DDD Pattern** - Use for complex cases, but re-examine your model if you need cross-aggregate computed values
 
 ---
 
@@ -305,7 +313,7 @@ public class CompleteWorkOrderCommandHandler
 // Event Handlers in other bounded contexts
 namespace Application.Assets.Events
 {
-    [TransactionalEvent] // Executes in same transaction
+    
     internal class WorkOrderCompletedEventHandler 
         : INotificationHandler<DomainEventNotification<WorkOrderCompletedEvent>>
     {
@@ -327,7 +335,7 @@ namespace Application.Assets.Events
 
 namespace Application.Technicians.Events
 {
-    [TransactionalEvent]
+    
     internal class WorkOrderCompletedEventHandler 
         : INotificationHandler<DomainEventNotification<WorkOrderCompletedEvent>>
     {
@@ -380,10 +388,7 @@ This is the **core DDD event-driven pattern**.
 > **"Modeling events explicitly in the domain helps the team understand the business domain better. Use Domain Events to capture an occurrence of something that happened in the domain. Design events as immutable objects. Publish events from aggregates that undergo state changes. Other aggregates in the same Bounded Context can subscribe to these events."**  
 > — Vaughn Vernon, IDDD, Chapter 8
 
-**Udi Dahan (NServiceBus creator):**
 
-> **"Don't let aggregates directly call each other. Instead, have them publish events that other aggregates subscribe to. This keeps them decoupled and makes the system more maintainable."**  
-> — Udi Dahan, "Domain Events – Salvation" (2009)
 
 **Pros:**
 -  **Maintains aggregate boundaries** - Each aggregate only modifies itself
@@ -394,12 +399,12 @@ This is the **core DDD event-driven pattern**.
 -  **Microservices-ready** - Just change to Integration Events + Outbox
 -  **DDD-endorsed** - Explicitly recommended by Evans & Vernon
 -  **Scalable** - Easy to add/remove event handlers
+-  **Enforces design boundaries** - Prevents cross-aggregate computed value anti-pattern by making data flow explicit through events rather than queries
 
 **Cons:**
 -  More files (one handler per context)
 -  Requires understanding event flow
--  All handlers must succeed (coupled at runtime)
--  Cannot return values from event handlers
+
 
 **When to Use:**
 - Default pattern for cross-aggregate coordination
@@ -411,59 +416,9 @@ This is the **core DDD event-driven pattern**.
 
 ---
 
-### Option 6: Integration Events + Outbox (Asynchronous) 
 
-**Pattern:**
-```csharp
-// Command Handler
-public class CompleteWorkOrderCommandHandler
-{
-    private readonly IRepository<WorkOrder, Guid> _workOrderRepo;
-    
-    public async Task<Result> Handle(CompleteWorkOrderCommand request, CancellationToken ct)
-    {
-        var workOrder = await _workOrderRepo.GetByIdAsync(request.WorkOrderId, ct);
-        workOrder.Complete(request.Notes);
-        
-        // Raises WorkOrderCompletedIntegrationEvent
-        // Published to Outbox after transaction commits
-        
-        return Result.Success();
-    }
-}
 
-// Background worker processes Outbox
-// Event handlers in other services/modules react asynchronously
-```
-
-**Analysis:**
-
-This is for **microservices or asynchronous processing**.
-
-**When to Use:**
-- Microservices architecture
-- Long-running processes
-- Can tolerate eventual consistency
-- Need independent scaling of services
-
-**Pros:**
--  True bounded context independence
--  Can scale services separately
--  Non-blocking operations
--  Resilient to failures (retry mechanism)
-
-**Cons:**
--  Eventual consistency (not immediate)
--  Requires message bus infrastructure
--  Complex error handling
--  Need Outbox pattern for reliability
--  Harder to debug
-
-**Verdict:**  **Future Enhancement** - Not needed for monolith now
-
----
-
-### Option 7: Saga Pattern 
+### Option 6: Saga Pattern 
 
 **Pattern:**
 Distributed transaction coordinator across microservices with compensating transactions.
@@ -536,33 +491,6 @@ public sealed class WorkOrderCompletedEvent : IIntegrationEvent { }
 
 ---
 
-## Consequences
-
-### Positive
-
--  **Clean Architecture:** Respects dependency rules and layer separation
--  **Bounded Context Integrity:** No cross-context repository access from handlers
--  **Transaction Safety:** ACID guarantees with automatic rollback
--  **Test Coverage:** Easy to unit test each handler independently
--  **Evolvability:** Can transition to microservices with minimal changes
--  **Documentation:** Event names clearly document what happens in the system
--  **Extensibility:** New side effects added by adding event handlers
-
-### Negative
-
--  **More Files:** Each cross-aggregate operation needs multiple event handlers
--  **Learning Curve:** Team must understand event-driven architecture
--  **Debugging:** Event chains harder to debug than sequential code
--  **Runtime Coupling:** All handlers must succeed (but this ensures consistency)
-
-### Risks Mitigated
-
--  Prevents "Big Ball of Mud" through clean boundaries
--  Prevents bounded context corruption
--  Enables independent evolution of contexts
--  Supports future microservices migration
-
----
 
 ## Implementation Guidelines
 
@@ -582,7 +510,7 @@ public class CompleteWorkOrderCommandHandler
     }
 }
 
-//  BAD
+//  BAD - There is an Arch test that search and assert for this violation
 public class CompleteWorkOrderCommandHandler
 {
     private readonly IRepository<WorkOrder, Guid> _workOrderRepo;
@@ -605,58 +533,10 @@ namespace Application.Assets.Events
 }
 ```
 
-### Rule 3: Mark Transactional Events
 
-```csharp
-[TransactionalEvent] // Executes in same transaction
-public sealed class WorkOrderCompletedEvent : IDomainEvent
-{
-    public Guid WorkOrderId { get; }
-    public Guid AssetId { get; }
-    public Guid? TechnicianId { get; }
-    public string Notes { get; }
-    
-    // Immutable event
-}
-```
+### Rule 3: Make Event Handlers Idempotent
 
-### Rule 4: Use Domain Service for Complex Coordination Only
 
-```csharp
-// When event chain becomes too complex:
-public interface IComplexOperationService
-{
-    Task<Result> ExecuteAsync(...);
-}
-
-// Command handler delegates
-public class CommandHandler
-{
-    private readonly IComplexOperationService _service;
-    
-    public async Task<Result> Handle(...)
-    {
-        return await _service.ExecuteAsync(...);
-    }
-}
-```
-
-### Rule 5: Make Event Handlers Idempotent
-
-```csharp
-public async Task Handle(
-    DomainEventNotification<WorkOrderCompletedEvent> notification, 
-    CancellationToken ct)
-{
-    var asset = await _assetRepo.GetByIdAsync(notification.DomainEvent.AssetId, ct);
-    
-    // Idempotent check
-    if (asset is null || asset.Status == AssetStatus.Operational)
-        return; // Already processed or doesn't exist
-    
-    asset.CompleteMaintenance(...);
-}
-```
 
 ---
 
@@ -668,36 +548,7 @@ To enforce this decision, we implement architecture tests:
 [Fact]
 public void CommandHandlers_Should_Use_Repository_From_Same_BoundedContext()
 {
-    var handlers = Types
-        .InAssembly(ApplicationAssembly)
-        .That()
-        .ImplementInterface(typeof(ICommandHandler<,>))
-        .GetTypes();
-
-    var violations = new List<string>();
-
-    foreach (var handler in handlers.Where(t => !t.IsAbstract))
-    {
-        var handlerContext = ExtractBoundedContext(handler.Namespace, "Application");
-        
-        var repositories = GetInjectedRepositories(handler);
-        
-        foreach (var (aggregateType, _) in repositories)
-        {
-            var aggregateContext = ExtractBoundedContext(aggregateType.Namespace, "Domain");
-            
-            if (!string.Equals(handlerContext, aggregateContext, StringComparison.Ordinal))
-            {
-                violations.Add(
-                    $"{handler.Name} uses IRepository<{aggregateType.Name}> " +
-                    $"from context '{aggregateContext}' (handler context: '{handlerContext}')");
-            }
-        }
-    }
-
-    Assert.True(!violations.Any(), 
-        "CommandHandlers must use IRepository of their own bounded context:\n" + 
-        string.Join("\n", violations));
+    
 }
 ```
 
@@ -723,47 +574,8 @@ This test ensures handlers don't inject repositories from other contexts, forcin
 
 ---
 
-## References
 
-### Books
 
-1. **Evans, Eric.** *Domain-Driven Design: Tackling Complexity in the Heart of Software.* Addison-Wesley, 2003.
-   - Chapter 5: "A Model Expressed in Software" (Services)
-   - Chapter 6: "The Life Cycle of a Domain Object" (Aggregates)
-
-2. **Vernon, Vaughn.** *Implementing Domain-Driven Design.* Addison-Wesley, 2013.
-   - Chapter 7: "Services"
-   - Chapter 8: "Domain Events"
-   - Chapter 10: "Aggregates"
-
-3. **Fowler, Martin.** *Patterns of Enterprise Application Architecture.* Addison-Wesley, 2002.
-   - Chapter on "Transaction Script"
-   - Chapter on "Domain Model"
-
-4. **Evans, Eric.** *Domain-Driven Design Reference.* Dog Ear Publishing, 2014.
-   - Section on "Domain Events"
-
-### Articles
-
-1. **Dahan, Udi.** "Domain Events – Salvation." UdiDahan.com, 2009.  
-   <https://udidahan.com/2009/06/14/domain-events-salvation/>
-
-2. **Grzybek, Kamil.** "Modular Monolith: Domain-Centric Design." kamilgrzybek.com  
-   <https://www.kamilgrzybek.com/blog/modular-monolith-domain-centric-design>
-
-### Code Examples
-
-1. **Grzybek, Kamil.** *Modular Monolith with DDD.* GitHub, 2024.  
-   <https://github.com/kgrzybek/modular-monolith-with-ddd>
-
----
-
-## Related Decisions
-
-- ADR-002: Optimistic Concurrency Control (RowVersion pattern)
-- ADR-003: Pipeline Order (Transaction wraps Domain Events)
-
----
 
 ## Notes
 
