@@ -20,7 +20,7 @@ public class ErrorsController : ControllerBase
         var result = ErrorExporter.ExportAll();
         return Ok(result);
     }
-    
+
     /// <summary>
     /// Exports only application-level errors.
     /// </summary>
@@ -31,7 +31,7 @@ public class ErrorsController : ControllerBase
         var errors = ErrorExporter.ExportApplicationErrors();
         return Ok(errors);
     }
-    
+
     /// <summary>
     /// Exports only domain-level errors.
     /// </summary>

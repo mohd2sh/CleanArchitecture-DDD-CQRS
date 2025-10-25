@@ -35,7 +35,6 @@ namespace CleanArchitecture.Cmms.Api.Controllers.V1
             return Ok(result);
         }
 
-
         [HttpGet("{id:guid}")]
         [ProducesResponseType(typeof(Result<TechnicianDto>), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)

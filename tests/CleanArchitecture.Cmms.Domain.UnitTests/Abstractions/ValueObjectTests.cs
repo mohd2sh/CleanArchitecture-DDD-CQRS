@@ -13,7 +13,7 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests.Abstractions
             var money2 = new Money(100m, "USD");
 
             // Act
-            bool result = money1.Equals(money2);
+            var result = money1.Equals(money2);
 
             // Assert
             Assert.True(result);
@@ -26,7 +26,7 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests.Abstractions
             var money = new Money(100m, "USD");
 
             // Act
-            bool result = money.Equals(null);
+            var result = money.Equals(null);
 
             // Assert
             Assert.False(result);
@@ -40,7 +40,7 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests.Abstractions
             var simple = new SimpleValue(5);
 
             // Act
-            bool result = money.Equals(simple);
+            var result = money.Equals(simple);
 
             // Assert
             Assert.False(result);
@@ -54,7 +54,7 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests.Abstractions
             var different = new SimpleValue(100);
 
             // Act
-            bool result = money.Equals(different);
+            var result = money.Equals(different);
 
             // Assert
             Assert.False(result);
@@ -68,7 +68,7 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests.Abstractions
             var right = new Money(100m, "USD");
 
             // Act
-            bool result = left.Equals(right);
+            var result = left.Equals(right);
 
             // Assert
             Assert.False(result);
@@ -82,7 +82,7 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests.Abstractions
             var right = new Money(200m, "USD");
 
             // Act
-            bool result = left.Equals(right);
+            var result = left.Equals(right);
 
             // Assert
             Assert.False(result);
@@ -96,8 +96,8 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests.Abstractions
             var money2 = new Money(100m, "USD");
 
             // Act
-            int hash1 = money1.GetHashCode();
-            int hash2 = money2.GetHashCode();
+            var hash1 = money1.GetHashCode();
+            var hash2 = money2.GetHashCode();
 
             // Assert
             Assert.Equal(hash1, hash2);
@@ -110,7 +110,7 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests.Abstractions
             var money = new Money(100m, null!);
 
             // Act
-            int hash = money.GetHashCode();
+            var hash = money.GetHashCode();
 
             // Assert
             Assert.IsType<int>(hash);
@@ -124,7 +124,7 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests.Abstractions
             Money? right = null;
 
             // Act
-            bool result = Money.AreEqual(left, right);
+            var result = Money.AreEqual(left, right);
 
             // Assert
             Assert.True(result);
@@ -134,11 +134,11 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests.Abstractions
         public void EqualOperator_Should_Return_False_When_Only_One_Null()
         {
             // Arrange
-            Money? left = new Money(100m, "USD");
+            var left = new Money(100m, "USD");
             Money? right = null;
 
             // Act
-            bool result = Money.AreEqual(left, right);
+            var result = Money.AreEqual(left, right);
 
             // Assert
             Assert.False(result);
@@ -152,7 +152,7 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests.Abstractions
             var right = new Money(100m, "USD");
 
             // Act
-            bool result = Money.AreEqual(left, right);
+            var result = Money.AreEqual(left, right);
 
             // Assert
             Assert.True(result);
@@ -166,7 +166,7 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests.Abstractions
             var right = new Money(200m, "USD");
 
             // Act
-            bool result = Money.AreNotEqual(left, right);
+            var result = Money.AreNotEqual(left, right);
 
             // Assert
             Assert.True(result);

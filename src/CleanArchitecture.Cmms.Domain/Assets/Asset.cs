@@ -29,7 +29,7 @@ namespace CleanArchitecture.Cmms.Domain.Assets
 
         public static Asset Create(string name, string type, AssetTag tag, AssetLocation location)
         {
-            Asset asset = new Asset(Guid.NewGuid(), name, type, tag, location);
+            var asset = new Asset(Guid.NewGuid(), name, type, tag, location);
 
             asset.Raise(new AssetCreatedEvent(asset.Id, name, type, tag.Value));
 
@@ -66,7 +66,7 @@ namespace CleanArchitecture.Cmms.Domain.Assets
 
             Status = AssetStatus.UnderMaintenance;
 
-            MaintenanceRecord record = MaintenanceRecord.Create(Id, startedOn, description, performedBy);
+            var record = MaintenanceRecord.Create(Id, startedOn, description, performedBy);
             _maintenanceRecords.Add(record);
 
             Raise(new AssetStatusChangedEvent(Id, Status));

@@ -1,7 +1,6 @@
 ﻿using CleanArchitecture.Cmms.Application.Abstractions.Persistence.Repositories;
 using CleanArchitecture.Cmms.Domain.Assets;
 using CleanArchitecture.Cmms.Domain.Assets.ValueObjects;
-using CleanArchitecture.Cmms.Application.Assets;
 
 namespace CleanArchitecture.Cmms.Application.Assets.Commands.UpdateAssetLocation
 {

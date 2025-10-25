@@ -10,7 +10,7 @@ using CleanArchitecture.Cmms.Domain.Abstractions.Attributes;
 public static class ErrorExporter
 {
     /// <summary>
-    /// Exports all errors (both domain and application) for frontend localization.
+    /// Exports all errors (both domain and application).
     /// </summary>
     public static ErrorExportResult ExportAll()
     {

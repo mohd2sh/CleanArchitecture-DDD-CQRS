@@ -36,7 +36,6 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-
     private static void AddWriteDbServices(IServiceCollection services, IConfiguration config)
     {
         services.AddScoped<AuditableEntityInterceptor>();
@@ -52,7 +51,6 @@ public static class ServiceCollectionExtensions
                 sql => sql.MigrationsAssembly(typeof(WriteDbContext).Assembly.FullName));
         }
         );
-
 
         services.AddScoped(typeof(IRepository<,>), typeof(EfRepository<,>));
 

@@ -1,8 +1,8 @@
-using CleanArchitecture.Cmms.Application.WorkOrders.EventsHandlers;
+using CleanArchitecture.Cmms.Application.WorkOrders.Events.WorkOrderCreated;
 using CleanArchitecture.Cmms.Domain.WorkOrders.Events;
 using Microsoft.Extensions.Logging;
 
-namespace CleanArchitecture.Cmms.Application.UnitTests.WorkOrders.EventsHandlers.WorkOrderCreated;
+namespace CleanArchitecture.Cmms.Application.UnitTests.WorkOrders.Events.WorkOrderCreated;
 
 public class WorkOrderCreatedEventHandlerTests
 {

@@ -2,7 +2,6 @@ namespace CleanArchitecture.Cmms.Application.Primitives;
 
 /// <summary>
 /// Represents an application error with a code, message, and type.
-/// Error codes are stable identifiers used for client-side localization.
 /// </summary>
 public sealed class Error
 {

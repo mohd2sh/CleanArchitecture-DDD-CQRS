@@ -1,6 +1,5 @@
 using CleanArchitecture.Cmms.Application.WorkOrders.Dtos;
 using CleanArchitecture.Cmms.Application.WorkOrders.Interfaces;
-using CleanArchitecture.Cmms.Application.WorkOrders;
 
 namespace CleanArchitecture.Cmms.Application.WorkOrders.Queries.GetWorkOrderById
 {

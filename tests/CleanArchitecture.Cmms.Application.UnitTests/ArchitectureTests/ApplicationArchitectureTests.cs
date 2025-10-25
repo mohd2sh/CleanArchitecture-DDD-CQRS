@@ -287,7 +287,6 @@ public class ApplicationArchitectureTests
             $"All CQRS requests should return Result or Result<T>. Invalid: {string.Join(", ", invalid)}");
     }
 
-
     [Fact]
     public void ServiceCollectionExtensions_ShouldRegister_DomainEventsPipelineAfterTransactionPipeline()
     {
@@ -323,7 +322,6 @@ public class ApplicationArchitectureTests
             $"Fix: In ServiceCollectionExtensions, ensure\n" +
             $"TransactionCommandPipeline is registered BEFORE DomainEventsPipeline.");
     }
-
 
     [Fact]
     public void CommandHandlers_Should_Use_Repository_From_Same_BoundedContext()

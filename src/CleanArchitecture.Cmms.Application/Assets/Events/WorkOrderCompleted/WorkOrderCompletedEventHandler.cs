@@ -23,7 +23,7 @@ namespace CleanArchitecture.Cmms.Application.Assets.Events.WorkOrderCompleted
 
         public async Task Handle(
             WorkOrderCompletedEvent domainEvent,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default)
         {
             var asset = await _assetRepository.GetByIdAsync(domainEvent.AssetId, cancellationToken);
             if (asset is null)

@@ -8,12 +8,12 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests.WorkOrders.Events
         public void Ctor_Should_Set_Properties_And_Timestamp()
         {
             // Arrange
-            Guid id = Guid.NewGuid();
-            Guid assetId = Guid.NewGuid();
-            string title = "Title";
+            var id = Guid.NewGuid();
+            var assetId = Guid.NewGuid();
+            var title = "Title";
 
             // Act
-            WorkOrderCreatedEvent evt = new WorkOrderCreatedEvent(id, assetId, title);
+            var evt = new WorkOrderCreatedEvent(id, assetId, title);
 
             // Assert
             Assert.Equal(id, evt.WorkOrderId);

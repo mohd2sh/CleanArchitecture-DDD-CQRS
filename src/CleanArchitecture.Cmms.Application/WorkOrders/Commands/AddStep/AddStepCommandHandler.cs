@@ -1,6 +1,5 @@
 ﻿using CleanArchitecture.Cmms.Application.Abstractions.Persistence.Repositories;
 using CleanArchitecture.Cmms.Domain.WorkOrders;
-using CleanArchitecture.Cmms.Application.WorkOrders;
 
 namespace CleanArchitecture.Cmms.Application.WorkOrders.Commands.AddStep
 {

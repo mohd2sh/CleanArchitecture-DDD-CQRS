@@ -7,16 +7,16 @@
             if (other is null || other.GetType() != GetType())
                 return false;
 
-            object?[] thisValues = GetAtomicValues().ToArray();
-            object?[] otherValues = other.GetAtomicValues().ToArray();
+            var thisValues = GetAtomicValues().ToArray();
+            var otherValues = other.GetAtomicValues().ToArray();
 
             if (thisValues.Length != otherValues.Length)
                 return false;
 
-            for (int i = 0; i < thisValues.Length; i++)
+            for (var i = 0; i < thisValues.Length; i++)
             {
-                object? a = thisValues[i];
-                object? b = otherValues[i];
+                var a = thisValues[i];
+                var b = otherValues[i];
 
                 if (a is null ^ b is null)
                     return false;

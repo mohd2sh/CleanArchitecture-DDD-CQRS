@@ -18,12 +18,11 @@
         public static PaginatedList<T> Create(IReadOnlyList<T> items, int totalCount, int pageNumber, int pageSize)
             => new(items, totalCount, pageNumber, pageSize);
 
-
         public static PaginatedList<T> CreateFromOffset(IReadOnlyList<T> items, int totalCount, int? skip, int? take)
         {
             var pageNumber = skip.HasValue && take.HasValue && take.Value > 0 ? (skip.Value / take.Value) + 1 : 1;
 
-            int pageSize = take ?? totalCount;
+            var pageSize = take ?? totalCount;
 
             return new PaginatedList<T>(items, totalCount, pageNumber, pageSize);
         }

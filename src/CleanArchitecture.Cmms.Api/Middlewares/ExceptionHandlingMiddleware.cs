@@ -84,12 +84,12 @@ namespace CleanArchitecture.Cmms.Api.Middlewares
         {
             var error = ex switch
             {
-                DomainException domainEx => 
+                DomainException domainEx =>
                     Error.Failure(domainEx.Error.Code, domainEx.Error.Message),
                 ValidationException => Error.Validation("Validation.Failure", ex.Message),
                 _ => Error.Failure("General.Failure", ex.Message)
             };
-            
+
             var result = Result.Failure(error);
 
             context.Response.ContentType = "application/json";
@@ -101,7 +101,7 @@ namespace CleanArchitecture.Cmms.Api.Middlewares
         private async Task WriteConcurrencyResponseAsync(HttpContext context, DbUpdateConcurrencyException ex)
         {
             _logger.LogWarning(ex, "Concurrency conflict occurred.");
-            
+
             var result = Result.Failure(AssetErrors.ConcurrencyConflict);
 
             context.Response.ContentType = "application/json";

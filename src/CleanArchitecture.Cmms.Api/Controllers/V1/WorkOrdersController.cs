@@ -26,7 +26,6 @@ namespace CleanArchitecture.Cmms.Api.Controllers.V1
             _mediator = mediator;
         }
 
-
         [HttpPost]
         [ProducesResponseType(typeof(Result<Guid>), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> Create([FromBody] CreateWorkOrderRequest request, CancellationToken cancellationToken)
@@ -35,7 +34,6 @@ namespace CleanArchitecture.Cmms.Api.Controllers.V1
             var result = await _mediator.Send(command, cancellationToken);
             return Ok(result);
         }
-
 
         [HttpPost("{id:guid}/assign")]
         [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
@@ -63,7 +61,6 @@ namespace CleanArchitecture.Cmms.Api.Controllers.V1
             var result = await _mediator.Send(command, cancellationToken);
             return Ok(result);
         }
-
 
         [HttpGet]
         [ProducesResponseType(typeof(PaginatedList<WorkOrderListItemDto>), (int)HttpStatusCode.OK)]

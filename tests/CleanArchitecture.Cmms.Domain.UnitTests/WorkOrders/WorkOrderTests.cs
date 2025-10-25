@@ -13,12 +13,12 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests.WorkOrders
         public void Create_Should_Set_Properties_And_Open_Status()
         {
             // Arrange
-            Guid assetId = Guid.NewGuid();
-            string title = "Fix AC";
-            Location location = Location();
+            var assetId = Guid.NewGuid();
+            var title = "Fix AC";
+            var location = Location();
 
             // Act
-            WorkOrder workOrder = WorkOrder.Create(assetId, title, location);
+            var workOrder = WorkOrder.Create(assetId, title, location);
 
             // Assert
             Assert.Equal(assetId, workOrder.AssetId);
@@ -34,8 +34,8 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests.WorkOrders
         public void Create_Should_Throw_When_Title_Empty()
         {
             // Arrange
-            Guid assetId = Guid.NewGuid();
-            Location location = Location();
+            var assetId = Guid.NewGuid();
+            var location = Location();
 
             // Act
             void act() => WorkOrder.Create(assetId, " ", location);
@@ -48,7 +48,7 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests.WorkOrders
         public void Create_Should_Throw_When_AssetId_Empty()
         {
             // Arrange
-            Location location = Location();
+            var location = Location();
 
             // Act
             void act() => WorkOrder.Create(Guid.Empty, "Title", location);
@@ -61,8 +61,8 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests.WorkOrders
         public void AssignTechnician_From_Open_Should_Set_Assigned_And_TechId()
         {
             // Arrange
-            WorkOrder workOrder = WorkOrder.Create(Guid.NewGuid(), "Title", Location());
-            Guid techId = Guid.NewGuid();
+            var workOrder = WorkOrder.Create(Guid.NewGuid(), "Title", Location());
+            var techId = Guid.NewGuid();
 
             // Act
             workOrder.AssignTechnician(techId);
@@ -76,11 +76,11 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests.WorkOrders
         public void AssignTechnician_From_InProgress_Should_Update_TechId_Keep_Status()
         {
             // Arrange
-            WorkOrder workOrder = WorkOrder.Create(Guid.NewGuid(), "Title", Location());
-            Guid tech1 = Guid.NewGuid();
+            var workOrder = WorkOrder.Create(Guid.NewGuid(), "Title", Location());
+            var tech1 = Guid.NewGuid();
             workOrder.AssignTechnician(tech1);
             workOrder.Start();
-            Guid tech2 = Guid.NewGuid();
+            var tech2 = Guid.NewGuid();
 
             // Act
             workOrder.AssignTechnician(tech2);
@@ -94,7 +94,7 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests.WorkOrders
         public void AssignTechnician_Should_Throw_When_Cancelled()
         {
             // Arrange
-            WorkOrder workOrder = WorkOrder.Create(Guid.NewGuid(), "Title", Location());
+            var workOrder = WorkOrder.Create(Guid.NewGuid(), "Title", Location());
             workOrder.Cancel();
 
             // Act
@@ -108,7 +108,7 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests.WorkOrders
         public void AssignTechnician_Should_Throw_When_Completed()
         {
             // Arrange
-            WorkOrder workOrder = WorkOrder.Create(Guid.NewGuid(), "Title", Location());
+            var workOrder = WorkOrder.Create(Guid.NewGuid(), "Title", Location());
             workOrder.AssignTechnician(Guid.NewGuid());
             workOrder.Start();
             workOrder.Complete(); // No steps -> allowed
@@ -124,14 +124,14 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests.WorkOrders
         public void AddStep_Should_Add_TaskStep()
         {
             // Arrange
-            WorkOrder workOrder = WorkOrder.Create(Guid.NewGuid(), "Title", Location());
+            var workOrder = WorkOrder.Create(Guid.NewGuid(), "Title", Location());
 
             // Act
             workOrder.AddStep("Tighten bolts");
 
             // Assert
             Assert.Single(workOrder.Steps);
-            Domain.WorkOrders.Enitties.TaskStep step = workOrder.Steps.First();
+            var step = workOrder.Steps.First();
             Assert.Equal("Tighten bolts", step.Description);
             Assert.False(step.Completed);
         }
@@ -140,7 +140,7 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests.WorkOrders
         public void AddStep_Should_Throw_When_Description_Empty()
         {
             // Arrange
-            WorkOrder workOrder = WorkOrder.Create(Guid.NewGuid(), "Title", Location());
+            var workOrder = WorkOrder.Create(Guid.NewGuid(), "Title", Location());
 
             // Act
             void act() => workOrder.AddStep(" ");
@@ -153,15 +153,15 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests.WorkOrders
         public void AddComment_Should_Add_Comment()
         {
             // Arrange
-            WorkOrder workOrder = WorkOrder.Create(Guid.NewGuid(), "Title", Location());
-            Guid author = Guid.NewGuid();
+            var workOrder = WorkOrder.Create(Guid.NewGuid(), "Title", Location());
+            var author = Guid.NewGuid();
 
             // Act
             workOrder.AddComment("Looks good", author);
 
             // Assert
             Assert.Single(workOrder.Comments);
-            Domain.WorkOrders.Enitties.Comment c = workOrder.Comments.First();
+            var c = workOrder.Comments.First();
             Assert.Equal("Looks good", c.Text);
             Assert.Equal(author, c.AuthorId);
         }
@@ -170,7 +170,7 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests.WorkOrders
         public void AddComment_Should_Throw_When_Text_Empty()
         {
             // Arrange
-            WorkOrder workOrder = WorkOrder.Create(Guid.NewGuid(), "Title", Location());
+            var workOrder = WorkOrder.Create(Guid.NewGuid(), "Title", Location());
 
             // Act
             void act() => workOrder.AddComment(" ", Guid.NewGuid());
@@ -183,7 +183,7 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests.WorkOrders
         public void Start_From_Assigned_Should_Set_InProgress()
         {
             // Arrange
-            WorkOrder workOrder = WorkOrder.Create(Guid.NewGuid(), "Title", Location());
+            var workOrder = WorkOrder.Create(Guid.NewGuid(), "Title", Location());
             workOrder.AssignTechnician(Guid.NewGuid());
 
             // Act
@@ -197,7 +197,7 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests.WorkOrders
         public void Start_From_NotAssigned_Should_Throw()
         {
             // Arrange
-            WorkOrder workOrder = WorkOrder.Create(Guid.NewGuid(), "Title", Location());
+            var workOrder = WorkOrder.Create(Guid.NewGuid(), "Title", Location());
 
             // Act
             void act() => workOrder.Start();
@@ -210,9 +210,9 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests.WorkOrders
         public void Complete_From_InProgress_With_All_Steps_Done_Should_Set_Completed()
         {
             // Arrange
-            WorkOrder workOrder = WorkOrder.Create(Guid.NewGuid(), "Title", Location());
+            var workOrder = WorkOrder.Create(Guid.NewGuid(), "Title", Location());
             workOrder.AddStep("Step 1");
-            Domain.WorkOrders.Enitties.TaskStep step = workOrder.Steps.First();
+            var step = workOrder.Steps.First();
             step.MarkCompleted();
             workOrder.AssignTechnician(Guid.NewGuid());
             workOrder.Start();
@@ -228,7 +228,7 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests.WorkOrders
         public void Complete_Should_Throw_When_Not_InProgress()
         {
             // Arrange
-            WorkOrder workOrder = WorkOrder.Create(Guid.NewGuid(), "Title", Location());
+            var workOrder = WorkOrder.Create(Guid.NewGuid(), "Title", Location());
 
             // Act
             void act() => workOrder.Complete();
@@ -241,7 +241,7 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests.WorkOrders
         public void Complete_Should_Throw_When_Steps_Not_All_Completed()
         {
             // Arrange
-            WorkOrder workOrder = WorkOrder.Create(Guid.NewGuid(), "Title", Location());
+            var workOrder = WorkOrder.Create(Guid.NewGuid(), "Title", Location());
             workOrder.AddStep("Incomplete step");
             workOrder.AssignTechnician(Guid.NewGuid());
             workOrder.Start();
@@ -257,7 +257,7 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests.WorkOrders
         public void Cancel_From_Open_Should_Set_Cancelled()
         {
             // Arrange
-            WorkOrder workOrder = WorkOrder.Create(Guid.NewGuid(), "Title", Location());
+            var workOrder = WorkOrder.Create(Guid.NewGuid(), "Title", Location());
 
             // Act
             workOrder.Cancel();
@@ -270,7 +270,7 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests.WorkOrders
         public void Cancel_From_InProgress_Should_Set_Cancelled()
         {
             // Arrange
-            WorkOrder workOrder = WorkOrder.Create(Guid.NewGuid(), "Title", Location());
+            var workOrder = WorkOrder.Create(Guid.NewGuid(), "Title", Location());
             workOrder.AssignTechnician(Guid.NewGuid());
             workOrder.Start();
 
@@ -285,7 +285,7 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests.WorkOrders
         public void Cancel_From_Completed_Should_Throw()
         {
             // Arrange
-            WorkOrder workOrder = WorkOrder.Create(Guid.NewGuid(), "Title", Location());
+            var workOrder = WorkOrder.Create(Guid.NewGuid(), "Title", Location());
             workOrder.AssignTechnician(Guid.NewGuid());
             workOrder.Start();
             workOrder.Complete();

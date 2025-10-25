@@ -8,12 +8,12 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests.WorkOrders.ValueObjects
         public void Create_Should_Set_Properties()
         {
             // Arrange
-            string building = "B1";
-            string floor = "F2";
-            string room = "R3";
+            var building = "B1";
+            var floor = "F2";
+            var room = "R3";
 
             // Act
-            Location location = Location.Create(building, floor, room);
+            var location = Location.Create(building, floor, room);
 
             // Assert
             Assert.Equal(building, location.Building);
@@ -25,10 +25,10 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests.WorkOrders.ValueObjects
         public void ChangeBuilding_Should_Return_New_With_Updated_Building()
         {
             // Arrange
-            Location location = Location.Create("B1", "F2", "R3");
+            var location = Location.Create("B1", "F2", "R3");
 
             // Act
-            Location changed = location.ChangeBuilding("B2");
+            var changed = location.ChangeBuilding("B2");
 
             // Assert
             Assert.Equal("B2", changed.Building);
@@ -41,10 +41,10 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests.WorkOrders.ValueObjects
         public void ChangeFloor_Should_Return_New_With_Updated_Floor()
         {
             // Arrange
-            Location location = Location.Create("B1", "F2", "R3");
+            var location = Location.Create("B1", "F2", "R3");
 
             // Act
-            Location changed = location.ChangeFloor("F3");
+            var changed = location.ChangeFloor("F3");
 
             // Assert
             Assert.Equal("B1", changed.Building);
@@ -56,10 +56,10 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests.WorkOrders.ValueObjects
         public void ChangeRoom_Should_Return_New_With_Updated_Room()
         {
             // Arrange
-            Location loc = Location.Create("B1", "F2", "R3");
+            var loc = Location.Create("B1", "F2", "R3");
 
             // Act
-            Location changed = loc.ChangeRoom("R9");
+            var changed = loc.ChangeRoom("R9");
 
             // Assert
             Assert.Equal("B1", changed.Building);
@@ -71,10 +71,10 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests.WorkOrders.ValueObjects
         public void ToString_Should_Format_As_Building_Floor_Room()
         {
             // Arrange
-            Location location = Location.Create("B", "F", "R");
+            var location = Location.Create("B", "F", "R");
 
             // Act
-            string result = location.ToString();
+            var result = location.ToString();
 
             // Assert
             Assert.Equal("B:F:R", result);
@@ -84,11 +84,11 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests.WorkOrders.ValueObjects
         public void Equality_Should_Work_For_Same_Values()
         {
             // Arrange
-            Location valueObjectOne = Location.Create("B1", "F2", "R3");
-            Location valueObjectTwo = Location.Create("B1", "F2", "R3");
+            var valueObjectOne = Location.Create("B1", "F2", "R3");
+            var valueObjectTwo = Location.Create("B1", "F2", "R3");
 
             // Act
-            bool eq = valueObjectOne == valueObjectTwo;
+            var eq = valueObjectOne == valueObjectTwo;
 
             // Assert
             Assert.True(eq);

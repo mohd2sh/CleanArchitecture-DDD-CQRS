@@ -1,5 +1,4 @@
 ﻿using CleanArchitecture.Cmms.Domain.Abstractions;
-using CleanArchitecture.Cmms.Domain.Abstractions;
 
 namespace CleanArchitecture.Cmms.Domain.UnitTests.Abstractions
 {

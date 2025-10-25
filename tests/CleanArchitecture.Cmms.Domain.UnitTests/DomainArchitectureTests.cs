@@ -12,14 +12,14 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests
         public void ValueObjects_Should_Be_Immutable()
         {
             // Arrange
-            IEnumerable<Type> valueObjectTypes = Types
+            var valueObjectTypes = Types
                 .InAssembly(DomainAssembly)
                 .That()
                 .Inherit(typeof(ValueObject))
                 .GetTypes();
 
             // Act
-            List<PropertyInfo> invalid = valueObjectTypes
+            var invalid = valueObjectTypes
                 .SelectMany(t => t.GetProperties(BindingFlags.Public | BindingFlags.Instance))
                 .Where(p =>
                 {
@@ -32,7 +32,7 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests
                         return false;
 
                     // If the setter is an 'init' accessor, it's fine (immutable)
-                    bool hasInitOnlySetter = p.SetMethod.ReturnParameter
+                    var hasInitOnlySetter = p.SetMethod.ReturnParameter
                         .GetRequiredCustomModifiers()
                         .Any(m => m.Name == "IsExternalInit");
 
@@ -45,21 +45,20 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests
                 $"ValueObjects should be immutable (no public non-init setters). Found: {string.Join(", ", invalid.Select(p => p.DeclaringType?.Name + '.' + p.Name))}");
         }
 
-
         [Fact]
         public void DomainEvents_Should_Be_Sealed_And_EndWith_Event()
         {
             // Arrange
-            Type domainEventInterface = typeof(IDomainEvent);
-            IEnumerable<Type> eventTypes = Types
+            var domainEventInterface = typeof(IDomainEvent);
+            var eventTypes = Types
                 .InAssembly(DomainAssembly)
                 .That()
                 .ImplementInterface(domainEventInterface)
                 .GetTypes();
 
             // Act
-            List<Type> notSealed = eventTypes.Where(t => !t.IsSealed).ToList();
-            List<Type> invalidNames = eventTypes.Where(t => !t.Name.EndsWith("Event")).ToList();
+            var notSealed = eventTypes.Where(t => !t.IsSealed).ToList();
+            var invalidNames = eventTypes.Where(t => !t.Name.EndsWith("Event")).ToList();
 
             // Assert
             Assert.True(!notSealed.Any(),
@@ -68,28 +67,27 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests
                 $"Domain events must end with 'Event'. Found invalid names: {string.Join(", ", invalidNames.Select(t => t.Name))}");
         }
 
-
         [Fact]
         public void Entities_Should_Not_Reference_Other_AggregateRoots()
         {
             // Arrange
-            Type aggregateRootType = typeof(IAggregateRoot);
-            Type entityType = typeof(Entity<>);
+            var aggregateRootType = typeof(IAggregateRoot);
+            var entityType = typeof(Entity<>);
 
-            IEnumerable<Type> aggregateRoots = Types
+            var aggregateRoots = Types
                 .InAssembly(DomainAssembly)
                 .That()
                 .ImplementInterface(aggregateRootType)
                 .GetTypes();
 
-            IEnumerable<Type> entities = Types
+            var entities = Types
                 .InAssembly(DomainAssembly)
                 .That()
                 .Inherit(entityType)
                 .GetTypes();
 
             // Act
-            List<(Type Parent, Type Type)> invalid = entities
+            var invalid = entities
                 .SelectMany(e =>
                     e.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
                      .Select(f => (Parent: e, Type: f.FieldType))
@@ -109,9 +107,9 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests
         public void Entities_ValueObjects_AggregateRoots_Should_Have_Only_Private_Constructors()
         {
             // Arrange
-            Type entityType = typeof(Entity<>);
-            Type valueObjectType = typeof(ValueObject);
-            Type aggregateRootType = typeof(IAggregateRoot);
+            var entityType = typeof(Entity<>);
+            var valueObjectType = typeof(ValueObject);
+            var aggregateRootType = typeof(IAggregateRoot);
 
             var candidates = Types
                 .InAssembly(DomainAssembly)
@@ -147,20 +145,19 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests
                 $"Entities, ValueObjects, and AggregateRoots should have only private constructors. Violations: {string.Join(", ", invalid)}");
         }
 
-
         [Fact]
         public void Entities_Should_Have_Private_Parameterless_Constructor()
         {
             // Arrange
-            Type entityType = typeof(Entity<>);
-            IEnumerable<Type> entities = Types
+            var entityType = typeof(Entity<>);
+            var entities = Types
                 .InAssembly(DomainAssembly)
                 .That()
                 .Inherit(entityType)
                 .GetTypes();
 
             // Act
-            List<Type> invalid = entities
+            var invalid = entities
                 .Where(t => !t.GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance)
                               .Any(c => c.GetParameters().Length == 0))
                 .ToList();
@@ -174,11 +171,11 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests
         public void Domain_Types_Should_Be_Internal()
         {
             // Arrange
-            Type entityType = typeof(Entity<>);
-            Type aggregateRootType = typeof(IAggregateRoot);
-            Type valueObjectType = typeof(ValueObject);
+            var entityType = typeof(Entity<>);
+            var aggregateRootType = typeof(IAggregateRoot);
+            var valueObjectType = typeof(ValueObject);
 
-            IEnumerable<Type> domainTypes = Types
+            var domainTypes = Types
                 .InAssembly(DomainAssembly)
                 .That()
                 .Inherit(entityType)
@@ -191,31 +188,30 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests
                 .GetTypes();
 
             // Act
-            List<Type> invalid = domainTypes.Where(t => t.IsPublic).ToList();
+            var invalid = domainTypes.Where(t => t.IsPublic).ToList();
 
             // Assert
             Assert.True(!invalid.Any(),
                 $"Domain types should be internal. Found public: {string.Join(", ", invalid.Select(t => t.Name))}");
         }
 
-
         [Fact]
         public void Domain_Should_Not_Depend_On_Other_Layers()
         {
             // Arrange
-            Assembly domainAssembly = typeof(Entity<>).Assembly;
+            var domainAssembly = typeof(Entity<>).Assembly;
 
-            Assembly applicationAssembly = typeof(Application.ServiceCollectionExtensions).Assembly;
-            Assembly infrastructureAssembly = typeof(Infrastructure.ServiceCollectionExtensions).Assembly;
+            var applicationAssembly = typeof(Application.ServiceCollectionExtensions).Assembly;
+            var infrastructureAssembly = typeof(Infrastructure.ServiceCollectionExtensions).Assembly;
 
-            string[] forbiddenAssemblies = new[]
+            var forbiddenAssemblies = new[]
             {
                 applicationAssembly.GetName().Name!,
                 infrastructureAssembly.GetName().Name!,
             };
 
             // Act
-            TestResult result = Types
+            var result = Types
                 .InAssembly(domainAssembly)
                 .ShouldNot()
                 .HaveDependencyOnAny(forbiddenAssemblies)
@@ -226,20 +222,19 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests
                 $"Domain layer must not depend on: {string.Join(", ", forbiddenAssemblies)}");
         }
 
-
         [Fact]
         public void ValueObjects_Should_Be_Sealed()
         {
             // Arrange
-            Type valueObjectType = typeof(ValueObject);
-            IEnumerable<Type> valueObjects = Types
+            var valueObjectType = typeof(ValueObject);
+            var valueObjects = Types
                 .InAssembly(DomainAssembly)
                 .That()
                 .Inherit(valueObjectType)
                 .GetTypes();
 
             // Act
-            List<Type> invalid = valueObjects.Where(t => !t.IsSealed).ToList();
+            var invalid = valueObjects.Where(t => !t.IsSealed).ToList();
 
             // Assert
             Assert.True(!invalid.Any(),

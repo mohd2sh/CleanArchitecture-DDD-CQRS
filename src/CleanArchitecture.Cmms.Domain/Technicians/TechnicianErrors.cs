@@ -1,7 +1,6 @@
 using CleanArchitecture.Cmms.Domain.Abstractions;
 using CleanArchitecture.Cmms.Domain.Abstractions.Attributes;
 
-
 namespace CleanArchitecture.Cmms.Domain.Technicians;
 
 /// <summary>
@@ -35,8 +34,6 @@ public static class TechnicianErrors
         "Technician.AssignmentNotFound",
         "Assignment not found.");
 
-
-
     [DomainError]
     public static readonly DomainError AlreadyUnderMaintenance = DomainError.Create(
         "Asset.AlreadyUnderMaintenance",
@@ -56,7 +53,6 @@ public static class TechnicianErrors
     public static readonly DomainError MaintenancePerformerRequired = DomainError.Create(
         "Asset.MaintenancePerformerRequired",
         "Maintenance performer name cannot be empty.");
-
 
     [DomainError]
     public static readonly DomainError LevelNameRequired = DomainError.Create(

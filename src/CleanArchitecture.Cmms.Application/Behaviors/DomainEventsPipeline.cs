@@ -59,7 +59,7 @@ public class DomainEventsPipeline<TCommand, TResult>
         List<IDomainEvent> integrationEvents,
         CancellationToken cancellationToken)
     {
-        int batchNumber = 1;
+        var depth = 1;
 
         while (true)
         {
@@ -69,8 +69,8 @@ public class DomainEventsPipeline<TCommand, TResult>
             if (domainEvents.Count == 0)
                 break; // No more events to process
 
-            _logger.LogDebug("Processing domain event batch {BatchNumber} with {EventCount} events",
-                batchNumber, domainEvents.Count);
+            _logger.LogDebug("Processing domain event depth {Depth} with {EventCount} events",
+                depth, domainEvents.Count);
 
             foreach (var domainEvent in domainEvents)
             {
@@ -81,7 +81,7 @@ public class DomainEventsPipeline<TCommand, TResult>
                 integrationEvents.Add(domainEvent);
             }
 
-            batchNumber++;
+            depth++;
         }
     }
 

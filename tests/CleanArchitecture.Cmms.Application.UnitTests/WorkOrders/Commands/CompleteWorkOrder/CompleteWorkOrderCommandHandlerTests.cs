@@ -65,17 +65,4 @@ public class CompleteWorkOrderCommandHandlerTests
         workOrder.Start();
         return workOrder;
     }
-
-    private static WorkOrder CreateWorkOrderWithoutTechnician()
-    {
-        var location = Location.Create("Building A", "Floor 1", "Room 101");
-
-        var workOrder = WorkOrder.Create(Guid.NewGuid(), "Test Work Order", location);
-
-        workOrder.AssignTechnician(Guid.NewGuid());
-
-        workOrder.Start();
-
-        return workOrder;
-    }
 }

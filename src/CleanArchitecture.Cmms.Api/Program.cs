@@ -10,7 +10,6 @@ using CleanArchitecture.Cmms.Infrastructure.Persistence.EfCore;
 using CleanArchitecture.Cmms.Outbox;
 using Serilog;
 
-
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
     .CreateBootstrapLogger();
@@ -18,7 +17,6 @@ Log.Logger = new LoggerConfiguration()
 try
 {
     Log.Information("Starting up CleanArchitecture.Cmms API");
-
 
     var builder = WebApplication.CreateBuilder(args);
 

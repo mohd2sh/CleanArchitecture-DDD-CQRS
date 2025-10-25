@@ -14,8 +14,6 @@ namespace CleanArchitecture.Cmms.Infrastructure.Persistence
         internal DbSet<Technician> Technicians => Set<Technician>();
         internal DbSet<Asset> Assets => Set<Asset>();
 
-
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(CmmsDbContextBase).Assembly);

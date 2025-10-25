@@ -9,7 +9,7 @@ namespace CleanArchitecture.Cmms.Infrastructure.Messaging.Wrappers;
 internal abstract class CommandHandlerWrapperBase<TResult>
 {
     public abstract Task<TResult> Handle(
-        ICommand<TResult> command, 
+        ICommand<TResult> command,
         IServiceProvider serviceProvider,
         CancellationToken cancellationToken);
 }

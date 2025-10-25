@@ -15,9 +15,7 @@ namespace CleanArchitecture.Cmms.Domain.WorkOrders.ValueObjects
             Room = room;
         }
 
-
         private Location() { } // EF Core
-
 
         public static Location Create(string building, string floor, string room)
             => new(building, floor, room);
