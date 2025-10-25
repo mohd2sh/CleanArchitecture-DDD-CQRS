@@ -29,6 +29,7 @@ Thank you for your interest in contributing to this Clean Architecture template!
 3. Ensure all tests pass: `dotnet test`
 4. Update documentation if needed
 5. Commit with clear messages
+6. Create a pull request with the 'develop' branch
 
 ### Code Style
 - Follow existing code patterns

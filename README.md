@@ -1,8 +1,8 @@
 # Clean Architecture DDD CQRS Template
 
-A production-ready template demonstrating Clean Architecture, Domain-Driven Design (DDD), and CQRS principles in .NET 8. This template provides a solid foundation for building maintainable, testable, and scalable applications.
+A ready template demonstrating Clean Architecture, Domain-Driven Design (DDD), and CQRS principles in .NET 8. This template provides a solid foundation for building maintainable, testable, and scalable applications.
 
-## Overview
+## Introduction
 
 This template implements a **Computerized Maintenance Management System (CMMS)** - a domain that manages work orders, asset maintenance, and technician assignments. The CMMS domain is perfect for demonstrating DDD patterns because it has:
 
@@ -22,12 +22,6 @@ A CMMS system manages maintenance operations for organizations:
 
 The system handles the complete maintenance lifecycle: from creating work orders when issues are reported, to assigning qualified technicians, tracking progress, and completing the work.
 
-## ⭐ Give it a Star!
-
-If this template helped you or your team, please consider giving it a star! It helps others discover this project and motivates continued development.
-
-[![GitHub stars](https://img.shields.io/github/stars/mohd2sh/CleanArchitecture-DDD-CQRS?style=social)](https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS/stargazers)
-
 ## Philosophy
 
 This template demonstrates that Clean Architecture doesn't have to be complex. It shows how to apply DDD and CQRS pragmatically - with enough structure to maintain boundaries and enable testing, but without over-engineering or speculative abstractions.
@@ -40,161 +34,304 @@ This template demonstrates that Clean Architecture doesn't have to be complex. I
 - **Pragmatic CQRS** - Separate read/write models where it adds value
 - **Architectural Governance** - Automated tests prevent boundary violations
 
-## Key Benefits
+## Quick Start
 
-### Type-Safe Domain Modeling
-- Encapsulated aggregates with business rules
-- Immutable value objects preventing invalid states
-- Domain events capturing meaningful business changes
+### Prerequisites
+- .NET 8 SDK
+- Docker (recommended) or SQL Server (LocalDB, Express, or full)
+- Visual Studio 2022 or VS Code
 
-### Optimized CQRS Implementation
-- **Write side (Commands):** EF Core with change tracking, transactions, and optimistic concurrency
-  - Uses `IRepository` with Unit of Work for consistency and ACID guarantees
-  - Row-level locking and validation to prevent race conditions
-  - Business rules enforced through domain aggregates
-- **Read side (Queries):** Flexible data sources for performance
-  - Primary: Dapper for fast SQL queries against read replicas
-  - Optional: Redis for cached reads, Elasticsearch for search, or NoSQL stores
-  - Eventually consistent reads acceptable (no locks, optimized for throughput)
-- Clear separation preventing accidental coupling between read/write models
+### Option 1: Docker Compose (Recommended)
 
-### Architectural Tests
-- Automated boundary enforcement
-- Prevents future architectural degradation
-- Documents architectural decisions in code
+The easiest way to run the application with all dependencies:
 
-### Pipeline Behaviors
-- Dedicated pipelines for Commands and Queries with shared behaviors
-- Command Pipeline: Validation → Transaction → Domain Events
-- Query Pipeline: Validation → Logging (no transactions)
-- Generic behaviors applicable to both pipelines
-- Cross-cutting concerns in one place, easy to add new behaviors
+```bash
+git clone https://github.com/your-username/Company.Cmms.git
+cd Company.Cmms
+docker-compose up
+```
 
-## What's Included
+**What's included:**
+- SQL Server 2022 container with automatic setup
+- API service
+- Automatic database migrations and seeding
+- Access APIs
+
+### Option 2: Local Development
+
+Run the API locally with your own SQL Server instance:
+
+```bash
+git clone https://github.com/your-username/Company.Cmms.git
+cd Company.Cmms
+dotnet run --project src/CleanArchitecture.Cmms.Api
+```
+
+**Configure connection strings (optional):**
+```json
+// appsettings.Development.json
+{
+  "ConnectionStrings": {
+    "WriteDb": "Server=(localdb)\\mssqllocaldb;Database=CmmsWrite;Trusted_Connection=true;",
+    "ReadDb": "Server=(localdb)\\mssqllocaldb;Database=CmmsRead;Trusted_Connection=true;"
+  }
+}
+```
+
+The application automatically creates databases, runs migrations, and seeds initial data on first run.
+
+### Explore the API
+
+Open Swagger UI and try the endpoints:
+- Create a work order
+- Assign a technician
+- Complete the work order
+- Observe domain events and integration events in action
+
+## Key Features Overview
+
+This template includes production-ready implementations of enterprise patterns:
 
 ### Core Architecture
-- Clean Architecture layers (Domain, Application, Infrastructure, API)
+- Clean Architecture layers with dependency inversion
 - DDD tactical patterns (Aggregates, Entities, Value Objects, Domain Events)
-- CQRS with separate read/write models (EF Core + Dapper)
-- Repository pattern with separate read/write repositories
-- Unit of Work pattern for transaction management
+- **CQRS**: EF Core for writes, flexible read sources (Dapper, read replicas, Redis, Elasticsearch)
+- Repository pattern with Unit of Work
+- **Custom Mediator**: No MediatR dependency, full control over CQRS pipeline
 
-### Cross-Cutting Concerns
+### Event-Driven Architecture
+- **Dual Event Handlers**: `IDomainEventHandler` (transactional) + `IIntegrationEventHandler` (async)
+- **Outbox Pattern**: Guaranteed event delivery with at-least-once semantics
+- **Cross-aggregate coordination** via domain events (per ADR-001)
+- Background processor for integration event delivery
+
+### Reliability & Consistency
+- **Optimistic concurrency control** with SQL Server RowVersion
 - Result pattern for consistent error handling
-- MediatR pipeline behaviors (Logging, Validation, Transaction, Domain Events)
-- FluentValidation integration with automatic validation
-- Serilog structured logging with request/response tracking
-- Global exception handling with proper HTTP status mapping
+- Pipeline behaviors (Validation, Transaction, Logging, Events)
+- Structured error export API for frontend localization
 
-### API & Documentation
-- API versioning with Swagger/OpenAPI
-- Domain event publishing and handling
-- Comprehensive architectural tests
-- Docker support with multi-stage builds
-
-### Quality Assurance
-- Unit tests for Domain and Application layers
-- Architecture tests enforcing boundaries
-- Test coverage for critical business logic
-- Clear project structure and naming conventions
-
-## What's Not Included
-
-### Deliberately Excluded for Simplicity
-- **Authentication/Authorization** - Use IdentityServer, Auth0, or Azure AD
-- **Message Bus/Event Bus** - Add RabbitMQ, MassTransit, or Azure Service Bus as needed
-- **Outbox Pattern** - For guaranteed event delivery in distributed systems
-- **Event Sourcing** - Different paradigm, add separately if needed
-- **Multi-tenancy** - Add as needed per business requirements
-- **Caching Layer** - Add Redis, MemoryCache, or CDN as needed
-- **API Gateway** - Use Ocelot, YARP, or cloud-native solutions
-- **Production Infrastructure** - Basic Dockerfile included, add K8s configs as needed
-- **Frontend Application** - API-first approach, add React/Vue/Angular separately
+### Quality & Documentation
+- **Comprehensive architecture tests**: 15+ automated tests enforcing DDD/Clean Architecture
+- Unit tests for Domain & Application layers
+- FluentValidation integration
+- Swagger/OpenAPI with versioning
+- Docker Compose with SQL Server 2022
 
 ## Architecture Overview
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                        API Layer                           │
-│  Controllers, Middleware, Filters, Exception Handling      │
-└─────────────────────┬───────────────────────────────────────┘
-                      │
-┌─────────────────────▼───────────────────────────────────────┐
-│                    Application Layer                        │
-│  Commands, Queries, Handlers, DTOs, Validation              │
-└─────────────────────┬───────────────────────────────────────┘
-                      │
-┌─────────────────────▼───────────────────────────────────────┐
-│                      Domain Layer                           │
-│  Aggregates, Entities, Value Objects, Domain Events        │
-└─────────────────────┬───────────────────────────────────────┘
-                      │
-┌─────────────────────▼───────────────────────────────────────┐
-│                  Infrastructure Layer                       │
-│  Persistence, External Services, Message Publishing         │
-└─────────────────────────────────────────────────────────────┘
-```
+![System Architecture Overview](docs/diagrams/Overview.png)
 
-### CQRS Flow
+### CQRS Flow with Events
 
-```
-┌─────────────┐    ┌──────────────┐    ┌─────────────┐
-│   Command   │───▶│   Handler    │───▶│  Write DB   │
-│             │    │              │    │  (EF Core)  │
-└─────────────┘    └──────────────┘    └─────────────┘
-                           │
-                           ▼
-                   ┌──────────────┐
-                   │ Domain Event │
-                   │  Publishing  │
-                   └──────────────┘
+**Write Path (Commands):**
 
-┌─────────────┐    ┌──────────────┐    ┌─────────────┐
-│    Query    │───▶│   Handler    │───▶│   Read DB   │
-│             │    │              │    │  (Dapper)   │
-└─────────────┘    └──────────────┘    └─────────────┘
-```
+![Command Flow](docs/diagrams/CommandFlow.png)
 
-### Write vs Read Consistency Models
+Shows the complete write path from command through handler, domain events, transactional handlers, integration event handlers, outbox pattern, and background worker.
 
-**Write Path (Strong Consistency):**
-```
-┌─────────────┐    ┌──────────────┐    ┌─────────────────┐
-│   Command   │───▶│   Handler    │───▶│   WriteDB       │
-│             │    │  +IRepository│    │   (EF Core)     │
-└─────────────┘    └──────┬───────┘    └─────────────────┘
-                          │
-                          │  - ACID transactions
-                          │  - Optimistic concurrency
-                          │  - Row-level locks
-                          ▼  - Race condition protection
-                   ┌──────────────┐
-                   │ Domain Event │
-                   │  Publishing  │
-                   └──────────────┘
-```
+**Read Path (Queries):**
 
-**Read Path (Eventual Consistency):**
-```
-┌─────────────┐    ┌──────────────┐    ┌──────────────────┐
-│    Query    │───▶│   Handler    │───▶│  Read Sources    │
-│             │    │              │    │                  │
-└─────────────┘    └──────────────┘    │ • Read Replica   │
-                                        │ • Redis Cache    │
-                                        │ • Elasticsearch  │
-                                        │ • NoSQL Stores   │
-                                        └──────────────────┘
-                                        
-• No locks, optimized for throughput
-• Eventually consistent (acceptable trade-off)
-• Multiple data source options
-• Horizontal scaling friendly
-```
+![Query Flow](docs/diagrams/QueryFlow.png)
+
+Shows the flexible read path supporting multiple data sources (Read Replica, Redis Cache, Elasticsearch, Dapper) with eventual consistency.
+
+## Core Patterns Explained
+
+### CQRS Implementation
+
+This template separates read and write operations for optimal performance and scalability.
+
+**Write Side (Commands):**
+- Uses EF Core with change tracking and transactions
+- Implements `IRepository<T>` with Unit of Work pattern
+- Strong consistency with ACID guarantees
+- RowVersion for optimistic concurrency
+- Business rules enforced in domain aggregates
+- Transactional consistency required
+
+**Read Side (Queries):**
+- **Flexible data sources** - not limited to a single technology
+- Current implementation: Dapper for fast SQL queries
+- Can use: Read replicas, Redis cache, Elasticsearch, NoSQL stores
+- **Eventually consistent** - does not require transactional consistency
+- No change tracking overhead
+- Optimized for throughput and scalability
+- Horizontal scaling friendly
 
 **Key Principles:**
-- **Commands:** Use `IRepository` + `IUnitOfWork` for consistency, validation, and race condition prevention
-- **Queries:** Use `IReadDbContext` (Dapper) or alternative sources for performance
-- **Separation:** Write and read models never cross paths
+- Write and read models never cross paths - prevents accidental coupling
+- Architecture tests enforce separation (queries cannot use `IRepository`, commands cannot use `IReadRepository`)
+- Read side can be optimized independently based on query patterns
+
+### Event-Driven Architecture
+
+The template implements a dual event handler system with guaranteed delivery via the Outbox Pattern.
+
+#### IDomainEventHandler (Transactional Events)
+
+**Characteristics:**
+- Executes **synchronously** within the same transaction
+- Modifies aggregate state via repositories
+- Changes committed atomically with the command
+- Failure causes transaction rollback
+
+**Use Cases:**
+- Cross-aggregate state synchronization
+- Business rule enforcement across aggregates
+- Critical operations requiring ACID guarantees
+
+**Example:**
+```csharp
+// WorkOrder created → Asset must be set to "Under Maintenance"
+public class WorkOrderCreatedEventHandler : IDomainEventHandler<WorkOrderCreatedEvent>
+{
+    public async Task Handle(WorkOrderCreatedEvent @event, CancellationToken ct)
+    {
+        var asset = await _assetRepository.GetByIdAsync(@event.AssetId, ct);
+        asset.SetUnderMaintenance(); // Saved in same transaction
+    }
+}
+```
+
+#### IIntegrationEventHandler (Asynchronous Events)
+
+**Characteristics:**
+- Executes **asynchronously** via Outbox Pattern
+- Written to outbox table in same transaction as command
+- Background processor handles delivery
+- Guaranteed delivery with automatic retry
+- Survives application restarts
+
+**Use Cases:**
+- Sending notifications (email, SMS, push)
+- Publishing to message bus for external systems
+- Logging and auditing
+- Analytics and reporting
+
+**Example:**
+```csharp
+// WorkOrder completed → Send notification email
+public class EmailWorkOrderCompletedHandler : IIntegrationEventHandler<WorkOrderCompletedEvent>
+{
+    public async Task Handle(WorkOrderCompletedEvent @event, CancellationToken ct)
+    {
+        await _emailService.SendCompletionNotification(@event.WorkOrderId);
+        // Email failure won't rollback work order completion
+    }
+}
+```
+
+#### Outbox Pattern Implementation
+
+**How It Works:**
+1. Integration events written to `Outbox` table within command's transaction
+2. Background processor polls outbox for unprocessed events
+3. Processor deserializes and invokes integration event handlers
+4. Events marked as processed with retry count tracking
+5. Failed events automatically retried with configurable attempts
+
+**Benefits:**
+-  Guaranteed delivery (transactional consistency)
+-  Survives application restarts (persisted)
+-  Automatic retry on failure
+-  At-least-once delivery semantics
+-  Production-ready reliability
+
+**Migration Path to Microservices:**
+```csharp
+// Today (Monolith)
+IntegrationEvent → Outbox Table → Background Worker → Handlers
+
+// Tomorrow (Microservices)
+IntegrationEvent → Outbox Table → Background Worker → Message Bus (RabbitMQ) → External Services
+```
+
+#### Decision Flowchart: Which Handler to Use?
+
+```
+Does the handler modify aggregate state?
+├─ Yes → Does it require immediate consistency?
+│         ├─ Yes → IDomainEventHandler (transactional)
+│         └─ No  → IIntegrationEventHandler (outbox)
+│
+└─ No  → Is it a notification or external call?
+          └─ Yes → IIntegrationEventHandler (outbox)
+```
+
+### Optimistic Concurrency Control
+
+This template implements **optimistic concurrency control** using SQL Server's `ROWVERSION` (timestamp) columns to prevent race conditions and ensure data consistency.
+
+#### How It Works
+
+**RowVersion Implementation:**
+```csharp
+// Domain/Abstractions/AggregateRoot.cs
+public abstract class AggregateRoot<TId> : AuditableEntity<TId>, IAggregateRoot
+{
+    [Timestamp]
+    public byte[] RowVersion { get; protected set; } = default!;
+}
+
+// Infrastructure/Persistence/Configurations/AuditableEntityConfiguration.cs
+builder.Property(e => e.RowVersion)
+    .IsRowVersion()
+    .IsConcurrencyToken();
+```
+
+**Concurrency Protection Flow:**
+1. Load Entity → RowVersion = `0x0000000000000001`
+2. Modify Entity → Changes tracked in memory
+3. SaveChanges() → SQL: `WHERE Id = @id AND RowVersion = @version`
+4. If RowVersion changed → `DbUpdateConcurrencyException` thrown
+5. Exception Handling → HTTP 409 Conflict with user-friendly error
+
+
+### Error Management System
+
+The template implements a comprehensive error management system with attribute-based discovery, export capability, and architecture testing.
+
+**Domain Layer Errors:**
+```csharp
+[ErrorCodeDefinition("WorkOrder")]
+internal static class WorkOrderErrors
+{
+    [DomainError("WorkOrder.TitleRequired")]
+    public const string TitleRequired = "Work order title cannot be empty.";
+}
+```
+
+**Application Layer Errors:**
+```csharp
+[ErrorCodeDefinition("WorkOrder")]
+public static class WorkOrderErrors
+{
+    [ApplicationError]
+    public static readonly Error NotFound = Error.NotFound(
+        "WorkOrder.NotFound",
+        "Work order not found.");
+}
+```
+
+**Export API for Frontend Localization:**
+```bash
+# Export all errors
+GET /api/v1/errors/export
+
+# Export application errors only
+GET /api/v1/errors/application
+
+# Export domain errors only
+GET /api/v1/errors/domain
+```
+
+**Features:**
+1. **Attribute-Based Discovery** - Errors marked with `[DomainError]` and `[ApplicationError]`
+2. **Centralized Management** - One error class per aggregate
+3. **Architecture Tests** - Automated enforcement of attribute usage
+4. **Export Capability** - Stable error codes for client-side localization
+5. **Type Safety** - Compile-time error code validation
 
 ## Key Design Decisions
 
@@ -216,13 +353,23 @@ return Result.Failure("Asset not found");
 ```
 **Why:** Business rule violations aren't exceptional - they're expected business outcomes.
 
-### 4. MediatR Abstraction
+### 4. Custom Mediator Implementation
 ```csharp
-public interface IMediator { ... }
+public interface IMediator
+{
+    Task<TResult> Send<TResult>(ICommand<TResult> command, CancellationToken ct);
+    Task<TResult> Send<TResult>(IQuery<TResult> query, CancellationToken ct);
+}
+
+internal sealed class CustomMediator : IMediator
+{
+    // Custom implementation using pipeline pattern
+}
 ```
-**Why:** Not directly dependent on MediatR - can swap implementations if needed.
+**Why:** No third-party dependencies (MediatR removed). Full control over CQRS pipeline, tailored to our specific needs, uses wrapper pattern for type-safe handler resolution.
 
 ### 5. Pipeline Behaviors - Separate Command and Query Pipelines
+
 **Command Pipeline:**
 ```csharp
 Logging → Validation → Transaction → DomainEvents
@@ -235,172 +382,40 @@ Logging → Validation → Transaction → DomainEvents
 Logging → Validation
 ```
 - No transactions (read-only, no side effects)
-- Can read from eventually consistent sources (replicas, cache, Elasticsearch)
+- Can read from eventually consistent sources
 
-**Generic Behaviors:**
-- Logging applies to both commands and queries
-- Validation enforced on both pipelines
-- Custom behaviors can target specific pipeline types
+**Why:** Commands require consistency and transactions; queries prioritize performance.
 
-**Why:** Commands require consistency and transactions; queries prioritize performance and can tolerate eventual consistency.
+### 6. Dual Event Handler Types
 
-### 6. Domain Events Cleared After Publishing
-```csharp
-aggregates.ForEach(a => a.ClearDomainEvents());
-```
-**Why:** Prevents re-processing events, ensures clean state.
+**IDomainEventHandler:** Synchronous, transactional, strong consistency
+**IIntegrationEventHandler:** Asynchronous via outbox, eventual consistency
 
-### 7. Architecture Tests
+**Why:** Different operations have different consistency requirements. By making this explicit at the type system level, we provide clear guidance to developers.
+
+### 7. Outbox Pattern for Integration Events
+
+Integration events written to outbox table within same transaction, background processor handles delivery.
+
+**Why:** Guarantees reliable, guaranteed delivery of integration events with at-least-once semantics, even across system restarts.
+
+### 8. Event-Driven Cross-Aggregate Coordination
+
+Domain events are the primary pattern for cross-aggregate coordination (per ADR-001).
+
+**Why:** Maintains aggregate boundaries, provides ACID guarantees, enables natural evolution to microservices.
+
+### 9. Architecture Tests
 ```csharp
 [Fact] public void Application_Should_Not_Depend_On_Infrastructure()
 ```
 **Why:** Automated enforcement prevents architectural degradation over time.
 
-### 8. Bounded Contexts
+### 10. Bounded Contexts
 ```
 WorkOrders/ | Technicians/ | Assets/
 ```
 **Why:** Features isolated, preventing cross-domain coupling.
-
-### 9. Simple Domain Exceptions
-```csharp
-throw new DomainException("Work order title cannot be empty");
-```
-**Why:** Simplicity over complex exception hierarchies. Can be enhanced to specific domain exceptions or business rules as needed.
-
-## Error Management
-
-### Structured Error Handling
-
-The template implements a comprehensive error management system using attributes for discoverability, export, and architecture testing.
-
-### Error Organization
-
-**Domain Layer:**
-```csharp
-[ErrorCodeDefinition("WorkOrder")]
-internal static class WorkOrderErrors
-{
-    [DomainError("WorkOrder.TitleRequired")]
-    public const string TitleRequired = "Work order title cannot be empty.";
-}
-```
-
-**Application Layer:**
-```csharp
-[ErrorCodeDefinition("WorkOrder")]
-public static class WorkOrderErrors
-{
-    [ApplicationError]
-    public static readonly Error NotFound = Error.NotFound(
-        "WorkOrder.NotFound",
-        "Work order not found.");
-}
-```
-
-### Key Features
-
-1. **Attribute-Based Discovery** - Errors marked with `[DomainError]` and `[ApplicationError]` attributes
-2. **Centralized Management** - One error class per aggregate
-3. **Architecture Tests** - Automated enforcement of attribute usage
-4. **Export Capability** - API endpoint exports all errors for frontend localization
-5. **Type Safety** - Compile-time error code validation
-
-### Export API
-
-```bash
-# Export all errors for frontend localization
-GET /api/v1/errors/export
-
-# Export only application errors
-GET /api/v1/errors/application
-
-# Export only domain errors  
-GET /api/v1/errors/domain
-```
-
-### Frontend Localization
-
-Error codes are stable identifiers for client-side localization:
-
-```json
-{
-  "domainErrors": {
-    "WorkOrder.TitleRequired": {
-      "code": "WorkOrder.TitleRequired",
-      "message": "Work order title cannot be empty.",
-      "domain": "WorkOrder"
-    }
-  },
-  "applicationErrors": {
-    "WorkOrder.NotFound": {
-      "code": "WorkOrder.NotFound", 
-      "message": "Work order not found.",
-      "type": "NotFound",
-      "domain": "WorkOrder"
-    }
-  }
-}
-```
-
-### Architecture Tests
-
-```csharp
-[Fact]
-public void DomainErrorConstants_ShouldHaveDomainErrorAttribute()
-{
-    // Ensures all domain error constants have [DomainError] attribute
-}
-
-[Fact] 
-public void AllErrorCodes_ShouldBeUnique()
-{
-    // Prevents duplicate error codes across layers
-}
-```
-
-## Getting Started
-
-### Prerequisites
-- .NET 8 SDK
-- SQL Server (LocalDB, Express, or full)
-- Visual Studio 2022 or VS Code
-
-### Quick Start
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/your-username/Company.Cmms.git
-   cd Company.Cmms
-   ```
-
-2. **Update connection strings**
-   ```json
-   // appsettings.Development.json
-   {
-     "ConnectionStrings": {
-       "WriteDb": "Server=(localdb)\\mssqllocaldb;Database=CmmsWrite;Trusted_Connection=true;",
-       "ReadDb": "Server=(localdb)\\mssqllocaldb;Database=CmmsRead;Trusted_Connection=true;"
-     }
-   }
-   ```
-
-3. **Run the application**
-   ```bash
-   dotnet run --project src/CleanArchitecture.Cmms.Api
-   ```
-
-4. **Explore the API**
-   - Open https://localhost:7000/swagger
-   - Try creating a work order
-   - Assign a technician
-   - Complete the work order
-
-### Database Setup
-The application will automatically:
-- Create databases if they don't exist
-- Run migrations
-- Seed initial data
 
 ## Project Structure
 
@@ -426,6 +441,11 @@ src/
 │   ├── Repositories/                      # Repository implementations
 │   └── Messaging/                        # MediatR adapter
 │
+├── CleanArchitecture.Cmms.Outbox/         # Outbox Pattern
+│   ├── Abstractions/                      # IOutboxStore interface
+│   ├── Persistence/                       # OutboxDbContext
+│   └── Processing/                        # Background processor
+│
 └── CleanArchitecture.Cmms.Api/           # API Layer
     ├── Controllers/                       # API endpoints
     ├── Middlewares/                      # Exception handling
@@ -444,182 +464,114 @@ dotnet test --filter "Category=Domain"
 dotnet test --filter "Category=Application"
 ```
 
-### Architecture Tests
-```bash
-# Run architectural tests
-dotnet test tests/CleanArchitecture.Cmms.Application.UnitTests/
-dotnet test tests/CleanArchitecture.Cmms.Domain.UnitTests/
-```
-
 ### Test Categories
 - **Domain Tests** - Business logic and rules
 - **Application Tests** - Command/Query handlers
 - **Architecture Tests** - Boundary enforcement
 - **Integration Tests** - End-to-end scenarios
 
-## Extending the Template
+## Architecture Tests
 
-### Adding a New Aggregate
+The template includes **15+ architecture tests** that automatically enforce DDD principles and Clean Architecture boundaries. New team members can work confidently - architectural violations are caught at automated unit tests.
 
-1. **Create Domain Model**
-   ```csharp
-   // Domain/Equipment/Equipment.cs
-   internal sealed class Equipment : AggregateRoot<Guid>
-   {
-       // Business logic here
-   }
-   ```
+### Domain Layer Protection
 
-2. **Add Application Use Cases**
-   ```csharp
-   // Application/Equipment/Commands/CreateEquipment/
-   public sealed record CreateEquipmentCommand(...) : ICommand<Result<Guid>>;
-   ```
+**Immutability & Encapsulation:**
+- `ValueObjects_Should_Be_Immutable` - No public setters allowed (init-only setters are OK)
+- `ValueObjects_Should_Be_Sealed` - Prevents inheritance and maintains invariants
+- `Aggregates_Should_Have_Internal_Or_Private_Constructors` - Enforces factory methods
 
-3. **Implement Infrastructure**
-   ```csharp
-   // Infrastructure/Persistence/EfCore/EquipmentConfiguration.cs
-   public class EquipmentConfiguration : IEntityTypeConfiguration<Equipment>
-   ```
+**Type Safety:**
+- `DomainEvents_Should_Be_Sealed_And_EndWith_Event` - Naming conventions enforced
+- `Domain_Types_Should_Be_Internal` - Prevents domain leakage to outer layers
+- `Domain_Should_Not_Depend_On_Other_Layers` - Dependency rule enforcement
 
-4. **Add API Endpoints**
-   ```csharp
-   // Api/Controllers/V1/EquipmentController.cs
-   [ApiController]
-   public sealed class EquipmentController : ControllerBase
-   ```
+### Application Layer Boundaries
 
-### Adding Custom Pipeline Behaviors
+**Layer Isolation:**
+- `Application_Should_Not_Depend_On_Infrastructure_Or_Api` - Clean Architecture enforcement
+- `Commands_And_Queries_Should_Be_Immutable` - CQRS contracts are immutable
 
-```csharp
-public class CustomPipeline<TRequest, TResult> : IPipeline<TRequest, TResult>
-{
-    public async Task<TResult> Handle(TRequest request, RequestHandlerDelegate<TResult> next, CancellationToken cancellationToken)
-    {
-        // Custom logic before
-        var result = await next();
-        // Custom logic after
-        return result;
-    }
-}
-```
+**Read/Write Separation:**
+- `QueryHandlers_Should_Not_Use_IRepository` - Queries forbidden from using write-side repositories
+- `CommandHandlers_Should_Not_Use_IReadRepository` - Commands forbidden from using read-side repositories
+- **Why:** Enforces CQRS separation at compile-time, prevents accidental coupling
 
-### Integration with External Systems
+**DTO Boundaries:**
+- `Handlers_Should_Not_Return_Domain_Types` - Handlers must return DTOs, never domain entities
+- **Why:** Prevents domain model exposure to API clients
 
-```csharp
-// Infrastructure/ExternalServices/
-public interface IEmailService
-{
-    Task SendAsync(string to, string subject, string body);
-}
+**Bounded Context Isolation:**
+- `Application_Features_Should_Be_BoundedContexts` - Features cannot depend on other features
+- Dynamically discovers all aggregates and validates feature isolation
+- **Why:** Maintains bounded context boundaries within the application layer
 
-// Application/WorkOrders/EventsHandlers/
-internal class WorkOrderCompletedEventHandler : INotificationHandler<WorkOrderCompletedEvent>
-{
-    private readonly IEmailService _emailService;
-    
-    public async Task Handle(WorkOrderCompletedEvent notification, CancellationToken cancellationToken)
-    {
-        await _emailService.SendAsync(/* notification details */);
-    }
-}
-```
+### Error Management Enforcement
 
-## Optimistic Concurrency Control
+**Attribute-Based Discovery:**
+- `DomainErrorClasses_ShouldHaveErrorCodeDefinitionAttribute` - Error classes properly marked
+- `DomainErrorFields_ShouldHaveDomainErrorAttribute` - Error fields properly marked
+- `ApplicationErrorClasses_ShouldHaveErrorCodeDefinitionAttribute` - Consistent structure
+- `ApplicationErrorFields_ShouldHaveApplicationErrorAttribute` - Consistent structure
 
-This template implements **optimistic concurrency control** using SQL Server's `ROWVERSION` (timestamp) columns to prevent race conditions and ensure data consistency.
+**Uniqueness:**
+- `AllErrorCodes_ShouldBeUnique` - Prevents duplicate error codes across the system
 
-### How It Works
+### Benefits
 
-**RowVersion Implementation:**
-```csharp
-// Domain/Abstractions/AggregateRoot.cs
-public abstract class AggregateRoot<TId> : AuditableEntity<TId>, IAggregateRoot
-{
-    [Timestamp]
-    public byte[] RowVersion { get; protected set; } = default!;
-}
+**For New Developers:**
+- No need to memorize architectural rules
+- Violations caught immediately during development
+- Clear error messages explain what's wrong
 
-// Infrastructure/Persistence/Configurations/AuditableEntityConfiguration.cs
-builder.Property(e => e.RowVersion)
-    .IsRowVersion()
-    .IsConcurrencyToken();
-```
+**For Teams:**
+- Prevents architectural degradation over time
+- Self-documenting architecture constraints
+- Confident refactoring with safety net
 
-**Concurrency Protection Flow:**
-1. **Load Entity** → RowVersion = `0x0000000000000001`
-2. **Modify Entity** → Changes tracked in memory
-3. **SaveChanges()** → SQL: `WHERE Id = @id AND RowVersion = @version`
-4. **If RowVersion changed** → `DbUpdateConcurrencyException` thrown
-5. **Exception Handling** → HTTP 409 Conflict with user-friendly error
+**For Code Reviews:**
+- Automated enforcement reduces review burden
+- Focus on business logic, not architecture violations
+- Consistent patterns across the codebase
 
-### Race Condition Prevention
+## What's Not Included
 
-**Scenario: Concurrent Work Order Creation**
-```
-Time 1: Thread A loads Asset (RowVersion = 1)
-Time 2: Thread B loads same Asset (RowVersion = 1)  
-Time 3: Thread A creates WorkOrder → Asset.SetUnderMaintenance()
-Time 4: Thread B creates WorkOrder → Asset.SetUnderMaintenance()
-Time 5: Thread A commits → Asset.RowVersion becomes 2 
-Time 6: Thread B commits → WHERE RowVersion = 1 → No rows affected
-```
+### Deliberately Excluded for Simplicity
+- **Authentication/Authorization** - Use IdentityServer, Auth0, or Azure AD
+- **Message Bus/Event Bus** - Add RabbitMQ, MassTransit, or Azure Service Bus as needed
+- **Event Sourcing** - Different paradigm, add separately if needed
+- **Multi-tenancy** - Add as needed per business requirements
+- **Caching Layer** - Add Redis, MemoryCache, or CDN as needed
+- **API Gateway** - Use Ocelot, YARP, or cloud-native solutions
+- **Production Infrastructure** - Basic Dockerfile, configurations included
 
-**Result:**
-- Thread A succeeds: WorkOrder created, Asset under maintenance
-- Thread B fails: `DbUpdateConcurrencyException` → HTTP 409 Conflict
+## Architectural Decision Records
 
-### Error Handling
+This template implements several architectural patterns based on Domain-Driven Design and Clean Architecture principles.
 
-**Concurrency Exceptions:**
-```csharp
-// Api/Middlewares/ExceptionHandlingMiddleware.cs
-case DbUpdateConcurrencyException concurrencyEx:
-    await WriteConcurrencyResponseAsync(context, concurrencyEx);
-    break;
+- **[ADR-001: Cross-Aggregate Coordination Pattern](docs/architectural-decisions/ADR-001-cross-aggregate-coordination.md)** - **IMPLEMENTED** - Domain events for coordinating operations across aggregates, with analysis of all DDD patterns (events, services, orchestration) and references to Eric Evans and Vaughn Vernon.
 
-// Returns HTTP 409 with:
-{
-    "isSuccess": false,
-    "error": {
-        "code": "Asset.ConcurrencyConflict",
-        "message": "Asset was modified by another user. Please refresh and try again."
-    }
-}
-```
-## Architectural Decisions
+- **[ADR-002: Optimistic Concurrency Control](docs/architectural-decisions/ADR-002-optimistic-concurrency-control.md)** - **IMPLEMENTED** - RowVersion pattern to prevent race conditions and ensure data consistency in concurrent scenarios.
 
-This template implements several architectural patterns based on Domain-Driven Design and Clean Architecture principles. Key decisions are documented in ADRs (Architectural Decision Records):
+- **[ADR-003: Domain Events vs Integration Events](docs/architectural-decisions/ADR-003-domain-vs-integration-events.md)** - **IMPLEMENTED** - Dual handler system (IDomainEventHandler + IIntegrationEventHandler) for different consistency requirements and failure isolation.
 
-- **[ADR-001: Cross-Aggregate Coordination Pattern](docs/architectural-decisions/ADR-001-cross-aggregate-coordination.md)** - How we handle operations that span multiple aggregates, with analysis of all DDD patterns (events, services, orchestration) and real quotes from Eric Evans and Vaughn Vernon.
-- **[ADR-002: Optimistic Concurrency Control](docs/architectural-decisions/ADR-002-optimistic-concurrency-control.md)** - Implementation of RowVersion pattern to prevent race conditions and ensure data consistency in concurrent scenarios.
-- **[ADR-003: Domain Events vs Integration Events](docs/architectural-decisions/ADR-003-domain-vs-integration-events.md)** - Distinction between synchronous transactional events (IDomainEventHandler) and asynchronous integration events (IIntegrationEventHandler) for different consistency requirements.
-- **[ADR-004: Outbox Pattern for Guaranteed Delivery](docs/architectural-decisions/ADR-004-outbox-pattern.md)** - Implementation of the Transactional Outbox Pattern to ensure reliable, guaranteed delivery of integration events with at-least-once semantics.
+- **[ADR-004: Outbox Pattern for Guaranteed Delivery](docs/architectural-decisions/ADR-004-outbox-pattern.md)** - **IMPLEMENTED** - Transactional Outbox Pattern with background processor for reliable, guaranteed delivery of integration events with at-least-once semantics.
+
+These ADRs document the "why" behind architectural decisions, with implementation details visible in the codebase.
 
 ## Contributing
 
 We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
 
-### Development Setup
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests for new functionality
-5. Ensure all tests pass
-6. Submit a pull request
+## Give it a Star
+
+If this template helped you or your team, please consider giving it a star! It helps others discover this project and motivates continued development.
+
+[![GitHub stars](https://img.shields.io/github/stars/mohd2sh/CleanArchitecture-DDD-CQRS?style=social)](https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS/stargazers)
 
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Acknowledgments
-
-- [Clean Architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html) by Robert C. Martin
-- [Domain-Driven Design](https://martinfowler.com/bliki/DomainDrivenDesign.html) by Eric Evans
-- [CQRS](https://martinfowler.com/bliki/CQRS.html) by Greg Young
-- [MediatR](https://github.com/jbogard/MediatR) by Jimmy Bogard
-- [NetArchTest](https://github.com/BenMorris/NetArchTest) by Ben Morris
-
 ---
 
 **Built for the .NET community**

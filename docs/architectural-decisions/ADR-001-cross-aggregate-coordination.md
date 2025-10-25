@@ -273,7 +273,7 @@ This is **explicitly endorsed** by DDD authorities.
 - Operations requiring bidirectional data flow
 - Pragmatic exception for tightly coupled operations
 
-**⚠️ Design Smell Warning:**
+** Design Smell Warning:**
 
 If you find yourself needing a computed value from one aggregate to create or modify another aggregate, this is a strong indicator of poor domain modeling. As Vaughn Vernon states:
 
