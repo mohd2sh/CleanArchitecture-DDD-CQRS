@@ -1,8 +1,8 @@
-﻿using CleanArchitecture.Core.Domain.Abstractions  ;
-using CleanArchitecture.Cmms.Domain.Technicians.Entities;
+﻿using CleanArchitecture.Cmms.Domain.Technicians.Entities;
 using CleanArchitecture.Cmms.Domain.Technicians.Enums;
 using CleanArchitecture.Cmms.Domain.Technicians.Events;
 using CleanArchitecture.Cmms.Domain.Technicians.ValueObjects;
+using CleanArchitecture.Core.Domain.Abstractions;
 
 namespace CleanArchitecture.Cmms.Domain.Technicians
 {

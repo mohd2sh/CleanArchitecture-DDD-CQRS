@@ -1,7 +1,7 @@
-using CleanArchitecture.Core.Domain.Abstractions;
 using CleanArchitecture.Cmms.Domain.Technicians;
 using CleanArchitecture.Cmms.Domain.Technicians.Enums;
 using CleanArchitecture.Cmms.Domain.Technicians.ValueObjects;
+using CleanArchitecture.Core.Domain.Abstractions;
 
 namespace CleanArchitecture.Cmms.Domain.UnitTests.Technicians
 {

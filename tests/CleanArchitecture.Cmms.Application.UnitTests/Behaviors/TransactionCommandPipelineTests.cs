@@ -1,6 +1,6 @@
+using CleanArchitecture.Cmms.Application.Behaviors;
 using CleanArchitecture.Core.Application.Abstractions.Messaging;
 using CleanArchitecture.Core.Application.Abstractions.Persistence;
-using CleanArchitecture.Cmms.Application.Behaviors;
 using Microsoft.Extensions.Logging.Abstractions;
 
 namespace CleanArchitecture.Cmms.Application.UnitTests.Behaviors;

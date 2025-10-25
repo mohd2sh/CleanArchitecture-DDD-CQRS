@@ -17,7 +17,6 @@ public class ErrorsController : ControllerBase
         _errorExporter = errorExporter;
     }
 
-
     /// <summary>
     /// Exports all error codes and messages for client-side localization.
     /// Includes both domain and application errors discovered via attributes.

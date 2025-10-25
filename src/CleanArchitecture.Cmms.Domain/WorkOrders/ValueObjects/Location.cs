@@ -1,4 +1,4 @@
-﻿using CleanArchitecture.Core.Domain.Abstractions  ;
+using CleanArchitecture.Core.Domain.Abstractions;
 
 namespace CleanArchitecture.Cmms.Domain.WorkOrders.ValueObjects
 {

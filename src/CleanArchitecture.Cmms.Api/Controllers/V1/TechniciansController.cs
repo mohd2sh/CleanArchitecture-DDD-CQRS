@@ -1,14 +1,14 @@
 using System.Net;
 using Asp.Versioning;
 using CleanArchitecture.Cmms.Api.Controllers.V1.Requests.Technicans;
-using CleanArchitecture.Core.Application.Abstractions.Common;
-using CleanArchitecture.Core.Application.Abstractions.Messaging;
-using CleanArchitecture.Core.Application.Abstractions.Query;
 using CleanArchitecture.Cmms.Application.Technicians.Commands.CreateTechnician;
 using CleanArchitecture.Cmms.Application.Technicians.Dtos;
 using CleanArchitecture.Cmms.Application.Technicians.Queries.GetAvailableTechnicians;
 using CleanArchitecture.Cmms.Application.Technicians.Queries.GetTechnicianAssignments;
 using CleanArchitecture.Cmms.Application.Technicians.Queries.GetTechnicianById;
+using CleanArchitecture.Core.Application.Abstractions.Common;
+using CleanArchitecture.Core.Application.Abstractions.Messaging;
+using CleanArchitecture.Core.Application.Abstractions.Query;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CleanArchitecture.Cmms.Api.Controllers.V1

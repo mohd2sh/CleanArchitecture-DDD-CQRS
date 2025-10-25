@@ -15,7 +15,7 @@ internal sealed class CustomMediator : IMediator
         _serviceProvider = serviceProvider;
     }
 
-    public Task<TResult> Send<TResult>(ICommand<TResult> command, CancellationToken ct = default)
+    public Task<TResult> Send<TResult>(ICommand<TResult> command, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(command);
 
@@ -29,10 +29,10 @@ internal sealed class CustomMediator : IMediator
         var wrapper = (CommandHandlerWrapperBase<TResult>)Activator.CreateInstance(wrapperType)!;
 
         // Delegate to the wrapper - it has full type information
-        return wrapper.Handle(command, _serviceProvider, ct);
+        return wrapper.Handle(command, _serviceProvider, cancellationToken);
     }
 
-    public Task<TResult> Send<TResult>(IQuery<TResult> query, CancellationToken ct = default)
+    public Task<TResult> Send<TResult>(IQuery<TResult> query, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(query);
 
@@ -46,15 +46,15 @@ internal sealed class CustomMediator : IMediator
         var wrapper = (QueryHandlerWrapperBase<TResult>)Activator.CreateInstance(wrapperType)!;
 
         // Delegate to the wrapper
-        return wrapper.Handle(query, _serviceProvider, ct);
+        return wrapper.Handle(query, _serviceProvider, cancellationToken);
     }
 
-    public async Task Publish(IDomainEvent domainEvent, CancellationToken ct = default)
+    public async Task Publish(IDomainEvent domainEvent, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(domainEvent);
 
         var dispatcher = _serviceProvider.GetRequiredService<IDomainEventDispatcher>();
 
-        await dispatcher.PublishAsync(domainEvent, ct);
+        await dispatcher.PublishAsync(domainEvent, cancellationToken);
     }
 }

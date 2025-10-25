@@ -1,7 +1,7 @@
-﻿using CleanArchitecture.Core.Application.Abstractions.Common;
-using CleanArchitecture.Core.Application.Abstractions.Persistence.Repositories;
-using CleanArchitecture.Cmms.Domain.Assets;
+﻿using CleanArchitecture.Cmms.Domain.Assets;
 using CleanArchitecture.Cmms.Domain.Assets.ValueObjects;
+using CleanArchitecture.Core.Application.Abstractions.Common;
+using CleanArchitecture.Core.Application.Abstractions.Persistence.Repositories;
 
 namespace CleanArchitecture.Cmms.Application.Assets.Commands.UpdateAssetLocation
 {

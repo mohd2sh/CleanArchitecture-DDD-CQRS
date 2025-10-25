@@ -1,5 +1,5 @@
-using CleanArchitecture.Core.Application.Abstractions.Common;
 using CleanArchitecture.Cmms.Application.Technicians.Dtos;
+using CleanArchitecture.Core.Application.Abstractions.Common;
 
 namespace CleanArchitecture.Cmms.Application.Technicians.Queries.GetTechnicianById
 {

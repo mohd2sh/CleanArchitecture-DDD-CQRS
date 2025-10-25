@@ -1,8 +1,8 @@
-﻿using CleanArchitecture.Core.Domain.Abstractions  ;
-using CleanArchitecture.Cmms.Domain.Assets.Entities;
+﻿using CleanArchitecture.Cmms.Domain.Assets.Entities;
 using CleanArchitecture.Cmms.Domain.Assets.Enums;
 using CleanArchitecture.Cmms.Domain.Assets.Events;
 using CleanArchitecture.Cmms.Domain.Assets.ValueObjects;
+using CleanArchitecture.Core.Domain.Abstractions;
 
 namespace CleanArchitecture.Cmms.Domain.Assets
 {

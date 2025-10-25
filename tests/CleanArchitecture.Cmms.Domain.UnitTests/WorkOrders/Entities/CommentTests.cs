@@ -1,4 +1,4 @@
-using CleanArchitecture.Cmms.Domain.WorkOrders.Enitties;
+using CleanArchitecture.Cmms.Domain.WorkOrders.Entities;
 
 namespace CleanArchitecture.Cmms.Domain.UnitTests.WorkOrders.Entities
 {

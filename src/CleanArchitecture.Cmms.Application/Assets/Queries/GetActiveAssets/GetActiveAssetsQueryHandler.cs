@@ -1,10 +1,10 @@
-﻿using CleanArchitecture.Core.Application.Abstractions.Common;
+﻿using CleanArchitecture.Cmms.Application.Assets.Dtos;
+using CleanArchitecture.Cmms.Domain.Assets;
+using CleanArchitecture.Cmms.Domain.Assets.Enums;
+using CleanArchitecture.Core.Application.Abstractions.Common;
 using CleanArchitecture.Core.Application.Abstractions.Persistence;
 using CleanArchitecture.Core.Application.Abstractions.Persistence.Repositories;
 using CleanArchitecture.Core.Application.Abstractions.Query;
-using CleanArchitecture.Cmms.Application.Assets.Dtos;
-using CleanArchitecture.Cmms.Domain.Assets;
-using CleanArchitecture.Cmms.Domain.Assets.Enums;
 
 namespace CleanArchitecture.Cmms.Application.Assets.Queries.GetActiveAssets
 {

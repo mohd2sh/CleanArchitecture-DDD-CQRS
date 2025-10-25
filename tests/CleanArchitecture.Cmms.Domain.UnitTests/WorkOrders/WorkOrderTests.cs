@@ -1,7 +1,7 @@
-using CleanArchitecture.Core.Domain.Abstractions;
 using CleanArchitecture.Cmms.Domain.WorkOrders;
 using CleanArchitecture.Cmms.Domain.WorkOrders.Enums;
 using CleanArchitecture.Cmms.Domain.WorkOrders.ValueObjects;
+using CleanArchitecture.Core.Domain.Abstractions;
 
 namespace CleanArchitecture.Cmms.Domain.UnitTests.WorkOrders
 {

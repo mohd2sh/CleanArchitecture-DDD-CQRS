@@ -1,5 +1,5 @@
-using CleanArchitecture.Core.Application.Abstractions.Events;
 using CleanArchitecture.Cmms.Domain.WorkOrders.Events;
+using CleanArchitecture.Core.Application.Abstractions.Events;
 using Microsoft.Extensions.Logging;
 
 namespace CleanArchitecture.Cmms.Application.Integrations.Events.WorkOrderCompleted;

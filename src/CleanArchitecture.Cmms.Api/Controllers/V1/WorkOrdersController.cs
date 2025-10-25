@@ -1,9 +1,6 @@
 using System.Net;
 using Asp.Versioning;
 using CleanArchitecture.Cmms.Api.Controllers.V1.Requests.WorkOrders;
-using CleanArchitecture.Core.Application.Abstractions.Common;
-using CleanArchitecture.Core.Application.Abstractions.Messaging;
-using CleanArchitecture.Core.Application.Abstractions.Query;
 using CleanArchitecture.Cmms.Application.WorkOrders.Commands.AssignTechnician;
 using CleanArchitecture.Cmms.Application.WorkOrders.Commands.CompleteWorkOrder;
 using CleanArchitecture.Cmms.Application.WorkOrders.Commands.CreateWorkOrder;
@@ -11,6 +8,9 @@ using CleanArchitecture.Cmms.Application.WorkOrders.Commands.StartWorkOrder;
 using CleanArchitecture.Cmms.Application.WorkOrders.Dtos;
 using CleanArchitecture.Cmms.Application.WorkOrders.Queries.GetActiveWorkOrder;
 using CleanArchitecture.Cmms.Application.WorkOrders.Queries.GetWorkOrderById;
+using CleanArchitecture.Core.Application.Abstractions.Common;
+using CleanArchitecture.Core.Application.Abstractions.Messaging;
+using CleanArchitecture.Core.Application.Abstractions.Query;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CleanArchitecture.Cmms.Api.Controllers.V1

@@ -1,5 +1,5 @@
-using CleanArchitecture.Core.Domain.Abstractions;
 using CleanArchitecture.Cmms.Domain.Assets.ValueObjects;
+using CleanArchitecture.Core.Domain.Abstractions;
 
 namespace CleanArchitecture.Cmms.Domain.UnitTests.Assets.ValueObjects
 {

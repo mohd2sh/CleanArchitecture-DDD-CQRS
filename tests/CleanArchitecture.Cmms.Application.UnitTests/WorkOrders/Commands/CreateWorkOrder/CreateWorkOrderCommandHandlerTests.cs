@@ -1,6 +1,6 @@
-using CleanArchitecture.Core.Application.Abstractions.Persistence.Repositories;
 using CleanArchitecture.Cmms.Application.WorkOrders.Commands.CreateWorkOrder;
 using CleanArchitecture.Cmms.Domain.WorkOrders;
+using CleanArchitecture.Core.Application.Abstractions.Persistence.Repositories;
 
 namespace CleanArchitecture.Cmms.Application.UnitTests.WorkOrders.Commands.CreateWorkOrder;
 

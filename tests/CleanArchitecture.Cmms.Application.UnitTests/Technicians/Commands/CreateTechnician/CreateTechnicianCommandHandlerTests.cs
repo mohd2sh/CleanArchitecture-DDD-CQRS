@@ -1,6 +1,6 @@
-using CleanArchitecture.Core.Application.Abstractions.Persistence.Repositories;
 using CleanArchitecture.Cmms.Application.Technicians.Commands.CreateTechnician;
 using CleanArchitecture.Cmms.Domain.Technicians;
+using CleanArchitecture.Core.Application.Abstractions.Persistence.Repositories;
 
 namespace CleanArchitecture.Cmms.Application.UnitTests.Technicians.Commands.CreateTechnician;
 

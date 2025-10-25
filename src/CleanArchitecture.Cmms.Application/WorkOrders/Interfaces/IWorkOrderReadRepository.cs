@@ -1,6 +1,6 @@
-﻿using CleanArchitecture.Core.Application.Abstractions.Persistence.Repositories;
+﻿using CleanArchitecture.Cmms.Application.WorkOrders.Dtos;
+using CleanArchitecture.Core.Application.Abstractions.Persistence.Repositories;
 using CleanArchitecture.Core.Application.Abstractions.Query;
-using CleanArchitecture.Cmms.Application.WorkOrders.Dtos;
 
 namespace CleanArchitecture.Cmms.Application.WorkOrders.Interfaces
 {
