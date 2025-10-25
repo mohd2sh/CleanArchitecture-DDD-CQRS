@@ -1,4 +1,5 @@
-﻿using CleanArchitecture.Cmms.Application.Abstractions.Persistence.Repositories;
+﻿using CleanArchitecture.Cmms.Application.Abstractions.Common;
+using CleanArchitecture.Cmms.Application.Abstractions.Persistence.Repositories;
 using CleanArchitecture.Cmms.Domain.Assets;
 using CleanArchitecture.Cmms.Domain.Assets.ValueObjects;
 

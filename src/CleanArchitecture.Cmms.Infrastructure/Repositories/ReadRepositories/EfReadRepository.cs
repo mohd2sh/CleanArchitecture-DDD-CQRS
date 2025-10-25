@@ -1,6 +1,6 @@
 ﻿using CleanArchitecture.Cmms.Application.Abstractions.Persistence;
 using CleanArchitecture.Cmms.Application.Abstractions.Persistence.Repositories;
-using CleanArchitecture.Cmms.Application.Primitives;
+using CleanArchitecture.Cmms.Application.Abstractions.Query;
 using CleanArchitecture.Cmms.Infrastructure.Persistence.EfCore;
 using Microsoft.EntityFrameworkCore;
 

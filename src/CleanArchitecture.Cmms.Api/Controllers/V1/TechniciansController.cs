@@ -1,8 +1,9 @@
 using System.Net;
 using Asp.Versioning;
 using CleanArchitecture.Cmms.Api.Controllers.V1.Requests.Technicans;
+using CleanArchitecture.Cmms.Application.Abstractions.Common;
 using CleanArchitecture.Cmms.Application.Abstractions.Messaging;
-using CleanArchitecture.Cmms.Application.Primitives;
+using CleanArchitecture.Cmms.Application.Abstractions.Query;
 using CleanArchitecture.Cmms.Application.Technicians.Commands.CreateTechnician;
 using CleanArchitecture.Cmms.Application.Technicians.Dtos;
 using CleanArchitecture.Cmms.Application.Technicians.Queries.GetAvailableTechnicians;

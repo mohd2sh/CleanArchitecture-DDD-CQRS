@@ -1,4 +1,4 @@
-namespace CleanArchitecture.Cmms.Application.Primitives;
+namespace CleanArchitecture.Cmms.Application.Abstractions.Common;
 
 /// <summary>
 /// Represents an application error with a code, message, and type.

@@ -1,4 +1,4 @@
-﻿namespace CleanArchitecture.Cmms.Application.Primitives
+namespace CleanArchitecture.Cmms.Application.Abstractions.Query
 {
     public sealed class PaginatedList<T>
     {
@@ -20,7 +20,7 @@
 
         public static PaginatedList<T> CreateFromOffset(IReadOnlyList<T> items, int totalCount, int? skip, int? take)
         {
-            var pageNumber = skip.HasValue && take.HasValue && take.Value > 0 ? (skip.Value / take.Value) + 1 : 1;
+            var pageNumber = skip.HasValue && take.HasValue && take.Value > 0 ? skip.Value / take.Value + 1 : 1;
 
             var pageSize = take ?? totalCount;
 

@@ -1,6 +1,6 @@
-using CleanArchitecture.Cmms.Application.Primitives;
+using CleanArchitecture.Cmms.Application.Abstractions.Common;
 
-namespace CleanArchitecture.Cmms.Application.UnitTests.Primitives;
+namespace CleanArchitecture.Cmms.Application.UnitTests.Abstractions.Common;
 
 public class ResultTests
 {

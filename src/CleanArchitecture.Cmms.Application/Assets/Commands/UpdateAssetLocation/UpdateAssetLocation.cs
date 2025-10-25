@@ -1,4 +1,6 @@
-﻿namespace CleanArchitecture.Cmms.Application.Assets.Commands.UpdateAssetLocation
+﻿using CleanArchitecture.Cmms.Application.Abstractions.Common;
+
+namespace CleanArchitecture.Cmms.Application.Assets.Commands.UpdateAssetLocation
 {
     public sealed record UpdateAssetLocationCommand(
          Guid AssetId,

@@ -1,4 +1,4 @@
-﻿using CleanArchitecture.Cmms.Application.Primitives;
+﻿using CleanArchitecture.Cmms.Application.Abstractions.Query;
 
 namespace CleanArchitecture.Cmms.Api.Controllers.V1.Requests.WorkOrders
 {

@@ -1,4 +1,6 @@
-﻿namespace CleanArchitecture.Cmms.Application.Abstractions.Persistence.Repositories;
+﻿using CleanArchitecture.Cmms.Application.Abstractions.Query;
+
+namespace CleanArchitecture.Cmms.Application.Abstractions.Persistence.Repositories;
 
 /// <summary>
 /// Marker and a base for any custom read repository.

@@ -1,6 +1,6 @@
 namespace CleanArchitecture.Cmms.Application.WorkOrders;
 
-using CleanArchitecture.Cmms.Application.Primitives;
+using CleanArchitecture.Cmms.Application.Abstractions.Common;
 using CleanArchitecture.Cmms.Domain.Abstractions.Attributes;
 
 /// <summary>

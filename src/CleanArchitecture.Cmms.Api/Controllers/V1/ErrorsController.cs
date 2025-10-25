@@ -1,5 +1,6 @@
 using Asp.Versioning;
-using CleanArchitecture.Cmms.Application.Primitives;
+using CleanArchitecture.Cmms.Application.ErrorManagement;
+using CleanArchitecture.Cmms.Application.ErrorManagement.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CleanArchitecture.Cmms.Api.Controllers.V1;
@@ -9,6 +10,14 @@ namespace CleanArchitecture.Cmms.Api.Controllers.V1;
 [Route("api/v{version:apiVersion}/[controller]")]
 public class ErrorsController : ControllerBase
 {
+    private readonly IErrorExporter _errorExporter;
+
+    public ErrorsController(IErrorExporter errorExporter)
+    {
+        _errorExporter = errorExporter;
+    }
+
+
     /// <summary>
     /// Exports all error codes and messages for client-side localization.
     /// Includes both domain and application errors discovered via attributes.
@@ -17,7 +26,7 @@ public class ErrorsController : ControllerBase
     [ProducesResponseType(typeof(ErrorExportResult), StatusCodes.Status200OK)]
     public IActionResult ExportAll()
     {
-        var result = ErrorExporter.ExportAll();
+        var result = _errorExporter.ExportAll();
         return Ok(result);
     }
 
@@ -28,7 +37,7 @@ public class ErrorsController : ControllerBase
     [ProducesResponseType(typeof(Dictionary<string, ApplicationErrorInfo>), StatusCodes.Status200OK)]
     public IActionResult ExportApplicationErrors()
     {
-        var errors = ErrorExporter.ExportApplicationErrors();
+        var errors = _errorExporter.ExportApplicationErrors();
         return Ok(errors);
     }
 
@@ -39,7 +48,7 @@ public class ErrorsController : ControllerBase
     [ProducesResponseType(typeof(Dictionary<string, DomainErrorInfo>), StatusCodes.Status200OK)]
     public IActionResult ExportDomainErrors()
     {
-        var errors = ErrorExporter.ExportDomainErrors();
+        var errors = _errorExporter.ExportDomainErrors();
         return Ok(errors);
     }
 }

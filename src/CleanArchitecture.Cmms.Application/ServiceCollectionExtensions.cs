@@ -1,6 +1,7 @@
 using System.Reflection;
 using CleanArchitecture.Cmms.Application.Abstractions.Events;
 using CleanArchitecture.Cmms.Application.Behaviors;
+using CleanArchitecture.Cmms.Application.ErrorManagement;
 using CleanArchitecture.Cmms.Application.Integrations.Events.WorkOrderCompleted;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,6 +27,8 @@ public static class ServiceCollectionExtensions
 
         //Fluent Validation
         services.AddValidatorsFromAssembly(assembly, includeInternalTypes: true);
+
+        services.AddSingleton<IErrorExporter, ErrorExporter>();
 
         return services;
     }

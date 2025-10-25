@@ -1,4 +1,6 @@
-﻿using CleanArchitecture.Cmms.Application.Technicians.Dtos;
+﻿using CleanArchitecture.Cmms.Application.Abstractions.Common;
+using CleanArchitecture.Cmms.Application.Abstractions.Query;
+using CleanArchitecture.Cmms.Application.Technicians.Dtos;
 
 namespace CleanArchitecture.Cmms.Application.Technicians.Queries.GetTechnicianAssignments
 {

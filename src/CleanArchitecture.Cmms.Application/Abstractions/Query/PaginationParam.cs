@@ -1,4 +1,4 @@
-﻿namespace CleanArchitecture.Cmms.Application.Primitives
+namespace CleanArchitecture.Cmms.Application.Abstractions.Query
 {
     public sealed record PaginationParam(int PageNumber = 1, int PageSize = 20)
     {

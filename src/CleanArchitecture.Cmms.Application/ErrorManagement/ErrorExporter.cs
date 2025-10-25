@@ -1,18 +1,20 @@
-namespace CleanArchitecture.Cmms.Application.Primitives;
+namespace CleanArchitecture.Cmms.Application.ErrorManagement;
 
 using System.Reflection;
+using CleanArchitecture.Cmms.Application.Abstractions.Common;
+using CleanArchitecture.Cmms.Application.ErrorManagement.Models;
 using CleanArchitecture.Cmms.Domain.Abstractions.Attributes;
 
 /// <summary>
 /// Unified exporter for both domain and application errors.
 /// Discovers errors via attributes across both layers.
 /// </summary>
-public static class ErrorExporter
+public class ErrorExporter : IErrorExporter
 {
     /// <summary>
     /// Exports all errors (both domain and application).
     /// </summary>
-    public static ErrorExportResult ExportAll()
+    public ErrorExportResult ExportAll()
     {
         return new ErrorExportResult
         {
@@ -25,7 +27,7 @@ public static class ErrorExporter
     /// <summary>
     /// Exports domain error objects marked with [DomainError].
     /// </summary>
-    public static Dictionary<string, DomainErrorInfo> ExportDomainErrors()
+    public Dictionary<string, DomainErrorInfo> ExportDomainErrors()
     {
         var domainAssembly = typeof(Domain.Abstractions.DomainException).Assembly;
         var errors = new Dictionary<string, DomainErrorInfo>();
@@ -68,7 +70,7 @@ public static class ErrorExporter
     /// <summary>
     /// Exports application Error objects marked with [ApplicationError].
     /// </summary>
-    public static Dictionary<string, ApplicationErrorInfo> ExportApplicationErrors()
+    public Dictionary<string, ApplicationErrorInfo> ExportApplicationErrors()
     {
         var applicationAssembly = typeof(ErrorExporter).Assembly;
         var errors = new Dictionary<string, ApplicationErrorInfo>();
@@ -108,30 +110,4 @@ public static class ErrorExporter
 
         return errors;
     }
-}
-
-public record ErrorExportResult
-{
-    public required Dictionary<string, DomainErrorInfo> DomainErrors { get; init; }
-    public required Dictionary<string, ApplicationErrorInfo> ApplicationErrors { get; init; }
-    public required DateTime Timestamp { get; init; }
-}
-
-public record DomainErrorInfo
-{
-    public required string Code { get; init; }
-    public required string Message { get; init; }
-    public required string Domain { get; init; }
-    public required string FieldName { get; init; }
-    public required string ClassName { get; init; }
-}
-
-public record ApplicationErrorInfo
-{
-    public required string Code { get; init; }
-    public required string Message { get; init; }
-    public required string Type { get; init; }
-    public required string Domain { get; init; }
-    public required string FieldName { get; init; }
-    public required string ClassName { get; init; }
 }

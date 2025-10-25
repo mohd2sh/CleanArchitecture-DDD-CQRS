@@ -1,4 +1,5 @@
 ﻿using CleanArchitecture.Cmms.Application.Abstractions.Persistence.Repositories;
+using CleanArchitecture.Cmms.Application.Abstractions.Query;
 using CleanArchitecture.Cmms.Application.WorkOrders.Dtos;
 
 namespace CleanArchitecture.Cmms.Application.WorkOrders.Interfaces

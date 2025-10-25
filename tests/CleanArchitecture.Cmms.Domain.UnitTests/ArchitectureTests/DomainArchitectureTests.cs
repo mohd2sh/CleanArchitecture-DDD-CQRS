@@ -2,7 +2,7 @@ using System.Reflection;
 using CleanArchitecture.Cmms.Domain.Abstractions;
 using NetArchTest.Rules;
 
-namespace CleanArchitecture.Cmms.Domain.UnitTests
+namespace CleanArchitecture.Cmms.Domain.UnitTests.ArchitectureTests
 {
     public class DomainArchitectureTests
     {

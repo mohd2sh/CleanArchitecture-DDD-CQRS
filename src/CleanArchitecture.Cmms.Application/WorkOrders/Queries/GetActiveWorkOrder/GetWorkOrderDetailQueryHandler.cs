@@ -1,4 +1,6 @@
-﻿using CleanArchitecture.Cmms.Application.WorkOrders.Dtos;
+﻿using CleanArchitecture.Cmms.Application.Abstractions.Common;
+using CleanArchitecture.Cmms.Application.Abstractions.Query;
+using CleanArchitecture.Cmms.Application.WorkOrders.Dtos;
 using CleanArchitecture.Cmms.Application.WorkOrders.Interfaces;
 
 namespace CleanArchitecture.Cmms.Application.WorkOrders.Queries.GetActiveWorkOrder

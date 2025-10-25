@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Text.Json;
+using CleanArchitecture.Cmms.Application.Abstractions.Common;
 using CleanArchitecture.Cmms.Application.Assets;
-using CleanArchitecture.Cmms.Application.Primitives;
 using CleanArchitecture.Cmms.Domain.Abstractions;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;

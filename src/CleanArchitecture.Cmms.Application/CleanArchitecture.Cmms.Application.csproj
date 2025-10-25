@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
@@ -12,5 +12,8 @@
   <ItemGroup>
     <ProjectReference Include="..\CleanArchitecture.Cmms.Domain\CleanArchitecture.Cmms.Domain.csproj" />
     <ProjectReference Include="..\CleanArchitecture.Cmms.Outbox.Abstractions\CleanArchitecture.Cmms.Outbox.Abstractions.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Primitives\" />
   </ItemGroup>
 </Project>

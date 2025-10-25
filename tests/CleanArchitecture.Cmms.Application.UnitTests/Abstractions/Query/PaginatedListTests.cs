@@ -1,6 +1,6 @@
-using CleanArchitecture.Cmms.Application.Primitives;
+using CleanArchitecture.Cmms.Application.Abstractions.Query;
 
-namespace CleanArchitecture.Cmms.Application.UnitTests.Primitives;
+namespace CleanArchitecture.Cmms.Application.UnitTests.Abstractions.Query;
 
 public class PaginatedListTests
 {

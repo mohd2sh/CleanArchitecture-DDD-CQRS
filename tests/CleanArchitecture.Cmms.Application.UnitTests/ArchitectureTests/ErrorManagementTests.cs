@@ -1,11 +1,13 @@
 using System.Reflection;
-using CleanArchitecture.Cmms.Application.Primitives;
+using CleanArchitecture.Cmms.Application.Abstractions.Common;
+using CleanArchitecture.Cmms.Application.ErrorManagement;
 using CleanArchitecture.Cmms.Domain.Abstractions.Attributes;
 
 namespace CleanArchitecture.Cmms.Application.UnitTests.ArchitectureTests;
 
 public class ErrorManagementArchitectureTests
 {
+
     [Fact]
     public void DomainErrorClasses_ShouldHaveErrorCodeDefinitionAttribute()
     {
@@ -54,7 +56,7 @@ public class ErrorManagementArchitectureTests
     [Fact]
     public void ApplicationErrorClasses_ShouldHaveErrorCodeDefinitionAttribute()
     {
-        var applicationAssembly = typeof(Application.Primitives.Error).Assembly;
+        var applicationAssembly = typeof(Error).Assembly;
 
         var errorClasses = applicationAssembly.GetTypes()
             .Where(t => t.IsClass && t.Name.EndsWith("Errors") && t.Namespace?.Contains("Application") == true)
@@ -71,7 +73,7 @@ public class ErrorManagementArchitectureTests
     [Fact]
     public void ApplicationErrorFields_ShouldHaveApplicationErrorAttribute()
     {
-        var applicationAssembly = typeof(Application.Primitives.Error).Assembly;
+        var applicationAssembly = typeof(Error).Assembly;
 
         var errorClasses = applicationAssembly.GetTypes()
             .Where(t => t.IsClass && t.Name.EndsWith("Errors") && t.Namespace?.Contains("Application") == true);
@@ -99,7 +101,8 @@ public class ErrorManagementArchitectureTests
     [Fact]
     public void AllErrorCodes_ShouldBeUnique()
     {
-        var exportResult = ErrorExporter.ExportAll();
+        var sut = new ErrorExporter();
+        var exportResult = sut.ExportAll();
 
         // Check domain errors are unique
         var domainDuplicates = exportResult.DomainErrors.Keys
@@ -121,7 +124,5 @@ public class ErrorManagementArchitectureTests
         applicationDuplicates.Should().BeEmpty(
             "All application error codes should be unique");
 
-        // Note: Domain and Application can have the same error codes
-        // since they represent the same business concepts at different layers
     }
 }
