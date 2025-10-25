@@ -1,9 +1,9 @@
 using System.Net;
 using Asp.Versioning;
 using CleanArchitecture.Cmms.Api.Controllers.V1.Requests.Assets;
-using CleanArchitecture.Cmms.Application.Abstractions.Common;
-using CleanArchitecture.Cmms.Application.Abstractions.Messaging;
-using CleanArchitecture.Cmms.Application.Abstractions.Query;
+using CleanArchitecture.Core.Application.Abstractions.Common;
+using CleanArchitecture.Core.Application.Abstractions.Messaging;
+using CleanArchitecture.Core.Application.Abstractions.Query;
 using CleanArchitecture.Cmms.Application.Assets.Commands.CreateAsset;
 using CleanArchitecture.Cmms.Application.Assets.Commands.UpdateAssetLocation;
 using CleanArchitecture.Cmms.Application.Assets.Dtos;

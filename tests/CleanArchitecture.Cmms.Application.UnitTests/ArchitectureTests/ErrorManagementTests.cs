@@ -1,7 +1,7 @@
 using System.Reflection;
-using CleanArchitecture.Cmms.Application.Abstractions.Common;
 using CleanArchitecture.Cmms.Application.ErrorManagement;
-using CleanArchitecture.Cmms.Domain.Abstractions.Attributes;
+using CleanArchitecture.Core.Application.Abstractions.Common;
+using CleanArchitecture.Core.Domain.Abstractions.Attributes;
 
 namespace CleanArchitecture.Cmms.Application.UnitTests.ArchitectureTests;
 
@@ -11,7 +11,7 @@ public class ErrorManagementArchitectureTests
     [Fact]
     public void DomainErrorClasses_ShouldHaveErrorCodeDefinitionAttribute()
     {
-        var domainAssembly = typeof(Domain.Abstractions.DomainException).Assembly;
+        var domainAssembly = typeof(Domain.WorkOrders.WorkOrderErrors).Assembly;
 
         var errorClasses = domainAssembly.GetTypes()
             .Where(t => t.IsClass && t.Name.EndsWith("Errors"))
@@ -28,7 +28,7 @@ public class ErrorManagementArchitectureTests
     [Fact]
     public void DomainErrorFields_ShouldHaveDomainErrorAttribute()
     {
-        var domainAssembly = typeof(Domain.Abstractions.DomainException).Assembly;
+        var domainAssembly = typeof(Domain.WorkOrders.WorkOrderErrors).Assembly;
 
         var errorClasses = domainAssembly.GetTypes()
             .Where(t => t.IsClass && t.Name.EndsWith("Errors"));
@@ -38,7 +38,7 @@ public class ErrorManagementArchitectureTests
         foreach (var errorClass in errorClasses)
         {
             var domainErrorFields = errorClass.GetFields(BindingFlags.Public | BindingFlags.Static)
-                .Where(f => f.FieldType == typeof(Domain.Abstractions.DomainError) && f.IsInitOnly);
+                .Where(f => f.FieldType == typeof(Core.Domain.Abstractions.DomainError) && f.IsInitOnly);
 
             foreach (var field in domainErrorFields)
             {

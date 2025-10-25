@@ -1,8 +1,8 @@
-using CleanArchitecture.Cmms.Application.Abstractions.Common;
-using CleanArchitecture.Cmms.Application.Abstractions.Events;
-using CleanArchitecture.Cmms.Application.Abstractions.Persistence.Repositories;
 using CleanArchitecture.Cmms.Domain.Assets;
 using CleanArchitecture.Cmms.Domain.WorkOrders.Events;
+using CleanArchitecture.Core.Application.Abstractions.Common;
+using CleanArchitecture.Core.Application.Abstractions.Events;
+using CleanArchitecture.Core.Application.Abstractions.Persistence.Repositories;
 using Microsoft.Extensions.Logging;
 
 namespace CleanArchitecture.Cmms.Application.Assets.Events.WorkOrderCompleted
@@ -31,7 +31,7 @@ namespace CleanArchitecture.Cmms.Application.Assets.Events.WorkOrderCompleted
                 _logger.LogWarning("Asset with ID {AssetId} not found for Work Order {WorkOrderId}",
                     domainEvent.AssetId, domainEvent.WorkOrderId);
 
-                throw new Abstractions.Common.ApplicationException(AssetErrors.NotFound);
+                throw new Core.Application.Abstractions.Common.ApplicationException(AssetErrors.NotFound);
             }
 
             asset.CompleteMaintenance(_dateTimeProvider.UtcNow, "Work order completed successfully");

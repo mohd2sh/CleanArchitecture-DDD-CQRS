@@ -1,9 +1,9 @@
 using System.Reflection;
-using CleanArchitecture.Cmms.Application.Abstractions.Common;
-using CleanArchitecture.Cmms.Application.Abstractions.Messaging;
-using CleanArchitecture.Cmms.Application.Abstractions.Persistence.Repositories;
 using CleanArchitecture.Cmms.Application.Behaviors;
-using CleanArchitecture.Cmms.Domain.Abstractions;
+using CleanArchitecture.Core.Application.Abstractions.Common;
+using CleanArchitecture.Core.Application.Abstractions.Messaging;
+using CleanArchitecture.Core.Application.Abstractions.Persistence.Repositories;
+using CleanArchitecture.Core.Domain.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 using NetArchTest.Rules;
 
@@ -94,7 +94,7 @@ public class ApplicationArchitectureTests
     public void QueryHandlers_Should_Not_Use_IRepository()
     {
         // Arrange
-        var writeRepoType = typeof(Application.Abstractions.Persistence.Repositories.IRepository<,>);
+        var writeRepoType = typeof(IRepository<,>);
         var queryHandlers = Types
             .InAssembly(ApplicationAssembly)
             .That()
@@ -119,7 +119,7 @@ public class ApplicationArchitectureTests
     public void CommandHandlers_Should_Not_Use_IReadRepository()
     {
         // Arrange
-        var readRepoType = typeof(Application.Abstractions.Persistence.Repositories.IReadRepository);
+        var readRepoType = typeof(IReadRepository);
         var commandHandlers = Types
             .InAssembly(ApplicationAssembly)
             .That()

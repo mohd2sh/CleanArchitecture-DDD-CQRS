@@ -1,4 +1,4 @@
-using CleanArchitecture.Cmms.Application.Abstractions.Persistence;
+using CleanArchitecture.Core.Application.Abstractions.Persistence;
 using Microsoft.Extensions.Logging;
 
 namespace CleanArchitecture.Cmms.Application.Behaviors;

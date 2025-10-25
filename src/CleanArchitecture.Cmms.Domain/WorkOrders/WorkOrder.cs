@@ -1,4 +1,4 @@
-using CleanArchitecture.Cmms.Domain.Abstractions;
+using CleanArchitecture.Core.Domain.Abstractions  ;
 using CleanArchitecture.Cmms.Domain.WorkOrders.Enitties;
 using CleanArchitecture.Cmms.Domain.WorkOrders.Enums;
 using CleanArchitecture.Cmms.Domain.WorkOrders.Events;

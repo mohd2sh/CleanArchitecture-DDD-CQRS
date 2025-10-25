@@ -1,7 +1,7 @@
-using CleanArchitecture.Cmms.Application.Abstractions.Events;
-using CleanArchitecture.Cmms.Application.Abstractions.Persistence.Repositories;
 using CleanArchitecture.Cmms.Domain.Technicians;
 using CleanArchitecture.Cmms.Domain.WorkOrders.Events;
+using CleanArchitecture.Core.Application.Abstractions.Events;
+using CleanArchitecture.Core.Application.Abstractions.Persistence.Repositories;
 
 namespace CleanArchitecture.Cmms.Application.Technicians.Events.TechnicianAssignedEventHandler
 {
@@ -19,7 +19,7 @@ namespace CleanArchitecture.Cmms.Application.Technicians.Events.TechnicianAssign
             var technician = await _technicianRepository.GetByIdAsync(domainEvent.TechnicianId, cancellationToken);
 
             if (technician == null)
-                throw new Abstractions.Common.ApplicationException(TechnicianErrors.NotFound);
+                throw new Core.Application.Abstractions.Common.ApplicationException(TechnicianErrors.NotFound);
 
             technician.AddAssignedOrder(domainEvent.WorkOrderId, domainEvent.OccurredOn.Value);
 

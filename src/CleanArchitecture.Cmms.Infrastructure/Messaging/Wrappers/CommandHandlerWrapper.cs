@@ -1,4 +1,4 @@
-using CleanArchitecture.Cmms.Application.Abstractions.Messaging;
+using CleanArchitecture.Core.Application.Abstractions.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CleanArchitecture.Cmms.Infrastructure.Messaging.Wrappers;

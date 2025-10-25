@@ -1,4 +1,4 @@
-using CleanArchitecture.Cmms.Domain.Abstractions;
+using CleanArchitecture.Core.Domain.Abstractions;
 using CleanArchitecture.Cmms.Domain.Technicians;
 using CleanArchitecture.Cmms.Domain.Technicians.Enums;
 using CleanArchitecture.Cmms.Domain.Technicians.ValueObjects;

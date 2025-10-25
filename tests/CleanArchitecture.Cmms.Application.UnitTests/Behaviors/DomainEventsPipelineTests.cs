@@ -1,9 +1,9 @@
-using CleanArchitecture.Cmms.Application.Abstractions.Events;
-using CleanArchitecture.Cmms.Application.Abstractions.Messaging;
-using CleanArchitecture.Cmms.Application.Abstractions.Persistence;
 using CleanArchitecture.Cmms.Application.Behaviors;
-using CleanArchitecture.Cmms.Domain.Abstractions;
-using CleanArchitecture.Cmms.Outbox.Abstractions;
+using CleanArchitecture.Core.Application.Abstractions.Events;
+using CleanArchitecture.Core.Application.Abstractions.Messaging;
+using CleanArchitecture.Core.Application.Abstractions.Persistence;
+using CleanArchitecture.Core.Domain.Abstractions;
+using CleanArchitecture.Outbox.Abstractions;
 using Microsoft.Extensions.Logging;
 
 namespace CleanArchitecture.Cmms.Application.UnitTests.Behaviors;

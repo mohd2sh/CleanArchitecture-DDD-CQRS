@@ -1,5 +1,5 @@
-using CleanArchitecture.Cmms.Domain.Abstractions;
-using CleanArchitecture.Cmms.Domain.Abstractions.Attributes;
+using CleanArchitecture.Core.Domain.Abstractions;
+using CleanArchitecture.Core.Domain.Abstractions.Attributes;
 
 namespace CleanArchitecture.Cmms.Domain.Assets;
 

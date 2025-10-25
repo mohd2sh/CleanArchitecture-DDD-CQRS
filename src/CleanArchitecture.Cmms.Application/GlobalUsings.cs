@@ -1,1 +1,1 @@
-global using CleanArchitecture.Cmms.Application.Abstractions.Messaging;
+global using CleanArchitecture.Core.Application.Abstractions.Messaging;

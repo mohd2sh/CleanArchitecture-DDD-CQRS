@@ -24,9 +24,17 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CleanArchitecture.Cmms.Doma
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CleanArchitecture.Cmms.Infrastructure.UnitTests", "tests\CleanArchitecture.Cmms.Infrastructure.UnitTests\CleanArchitecture.Cmms.Infrastructure.UnitTests.csproj", "{CB1652F1-245F-4AC5-B23D-F5EE13B5B2CE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CleanArchitecture.Cmms.Outbox", "src\CleanArchitecture.Cmms.Outbox\CleanArchitecture.Cmms.Outbox.csproj", "{56A2213B-4167-4FDF-A97C-27AF925EEEEA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CleanArchitecture.Outbox", "src\outbox\CleanArchitecture.Outbox\CleanArchitecture.Outbox.csproj", "{56A2213B-4167-4FDF-A97C-27AF925EEEEA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CleanArchitecture.Cmms.Outbox.Abstractions", "src\CleanArchitecture.Cmms.Outbox.Abstractions\CleanArchitecture.Cmms.Outbox.Abstractions.csproj", "{22DBD8B1-A97F-43A0-984E-710D7D00A949}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CleanArchitecture.Outbox.Abstractions", "src\outbox\CleanArchitecture.Outbox.Abstractions\CleanArchitecture.Outbox.Abstractions.csproj", "{22DBD8B1-A97F-43A0-984E-710D7D00A949}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "core", "core", "{0FDC867A-8694-44E2-AAF4-D183CCBFC5A0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CleanArchitecture.Core.Domain", "src\core\CleanArchitecture.Core.Domain\CleanArchitecture.Core.Domain.csproj", "{F7BFAC4A-9454-4ECC-BFDB-E049CED47F6D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CleanArchitecture.Core.Application", "src\core\CleanArchitecture.Core.Application\CleanArchitecture.Core.Application.csproj", "{8444FE07-6578-4656-B540-B8BE822C4300}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "outbox", "outbox", "{515A4A8F-DA10-4E85-9A9C-C5B095B67CA3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -70,6 +78,14 @@ Global
 		{22DBD8B1-A97F-43A0-984E-710D7D00A949}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{22DBD8B1-A97F-43A0-984E-710D7D00A949}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{22DBD8B1-A97F-43A0-984E-710D7D00A949}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F7BFAC4A-9454-4ECC-BFDB-E049CED47F6D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F7BFAC4A-9454-4ECC-BFDB-E049CED47F6D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F7BFAC4A-9454-4ECC-BFDB-E049CED47F6D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F7BFAC4A-9454-4ECC-BFDB-E049CED47F6D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8444FE07-6578-4656-B540-B8BE822C4300}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8444FE07-6578-4656-B540-B8BE822C4300}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8444FE07-6578-4656-B540-B8BE822C4300}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8444FE07-6578-4656-B540-B8BE822C4300}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -78,5 +94,9 @@ Global
 		{8DEC3096-5F99-4B47-8DC5-30DA1F4BD314} = {346E28AC-5DF1-489A-9D60-BA9B92FF457F}
 		{00DE466B-DAD8-41B9-A00C-D77601A4038D} = {346E28AC-5DF1-489A-9D60-BA9B92FF457F}
 		{CB1652F1-245F-4AC5-B23D-F5EE13B5B2CE} = {346E28AC-5DF1-489A-9D60-BA9B92FF457F}
+		{56A2213B-4167-4FDF-A97C-27AF925EEEEA} = {515A4A8F-DA10-4E85-9A9C-C5B095B67CA3}
+		{22DBD8B1-A97F-43A0-984E-710D7D00A949} = {515A4A8F-DA10-4E85-9A9C-C5B095B67CA3}
+		{F7BFAC4A-9454-4ECC-BFDB-E049CED47F6D} = {0FDC867A-8694-44E2-AAF4-D183CCBFC5A0}
+		{8444FE07-6578-4656-B540-B8BE822C4300} = {0FDC867A-8694-44E2-AAF4-D183CCBFC5A0}
 	EndGlobalSection
 EndGlobal

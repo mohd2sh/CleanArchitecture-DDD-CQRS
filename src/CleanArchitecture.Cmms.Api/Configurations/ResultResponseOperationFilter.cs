@@ -1,4 +1,4 @@
-using CleanArchitecture.Cmms.Application.Abstractions.Common;
+using CleanArchitecture.Core.Application.Abstractions.Common;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;

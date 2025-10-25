@@ -1,9 +1,9 @@
 namespace CleanArchitecture.Cmms.Application.ErrorManagement;
 
 using System.Reflection;
-using CleanArchitecture.Cmms.Application.Abstractions.Common;
 using CleanArchitecture.Cmms.Application.ErrorManagement.Models;
-using CleanArchitecture.Cmms.Domain.Abstractions.Attributes;
+using CleanArchitecture.Core.Application.Abstractions.Common;
+using CleanArchitecture.Core.Domain.Abstractions.Attributes;
 
 /// <summary>
 /// Unified exporter for both domain and application errors.
@@ -29,7 +29,7 @@ public class ErrorExporter : IErrorExporter
     /// </summary>
     public Dictionary<string, DomainErrorInfo> ExportDomainErrors()
     {
-        var domainAssembly = typeof(Domain.Abstractions.DomainException).Assembly;
+        var domainAssembly = typeof(Domain.WorkOrders.WorkOrderErrors).Assembly;
         var errors = new Dictionary<string, DomainErrorInfo>();
 
         // Find all classes with [ErrorCodeDefinition]
@@ -45,13 +45,13 @@ public class ErrorExporter : IErrorExporter
 
             // Get all static readonly DomainError fields with [DomainError]
             var fields = errorClass.GetFields(BindingFlags.Public | BindingFlags.Static)
-                .Where(f => f.FieldType == typeof(Domain.Abstractions.DomainError)
+                .Where(f => f.FieldType == typeof(Core.Domain.Abstractions.DomainError)
                     && f.IsInitOnly  // readonly fields
                     && f.GetCustomAttribute<DomainErrorAttribute>() != null);
 
             foreach (var field in fields)
             {
-                var domainError = (Domain.Abstractions.DomainError)field.GetValue(null)!;
+                var domainError = (Core.Domain.Abstractions.DomainError)field.GetValue(null)!;
 
                 errors[domainError.Code] = new DomainErrorInfo
                 {

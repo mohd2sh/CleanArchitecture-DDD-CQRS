@@ -1,4 +1,4 @@
-﻿using CleanArchitecture.Cmms.Domain.Assets;
+using CleanArchitecture.Cmms.Domain.Assets;
 using CleanArchitecture.Cmms.Domain.Technicians;
 using CleanArchitecture.Cmms.Domain.WorkOrders;
 using CleanArchitecture.Cmms.Infrastructure.Persistence.EfCore;

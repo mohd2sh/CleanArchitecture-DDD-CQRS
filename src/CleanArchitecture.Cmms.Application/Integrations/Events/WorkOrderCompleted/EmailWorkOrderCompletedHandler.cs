@@ -1,4 +1,4 @@
-using CleanArchitecture.Cmms.Application.Abstractions.Events;
+using CleanArchitecture.Core.Application.Abstractions.Events;
 using CleanArchitecture.Cmms.Domain.WorkOrders.Events;
 using Microsoft.Extensions.Logging;
 

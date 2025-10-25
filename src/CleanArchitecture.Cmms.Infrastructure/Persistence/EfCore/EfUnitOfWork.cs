@@ -1,5 +1,5 @@
-using CleanArchitecture.Cmms.Application.Abstractions.Persistence;
-using CleanArchitecture.Cmms.Domain.Abstractions;
+using CleanArchitecture.Core.Application.Abstractions.Persistence;
+using CleanArchitecture.Core.Domain.Abstractions;
 
 namespace CleanArchitecture.Cmms.Infrastructure.Persistence.EfCore;
 

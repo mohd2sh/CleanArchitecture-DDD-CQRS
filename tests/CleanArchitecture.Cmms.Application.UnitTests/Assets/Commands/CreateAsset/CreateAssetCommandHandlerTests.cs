@@ -1,4 +1,4 @@
-using CleanArchitecture.Cmms.Application.Abstractions.Persistence.Repositories;
+using CleanArchitecture.Core.Application.Abstractions.Persistence.Repositories;
 using CleanArchitecture.Cmms.Application.Assets.Commands.CreateAsset;
 using CleanArchitecture.Cmms.Domain.Assets;
 

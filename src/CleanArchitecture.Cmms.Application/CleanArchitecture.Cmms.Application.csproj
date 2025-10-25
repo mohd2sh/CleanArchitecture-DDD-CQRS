@@ -11,9 +11,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CleanArchitecture.Cmms.Domain\CleanArchitecture.Cmms.Domain.csproj" />
-    <ProjectReference Include="..\CleanArchitecture.Cmms.Outbox.Abstractions\CleanArchitecture.Cmms.Outbox.Abstractions.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Primitives\" />
+    <ProjectReference Include="..\core\CleanArchitecture.Core.Application\CleanArchitecture.Core.Application.csproj" />
+    <ProjectReference Include="..\outbox\CleanArchitecture.Outbox.Abstractions\CleanArchitecture.Outbox.Abstractions.csproj" />
   </ItemGroup>
 </Project>

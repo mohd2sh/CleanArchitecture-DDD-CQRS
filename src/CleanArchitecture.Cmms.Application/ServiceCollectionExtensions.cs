@@ -1,8 +1,8 @@
 using System.Reflection;
-using CleanArchitecture.Cmms.Application.Abstractions.Events;
 using CleanArchitecture.Cmms.Application.Behaviors;
 using CleanArchitecture.Cmms.Application.ErrorManagement;
 using CleanArchitecture.Cmms.Application.Integrations.Events.WorkOrderCompleted;
+using CleanArchitecture.Core.Application.Abstractions.Events;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -30,6 +30,8 @@ public static class ServiceCollectionExtensions
 
         services.AddSingleton<IErrorExporter, ErrorExporter>();
 
+        // Register mock email service
+        services.AddScoped<IEmailService, MockEmailService>();
         return services;
     }
 
@@ -40,7 +42,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped(typeof(IPipeline<,>), typeof(ValidationPipeline<,>));
 
         // Command-specific pipelines - run only for commands
-        // Order is important! 
         services.AddScoped(typeof(ICommandPipeline<,>), typeof(TransactionCommandPipeline<,>));
         services.AddScoped(typeof(ICommandPipeline<,>), typeof(DomainEventsPipeline<,>));
     }
@@ -98,8 +99,5 @@ public static class ServiceCollectionExtensions
                 services.AddScoped(interfaceType, handlerType);
             }
         }
-
-        // Register mock email service
-        services.AddScoped<IEmailService, MockEmailService>();
     }
 }

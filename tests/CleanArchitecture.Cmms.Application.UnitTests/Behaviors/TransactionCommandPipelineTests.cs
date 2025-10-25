@@ -1,5 +1,5 @@
-using CleanArchitecture.Cmms.Application.Abstractions.Messaging;
-using CleanArchitecture.Cmms.Application.Abstractions.Persistence;
+using CleanArchitecture.Core.Application.Abstractions.Messaging;
+using CleanArchitecture.Core.Application.Abstractions.Persistence;
 using CleanArchitecture.Cmms.Application.Behaviors;
 using Microsoft.Extensions.Logging.Abstractions;
 

@@ -1,5 +1,5 @@
-using CleanArchitecture.Cmms.Application.Abstractions.Events;
-using CleanArchitecture.Cmms.Domain.Abstractions;
+using CleanArchitecture.Core.Application.Abstractions.Events;
+using CleanArchitecture.Core.Domain.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CleanArchitecture.Cmms.Infrastructure.Messaging;

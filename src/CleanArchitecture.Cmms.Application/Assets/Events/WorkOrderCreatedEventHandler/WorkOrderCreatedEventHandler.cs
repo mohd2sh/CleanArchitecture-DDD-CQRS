@@ -1,8 +1,8 @@
-using CleanArchitecture.Cmms.Application.Abstractions.Common;
-using CleanArchitecture.Cmms.Application.Abstractions.Events;
-using CleanArchitecture.Cmms.Application.Abstractions.Persistence.Repositories;
 using CleanArchitecture.Cmms.Domain.Assets;
 using CleanArchitecture.Cmms.Domain.WorkOrders.Events;
+using CleanArchitecture.Core.Application.Abstractions.Common;
+using CleanArchitecture.Core.Application.Abstractions.Events;
+using CleanArchitecture.Core.Application.Abstractions.Persistence.Repositories;
 
 namespace CleanArchitecture.Cmms.Application.Assets.Events.WorkOrderCreatedEventHandler
 {
@@ -21,13 +21,13 @@ namespace CleanArchitecture.Cmms.Application.Assets.Events.WorkOrderCreatedEvent
 
         public async Task Handle(
             WorkOrderCreatedEvent domainEvent,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default)
         {
             var asset = await _assetRepository.GetByIdAsync(domainEvent.AssetId, cancellationToken);
 
             if (asset is null)
             {
-                throw new Abstractions.Common.ApplicationException(AssetErrors.NotFound);
+                throw new Core.Application.Abstractions.Common.ApplicationException(AssetErrors.NotFound);
             }
 
             asset.SetUnderMaintenance(

@@ -7,7 +7,7 @@ using CleanArchitecture.Cmms.Application;
 using CleanArchitecture.Cmms.Infrastructure;
 using CleanArchitecture.Cmms.Infrastructure.Persistence;
 using CleanArchitecture.Cmms.Infrastructure.Persistence.EfCore;
-using CleanArchitecture.Cmms.Outbox;
+using CleanArchitecture.Outbox;
 using Serilog;
 
 Log.Logger = new LoggerConfiguration()

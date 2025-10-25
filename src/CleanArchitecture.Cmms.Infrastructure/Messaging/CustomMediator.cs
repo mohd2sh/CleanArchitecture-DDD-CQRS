@@ -1,7 +1,7 @@
-using CleanArchitecture.Cmms.Application.Abstractions.Events;
-using CleanArchitecture.Cmms.Application.Abstractions.Messaging;
-using CleanArchitecture.Cmms.Domain.Abstractions;
 using CleanArchitecture.Cmms.Infrastructure.Messaging.Wrappers;
+using CleanArchitecture.Core.Application.Abstractions.Events;
+using CleanArchitecture.Core.Application.Abstractions.Messaging;
+using CleanArchitecture.Core.Domain.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CleanArchitecture.Cmms.Infrastructure.Messaging;

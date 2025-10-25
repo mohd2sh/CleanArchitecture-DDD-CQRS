@@ -1,4 +1,4 @@
-using CleanArchitecture.Cmms.Domain.Abstractions;
+using CleanArchitecture.Core.Domain.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
 namespace CleanArchitecture.Cmms.Infrastructure.Persistence.EfCore;

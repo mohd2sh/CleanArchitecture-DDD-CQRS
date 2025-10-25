@@ -1,7 +1,7 @@
 namespace CleanArchitecture.Cmms.Application.Technicians;
 
-using CleanArchitecture.Cmms.Application.Abstractions.Common;
-using CleanArchitecture.Cmms.Domain.Abstractions.Attributes;
+using CleanArchitecture.Core.Application.Abstractions.Common;
+using CleanArchitecture.Core.Domain.Abstractions.Attributes;
 
 /// <summary>
 /// Provides centralized error definitions for Technician operations.

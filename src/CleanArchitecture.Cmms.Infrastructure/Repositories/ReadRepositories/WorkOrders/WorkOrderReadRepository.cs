@@ -1,8 +1,8 @@
 using System.Data;
-using CleanArchitecture.Cmms.Application.Abstractions.Query;
 using CleanArchitecture.Cmms.Application.WorkOrders.Dtos;
 using CleanArchitecture.Cmms.Application.WorkOrders.Interfaces;
 using CleanArchitecture.Cmms.Domain.WorkOrders.Enums;
+using CleanArchitecture.Core.Application.Abstractions.Query;
 
 namespace CleanArchitecture.Cmms.Infrastructure.Repositories.ReadRepositories.WorkOrders
 {

@@ -1,4 +1,4 @@
-using CleanArchitecture.Cmms.Application.Abstractions.Persistence.Repositories;
+using CleanArchitecture.Core.Application.Abstractions.Persistence.Repositories;
 using CleanArchitecture.Cmms.Application.WorkOrders.Commands.StartWorkOrder;
 using CleanArchitecture.Cmms.Domain.WorkOrders;
 using CleanArchitecture.Cmms.Domain.WorkOrders.ValueObjects;

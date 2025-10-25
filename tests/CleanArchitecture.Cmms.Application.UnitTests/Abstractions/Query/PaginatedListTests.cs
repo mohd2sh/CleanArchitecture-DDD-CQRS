@@ -1,4 +1,4 @@
-using CleanArchitecture.Cmms.Application.Abstractions.Query;
+using CleanArchitecture.Core.Application.Abstractions.Query;
 
 namespace CleanArchitecture.Cmms.Application.UnitTests.Abstractions.Query;
 

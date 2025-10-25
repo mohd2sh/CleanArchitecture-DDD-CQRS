@@ -1,6 +1,6 @@
-using CleanArchitecture.Cmms.Application.Abstractions.Persistence;
-using CleanArchitecture.Cmms.Application.Abstractions.Persistence.Repositories;
-using CleanArchitecture.Cmms.Application.Abstractions.Query;
+using CleanArchitecture.Core.Application.Abstractions.Persistence;
+using CleanArchitecture.Core.Application.Abstractions.Persistence.Repositories;
+using CleanArchitecture.Core.Application.Abstractions.Query;
 using CleanArchitecture.Cmms.Application.Technicians.Queries.GetAvailableTechnicians;
 using CleanArchitecture.Cmms.Domain.Technicians;
 using CleanArchitecture.Cmms.Domain.Technicians.ValueObjects;

@@ -1,5 +1,5 @@
 using System.Reflection;
-using CleanArchitecture.Cmms.Domain.Abstractions;
+using CleanArchitecture.Core.Domain.Abstractions;
 using NetArchTest.Rules;
 
 namespace CleanArchitecture.Cmms.Domain.UnitTests.ArchitectureTests

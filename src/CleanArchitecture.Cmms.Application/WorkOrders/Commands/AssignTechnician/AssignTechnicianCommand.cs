@@ -1,4 +1,4 @@
-using CleanArchitecture.Cmms.Application.Abstractions.Common;
+using CleanArchitecture.Core.Application.Abstractions.Common;
 
 namespace CleanArchitecture.Cmms.Application.WorkOrders.Commands.AssignTechnician
 {

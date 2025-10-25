@@ -1,4 +1,4 @@
-﻿using CleanArchitecture.Cmms.Domain.Abstractions;
+﻿using CleanArchitecture.Core.Domain.Abstractions  ;
 using CleanArchitecture.Cmms.Domain.Assets.Entities;
 using CleanArchitecture.Cmms.Domain.Assets.Enums;
 using CleanArchitecture.Cmms.Domain.Assets.Events;
