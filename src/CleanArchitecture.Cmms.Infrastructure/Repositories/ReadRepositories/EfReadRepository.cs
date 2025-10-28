@@ -20,11 +20,6 @@ namespace CleanArchitecture.Cmms.Infrastructure.Repositories.ReadRepositories
 
         public EfReadRepository(ReadDbContext db) => _db = db;
 
-        public async Task<T?> GetByIdAsync(TId id, CancellationToken cancellationToken = default)
-            => await _db.Set<T>()
-            .AsNoTracking()
-            .FirstOrDefaultAsync(e => e.Id.Equals(id), cancellationToken); //TODO strong typed Id comparison
-
         public async Task<T?> FirstOrDefaultAsync(Criteria<T> criteria, CancellationToken cancellationToken = default)
             => await _db.Set<T>().AsQueryable().Apply(criteria).AsNoTracking().FirstOrDefaultAsync(cancellationToken);
 

@@ -13,16 +13,16 @@ namespace CleanArchitecture.Cmms.Application.WorkOrders.Commands.StartWorkOrder
             _repository = repository;
         }
 
-        public async Task<Result> Handle(StartWorkOrderCommand request, CancellationToken ct)
+        public async Task<Result> Handle(StartWorkOrderCommand request, CancellationToken cancellationToken = default)
         {
-            var workOrder = await _repository.GetByIdAsync(request.WorkOrderId, ct);
+            var workOrder = await _repository.GetByIdAsync(request.WorkOrderId, cancellationToken);
 
             if (workOrder is null)
                 return WorkOrderErrors.NotFound;
 
             workOrder.Start();
 
-            await _repository.UpdateAsync(workOrder, ct);
+            await _repository.UpdateAsync(workOrder, cancellationToken);
 
             return Result.Success();
         }

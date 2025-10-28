@@ -15,7 +15,7 @@ namespace CleanArchitecture.Cmms.Application.WorkOrders.Commands.CompleteWorkOrd
             _workOrderRepository = workOrderRepository;
         }
 
-        public async Task<Result> Handle(CompleteWorkOrderCommand request, CancellationToken cancellationToken)
+        public async Task<Result> Handle(CompleteWorkOrderCommand request, CancellationToken cancellationToken = default)
         {
             var workOrder = await _workOrderRepository.GetByIdAsync(request.WorkOrderId, cancellationToken);
 

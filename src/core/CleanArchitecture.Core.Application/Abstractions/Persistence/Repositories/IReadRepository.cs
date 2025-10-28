@@ -1,4 +1,4 @@
-﻿using CleanArchitecture.Core.Application.Abstractions.Query;
+using CleanArchitecture.Core.Application.Abstractions.Query;
 
 namespace CleanArchitecture.Core.Application.Abstractions.Persistence.Repositories;
 
@@ -18,7 +18,6 @@ public interface IReadRepository { }
 
 public interface IReadRepository<T, TId> : IReadRepository
 {
-    Task<T?> GetByIdAsync(TId id, CancellationToken cancellationToken = default);
     Task<T?> FirstOrDefaultAsync(Criteria<T> criteria, CancellationToken cancellationToken = default);
     Task<bool> AnyAsync(Criteria<T> criteria, CancellationToken cancellationToken = default);
     Task<PaginatedList<T>> ListAsync(Criteria<T> criteria, CancellationToken cancellationToken = default);

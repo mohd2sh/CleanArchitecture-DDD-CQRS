@@ -14,7 +14,7 @@ namespace CleanArchitecture.Cmms.Application.WorkOrders.Queries.GetWorkOrderById
             _repository = repository;
         }
 
-        public async Task<Result<WorkOrderDto>> Handle(GetWorkOrderByIdQuery request, CancellationToken cancellationToken)
+        public async Task<Result<WorkOrderDto>> Handle(GetWorkOrderByIdQuery request, CancellationToken cancellationToken = default)
         {
             var entity = await _repository.GetWorkOrderById(request.Id, cancellationToken);
 

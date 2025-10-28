@@ -1,4 +1,4 @@
-﻿using CleanArchitecture.Cmms.Domain.WorkOrders;
+using CleanArchitecture.Cmms.Domain.WorkOrders;
 using CleanArchitecture.Core.Application.Abstractions.Common;
 using CleanArchitecture.Core.Application.Abstractions.Persistence.Repositories;
 
@@ -14,7 +14,7 @@ namespace CleanArchitecture.Cmms.Application.WorkOrders.Commands.AddStep
             _repository = repository;
         }
 
-        public async Task<Result> Handle(AddStepCommand request, CancellationToken cancellationToken)
+        public async Task<Result> Handle(AddStepCommand request, CancellationToken cancellationToken = default)
         {
             var workOrder = await _repository.GetByIdAsync(request.WorkOrderId, cancellationToken);
 

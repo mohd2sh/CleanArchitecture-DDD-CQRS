@@ -19,7 +19,7 @@ namespace CleanArchitecture.Cmms.Application.Technicians.Queries.GetTechnicianAs
 
         public async Task<Result<PaginatedList<TechnicianAssignmentDto>>> Handle(
             GetTechnicianAssignmentsQuery request,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default)
         {
             var criteria = Criteria<Technician>.New()
                 .Where(p => p.Id == request.TechnicianId)
