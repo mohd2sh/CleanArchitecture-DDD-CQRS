@@ -9,13 +9,11 @@ using CleanArchitecture.Core.Domain.Abstractions.Attributes;
 [ErrorCodeDefinition("WorkOrder")]
 public static class WorkOrderErrors
 {
-    // NotFound Errors
     [ApplicationError]
     public static readonly Error NotFound = Error.NotFound(
         "WorkOrder.NotFound",
         "Work order not found.");
 
-    // Validation Errors (reusing domain messages for consistency)
     [ApplicationError]
     public static readonly Error TitleRequired = Error.Validation(
         "WorkOrder.TitleRequired",

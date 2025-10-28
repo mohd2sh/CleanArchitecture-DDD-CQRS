@@ -1,7 +1,10 @@
 using System.Net;
 using Asp.Versioning;
 using CleanArchitecture.Cmms.Api.Controllers.V1.Requests.Technicans;
+using CleanArchitecture.Cmms.Application.Technicians.Commands.AddCertification;
 using CleanArchitecture.Cmms.Application.Technicians.Commands.CreateTechnician;
+using CleanArchitecture.Cmms.Application.Technicians.Commands.SetAvailable;
+using CleanArchitecture.Cmms.Application.Technicians.Commands.SetUnavailable;
 using CleanArchitecture.Cmms.Application.Technicians.Dtos;
 using CleanArchitecture.Cmms.Application.Technicians.Queries.GetAvailableTechnicians;
 using CleanArchitecture.Cmms.Application.Technicians.Queries.GetTechnicianAssignments;
@@ -58,13 +61,35 @@ namespace CleanArchitecture.Cmms.Api.Controllers.V1
             return Ok(result);
         }
 
-        [HttpGet("{id:guid}/assignments")]
-        [ProducesResponseType(typeof(Result<PaginatedList<TechnicianAssignmentDto>>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetAssignments(Guid id, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 20, [FromQuery] bool onlyActive = false, CancellationToken cancellationToken = default)
+        [HttpPost("{id:guid}/certifications")]
+        [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> AddCertification(Guid id, [FromBody] AddCertificationRequest request, CancellationToken cancellationToken)
         {
-            var query = new GetTechnicianAssignmentsQuery(id, new PaginationParam(pageNumber, pageSize), onlyActive);
+            var command = new AddCertificationCommand(id, request.Code, request.IssuedOn, request.ExpiresOn);
 
-            var result = await _mediator.Send(query, cancellationToken);
+            var result = await _mediator.Send(command, cancellationToken);
+
+            return Ok(result);
+        }
+
+        [HttpPost("{id:guid}/set-unavailable")]
+        [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> SetUnavailable(Guid id, CancellationToken cancellationToken)
+        {
+            var command = new SetUnavailableCommand(id);
+
+            var result = await _mediator.Send(command, cancellationToken);
+
+            return Ok(result);
+        }
+
+        [HttpPost("{id:guid}/set-available")]
+        [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> SetAvailable(Guid id, CancellationToken cancellationToken)
+        {
+            var command = new SetAvailableCommand(id);
+
+            var result = await _mediator.Send(command, cancellationToken);
 
             return Ok(result);
         }

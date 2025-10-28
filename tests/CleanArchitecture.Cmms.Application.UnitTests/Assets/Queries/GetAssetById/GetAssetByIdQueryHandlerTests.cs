@@ -1,6 +1,7 @@
 using CleanArchitecture.Cmms.Application.Assets.Queries.GetAssetById;
 using CleanArchitecture.Cmms.Domain.Assets;
 using CleanArchitecture.Cmms.Domain.Assets.ValueObjects;
+using CleanArchitecture.Core.Application.Abstractions.Persistence;
 using CleanArchitecture.Core.Application.Abstractions.Persistence.Repositories;
 
 namespace CleanArchitecture.Cmms.Application.UnitTests.Assets.Queries.GetAssetById;
@@ -24,7 +25,7 @@ public class GetAssetByIdQueryHandlerTests
         var assetId = asset.Id;
         var query = new GetAssetByIdQuery(assetId);
 
-        _repositoryMock.Setup(x => x.GetByIdAsync(assetId, It.IsAny<CancellationToken>()))
+        _repositoryMock.Setup(x => x.FirstOrDefaultAsync(It.IsAny<Criteria<Asset>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(asset);
 
         // Act
@@ -38,7 +39,7 @@ public class GetAssetByIdQueryHandlerTests
         result.Value.TagValue.Should().Be("Tag 1");
         result.Value.TotalMaintenanceRecords.Should().Be(0);
 
-        _repositoryMock.Verify(x => x.GetByIdAsync(assetId, It.IsAny<CancellationToken>()), Times.Once);
+        _repositoryMock.Verify(x => x.FirstOrDefaultAsync(It.IsAny<Criteria<Asset>>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -48,7 +49,7 @@ public class GetAssetByIdQueryHandlerTests
         var assetId = Guid.NewGuid();
         var query = new GetAssetByIdQuery(assetId);
 
-        _repositoryMock.Setup(x => x.GetByIdAsync(assetId, It.IsAny<CancellationToken>()))
+        _repositoryMock.Setup(x => x.FirstOrDefaultAsync(It.IsAny<Criteria<Asset>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((Asset?)null);
 
         // Act
@@ -60,7 +61,7 @@ public class GetAssetByIdQueryHandlerTests
         result.Error!.Code.Should().Be(Application.Assets.AssetErrors.NotFound.Code);
         result.Error.Message.Should().Be(Application.Assets.AssetErrors.NotFound.Message);
 
-        _repositoryMock.Verify(x => x.GetByIdAsync(assetId, It.IsAny<CancellationToken>()), Times.Once);
+        _repositoryMock.Verify(x => x.FirstOrDefaultAsync(It.IsAny<Criteria<Asset>>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     private static Asset CreateMockAsset()

@@ -1,6 +1,7 @@
 using CleanArchitecture.Cmms.Application.Technicians.Queries.GetTechnicianById;
 using CleanArchitecture.Cmms.Domain.Technicians;
 using CleanArchitecture.Cmms.Domain.Technicians.ValueObjects;
+using CleanArchitecture.Core.Application.Abstractions.Persistence;
 using CleanArchitecture.Core.Application.Abstractions.Persistence.Repositories;
 
 namespace CleanArchitecture.Cmms.Application.UnitTests.Technicians.Queries.GetTechnicianById;
@@ -23,7 +24,7 @@ public class GetTechnicianByIdQueryHandlerTests
         var technician = CreateTechnician();
         var query = new GetTechnicianByIdQuery(technician.Id);
 
-        _repositoryMock.Setup(x => x.GetByIdAsync(technician.Id, It.IsAny<CancellationToken>()))
+        _repositoryMock.Setup(x => x.FirstOrDefaultAsync(It.IsAny<Criteria<Technician>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(technician);
 
         // Act
@@ -40,7 +41,7 @@ public class GetTechnicianByIdQueryHandlerTests
         result.Value.ActiveAssignmentsCount.Should().Be(0);
         result.Value.TotalCertifications.Should().Be(0);
 
-        _repositoryMock.Verify(x => x.GetByIdAsync(technician.Id, It.IsAny<CancellationToken>()), Times.Once);
+        _repositoryMock.Verify(x => x.FirstOrDefaultAsync(It.IsAny<Criteria<Technician>>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -50,7 +51,7 @@ public class GetTechnicianByIdQueryHandlerTests
         var technicianId = Guid.NewGuid();
         var query = new GetTechnicianByIdQuery(technicianId);
 
-        _repositoryMock.Setup(x => x.GetByIdAsync(technicianId, It.IsAny<CancellationToken>()))
+        _repositoryMock.Setup(x => x.FirstOrDefaultAsync(It.IsAny<Criteria<Technician>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((Technician?)null);
 
         // Act
@@ -62,7 +63,7 @@ public class GetTechnicianByIdQueryHandlerTests
         result.Error!.Code.Should().Be(Application.Technicians.TechnicianErrors.NotFound.Code);
         result.Error.Message.Should().Be(Application.Technicians.TechnicianErrors.NotFound.Message);
 
-        _repositoryMock.Verify(x => x.GetByIdAsync(technicianId, It.IsAny<CancellationToken>()), Times.Once);
+        _repositoryMock.Verify(x => x.FirstOrDefaultAsync(It.IsAny<Criteria<Technician>>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     private static Technician CreateTechnician()
