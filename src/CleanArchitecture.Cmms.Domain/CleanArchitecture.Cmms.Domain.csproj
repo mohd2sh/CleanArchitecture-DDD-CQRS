@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
@@ -7,4 +7,7 @@
   <PropertyGroup>
     <NoWarn>$(NoWarn);CS8618</NoWarn>
   </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\core\CleanArchitecture.Core.Domain\CleanArchitecture.Core.Domain.csproj" />
+  </ItemGroup>
 </Project>

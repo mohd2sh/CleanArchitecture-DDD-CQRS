@@ -1,5 +1,6 @@
-﻿using CleanArchitecture.Cmms.Application.Abstractions.Persistence.Repositories;
 using CleanArchitecture.Cmms.Domain.WorkOrders;
+using CleanArchitecture.Core.Application.Abstractions.Common;
+using CleanArchitecture.Core.Application.Abstractions.Persistence.Repositories;
 
 namespace CleanArchitecture.Cmms.Application.WorkOrders.Commands.StartWorkOrder
 {
@@ -12,16 +13,16 @@ namespace CleanArchitecture.Cmms.Application.WorkOrders.Commands.StartWorkOrder
             _repository = repository;
         }
 
-        public async Task<Result> Handle(StartWorkOrderCommand request, CancellationToken ct)
+        public async Task<Result> Handle(StartWorkOrderCommand request, CancellationToken cancellationToken = default)
         {
-            var workOrder = await _repository.GetByIdAsync(request.WorkOrderId, ct);
+            var workOrder = await _repository.GetByIdAsync(request.WorkOrderId, cancellationToken);
 
             if (workOrder is null)
-                return "Work order not found.";
+                return WorkOrderErrors.NotFound;
 
             workOrder.Start();
 
-            await _repository.UpdateAsync(workOrder, ct);
+            await _repository.UpdateAsync(workOrder, cancellationToken);
 
             return Result.Success();
         }

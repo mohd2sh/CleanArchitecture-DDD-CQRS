@@ -1,15 +1,18 @@
-﻿using Asp.Versioning;
+using System.Net;
+using Asp.Versioning;
 using CleanArchitecture.Cmms.Api.Controllers.V1.Requests.Technicans;
-using CleanArchitecture.Cmms.Application.Abstractions.Messaging;
-using CleanArchitecture.Cmms.Application.Primitives;
-using CleanArchitecture.Cmms.Application.Technicians.Commands.CompleteAssignment;
+using CleanArchitecture.Cmms.Application.Technicians.Commands.AddCertification;
 using CleanArchitecture.Cmms.Application.Technicians.Commands.CreateTechnician;
+using CleanArchitecture.Cmms.Application.Technicians.Commands.SetAvailable;
+using CleanArchitecture.Cmms.Application.Technicians.Commands.SetUnavailable;
 using CleanArchitecture.Cmms.Application.Technicians.Dtos;
 using CleanArchitecture.Cmms.Application.Technicians.Queries.GetAvailableTechnicians;
 using CleanArchitecture.Cmms.Application.Technicians.Queries.GetTechnicianAssignments;
 using CleanArchitecture.Cmms.Application.Technicians.Queries.GetTechnicianById;
+using CleanArchitecture.Core.Application.Abstractions.Common;
+using CleanArchitecture.Core.Application.Abstractions.Messaging;
+using CleanArchitecture.Core.Application.Abstractions.Query;
 using Microsoft.AspNetCore.Mvc;
-using System.Net;
 
 namespace CleanArchitecture.Cmms.Api.Controllers.V1
 {
@@ -27,49 +30,28 @@ namespace CleanArchitecture.Cmms.Api.Controllers.V1
 
         [HttpPost]
         [ProducesResponseType(typeof(Result<Guid>), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> Create([FromBody] CreateTechnicianRequest request, CancellationToken cancellationToken)
         {
             var command = new CreateTechnicianCommand(request.Name, request.SkillLevelName, request.SkillLevelRank);
 
             var result = await _mediator.Send(command, cancellationToken);
 
-            return result.IsSuccess ? Ok(result) : BadRequest(result.Error);
+            return Ok(result);
         }
-
-
-        [HttpPost("{id:guid}/assignments/{workOrderId:guid}/complete")]
-        [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.InternalServerError)]
-        public async Task<IActionResult> CompleteAssignment(Guid id, Guid workOrderId, [FromBody] CompleteAssignmentRequest request, CancellationToken cancellationToken)
-        {
-            var command = new CompleteAssignmentCommand(id, workOrderId, request.CompletedOn);
-
-            var result = await _mediator.Send(command, cancellationToken);
-
-            return result.IsSuccess ? Ok(result) : BadRequest(result.Error);
-        }
-
 
         [HttpGet("{id:guid}")]
         [ProducesResponseType(typeof(Result<TechnicianDto>), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
         {
             var query = new GetTechnicianByIdQuery(id);
 
             var result = await _mediator.Send(query, cancellationToken);
 
-            return result.IsSuccess ? Ok(result) : NotFound(result.Error);
+            return Ok(result);
         }
 
         [HttpGet("available")]
         [ProducesResponseType(typeof(Result<PaginatedList<TechnicianDto>>), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> GetAvailable([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 20, CancellationToken cancellationToken = default)
         {
             var query = new GetAvailableTechniciansQuery(new PaginationParam(pageNumber, pageSize));
@@ -79,17 +61,37 @@ namespace CleanArchitecture.Cmms.Api.Controllers.V1
             return Ok(result);
         }
 
-        [HttpGet("{id:guid}/assignments")]
-        [ProducesResponseType(typeof(Result<IReadOnlyList<TechnicianAssignmentDto>>), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.InternalServerError)]
-        public async Task<IActionResult> GetAssignments(Guid id, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 20, [FromQuery] bool onlyActive = false, CancellationToken cancellationToken = default)
+        [HttpPost("{id:guid}/certifications")]
+        [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> AddCertification(Guid id, [FromBody] AddCertificationRequest request, CancellationToken cancellationToken)
         {
-            var query = new GetTechnicianAssignmentsQuery(id, new PaginationParam(pageNumber, pageSize), onlyActive);
+            var command = new AddCertificationCommand(id, request.Code, request.IssuedOn, request.ExpiresOn);
 
-            var result = await _mediator.Send(query, cancellationToken);
+            var result = await _mediator.Send(command, cancellationToken);
 
-            return result.IsSuccess ? Ok(result) : BadRequest(result.Error);
+            return Ok(result);
+        }
+
+        [HttpPost("{id:guid}/set-unavailable")]
+        [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> SetUnavailable(Guid id, CancellationToken cancellationToken)
+        {
+            var command = new SetUnavailableCommand(id);
+
+            var result = await _mediator.Send(command, cancellationToken);
+
+            return Ok(result);
+        }
+
+        [HttpPost("{id:guid}/set-available")]
+        [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> SetAvailable(Guid id, CancellationToken cancellationToken)
+        {
+            var command = new SetAvailableCommand(id);
+
+            var result = await _mediator.Send(command, cancellationToken);
+
+            return Ok(result);
         }
     }
 }

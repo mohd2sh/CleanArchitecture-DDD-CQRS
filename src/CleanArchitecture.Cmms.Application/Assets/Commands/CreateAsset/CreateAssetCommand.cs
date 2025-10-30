@@ -1,4 +1,6 @@
-﻿namespace CleanArchitecture.Cmms.Application.Assets.Commands.CreateAsset
+﻿using CleanArchitecture.Core.Application.Abstractions.Common;
+
+namespace CleanArchitecture.Cmms.Application.Assets.Commands.CreateAsset
 {
     public sealed record CreateAssetCommand(string Name,
         string Type,

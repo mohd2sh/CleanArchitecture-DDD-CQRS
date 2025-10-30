@@ -1,13 +1,22 @@
-﻿using CleanArchitecture.Cmms.Domain.Abstractions;
+using CleanArchitecture.Core.Domain.Abstractions;
 
 namespace CleanArchitecture.Cmms.Domain.Assets.ValueObjects
 {
-    internal sealed record AssetTag(string Value) : ValueObject
+    internal sealed record AssetTag : ValueObject
     {
+        public string Value { get; }
+
+        private AssetTag() { } //For Ef
+
+        private AssetTag(string value)
+        {
+            Value = value;
+        }
+
         public static AssetTag Create(string tag)
         {
             if (string.IsNullOrWhiteSpace(tag))
-                throw new DomainException("Asset tag cannot be empty.");
+                throw new DomainException(AssetErrors.TagRequired);
 
             return new(tag.Trim());
         }

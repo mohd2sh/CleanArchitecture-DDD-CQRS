@@ -8,11 +8,11 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests.Technicians.Entities
         public void Create_Should_Set_Properties()
         {
             // Arrange
-            Guid workOrderId = Guid.NewGuid();
-            DateTime assignedOn = DateTime.UtcNow;
+            var workOrderId = Guid.NewGuid();
+            var assignedOn = DateTime.UtcNow;
 
             // Act
-            TechnicianAssignment assignment = TechnicianAssignment.Create(workOrderId, assignedOn);
+            var assignment = TechnicianAssignment.Create(workOrderId, assignedOn);
 
             // Assert
             Assert.Equal(workOrderId, assignment.WorkOrderId);
@@ -25,14 +25,14 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests.Technicians.Entities
         public void CompleteAssignment_Should_Set_CompletedOn_And_Be_Idempotent()
         {
             // Arrange
-            Guid workOrderId = Guid.NewGuid();
-            DateTime assignedOn = DateTime.UtcNow.AddMinutes(-5);
-            TechnicianAssignment assignment = TechnicianAssignment.Create(workOrderId, assignedOn);
-            DateTime completedOn = DateTime.UtcNow;
+            var workOrderId = Guid.NewGuid();
+            var assignedOn = DateTime.UtcNow.AddMinutes(-5);
+            var assignment = TechnicianAssignment.Create(workOrderId, assignedOn);
+            var completedOn = DateTime.UtcNow;
 
             // Act
             assignment.CompleteAssignment(completedOn);
-            DateTime? firstCompletedOn = assignment.CompletedOn;
+            var firstCompletedOn = assignment.CompletedOn;
             assignment.CompleteAssignment(completedOn.AddMinutes(1)); // idempotent, should not change
 
             // Assert

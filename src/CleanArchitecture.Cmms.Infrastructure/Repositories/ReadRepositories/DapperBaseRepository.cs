@@ -1,6 +1,6 @@
-﻿using CleanArchitecture.Cmms.Application.Primitives;
-using Dapper;
 using System.Data;
+using CleanArchitecture.Core.Application.Abstractions.Query;
+using Dapper;
 
 namespace CleanArchitecture.Cmms.Infrastructure.Repositories.ReadRepositories
 {

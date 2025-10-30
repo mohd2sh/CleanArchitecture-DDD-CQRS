@@ -1,4 +1,4 @@
-﻿using CleanArchitecture.Cmms.Domain.Assets;
+using CleanArchitecture.Cmms.Domain.Assets;
 using CleanArchitecture.Cmms.Domain.Technicians;
 using CleanArchitecture.Cmms.Domain.WorkOrders;
 using CleanArchitecture.Cmms.Infrastructure.Persistence.EfCore;
@@ -13,8 +13,6 @@ namespace CleanArchitecture.Cmms.Infrastructure.Persistence
         internal DbSet<WorkOrder> WorkOrders => Set<WorkOrder>();
         internal DbSet<Technician> Technicians => Set<Technician>();
         internal DbSet<Asset> Assets => Set<Asset>();
-
-
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

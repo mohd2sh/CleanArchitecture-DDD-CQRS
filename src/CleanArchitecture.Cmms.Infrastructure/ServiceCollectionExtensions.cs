@@ -1,8 +1,4 @@
 using System.Data;
-using CleanArchitecture.Cmms.Application.Abstractions.Common;
-using CleanArchitecture.Cmms.Application.Abstractions.Messaging;
-using CleanArchitecture.Cmms.Application.Abstractions.Persistence;
-using CleanArchitecture.Cmms.Application.Abstractions.Persistence.Repositories;
 using CleanArchitecture.Cmms.Application.WorkOrders.Interfaces;
 using CleanArchitecture.Cmms.Infrastructure.Common;
 using CleanArchitecture.Cmms.Infrastructure.Messaging;
@@ -11,6 +7,11 @@ using CleanArchitecture.Cmms.Infrastructure.Persistence.EfCore.Interceptors;
 using CleanArchitecture.Cmms.Infrastructure.Repositories.ReadRepositories;
 using CleanArchitecture.Cmms.Infrastructure.Repositories.ReadRepositories.WorkOrders;
 using CleanArchitecture.Cmms.Infrastructure.Repositories.WriteRepositories;
+using CleanArchitecture.Core.Application.Abstractions.Common;
+using CleanArchitecture.Core.Application.Abstractions.Events;
+using CleanArchitecture.Core.Application.Abstractions.Messaging;
+using CleanArchitecture.Core.Application.Abstractions.Persistence;
+using CleanArchitecture.Core.Application.Abstractions.Persistence.Repositories;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -27,13 +28,13 @@ public static class ServiceCollectionExtensions
 
         AddReadDbServices(services, config, environment);
 
-        services.AddScoped<IMediator, MediatRAdapter>();
+        services.AddScoped<IMediator, CustomMediator>();
+        services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
 
         services.AddSingleton<IDateTimeProvider, SystemDateTimeProvider>();
 
         return services;
     }
-
 
     private static void AddWriteDbServices(IServiceCollection services, IConfiguration config)
     {
@@ -51,9 +52,6 @@ public static class ServiceCollectionExtensions
         }
         );
 
-
-        services.AddDbContext<WriteDbContext>(opt => opt.UseSqlServer(config.GetConnectionString("WriteDb")));
-
         services.AddScoped(typeof(IRepository<,>), typeof(EfRepository<,>));
 
         services.AddScoped<IUnitOfWork, EfUnitOfWork>();
@@ -61,12 +59,14 @@ public static class ServiceCollectionExtensions
 
     private static void AddReadDbServices(IServiceCollection services, IConfiguration config, string environment)
     {
-        //For queries we used IReadRepo using Dapper + Ef ReadDbContext
+        //For queries use IReadRepository using Dapper + Ef ReadDbContext
         services.AddDbContext<ReadDbContext>(opt =>
         {
             opt.UseSqlServer(
                 config.GetConnectionString("ReadDb") ?? config.GetConnectionString("WriteDb"),
                 sql => sql.MigrationsAssembly(typeof(ReadDbContext).Assembly.FullName));
+
+            opt.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
 
             if (environment == "Development")
                 opt.LogTo(Console.WriteLine, LogLevel.Information);

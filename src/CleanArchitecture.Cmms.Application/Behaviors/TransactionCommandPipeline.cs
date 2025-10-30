@@ -1,5 +1,4 @@
-using CleanArchitecture.Cmms.Application.Abstractions.Persistence;
-using MediatR;
+using CleanArchitecture.Core.Application.Abstractions.Persistence;
 using Microsoft.Extensions.Logging;
 
 namespace CleanArchitecture.Cmms.Application.Behaviors;
@@ -17,7 +16,7 @@ internal sealed class TransactionCommandPipeline<TCommand, TResult>
         _logger = logger;
     }
 
-    public async Task<TResult> Handle(TCommand request, RequestHandlerDelegate<TResult> next, CancellationToken cancellationToken)
+    public async Task<TResult> Handle(TCommand request, PipelineDelegate<TResult> next, CancellationToken cancellationToken = default)
     {
         await using var transaction = await _uow.BeginTransactionAsync(cancellationToken);
 
@@ -34,7 +33,9 @@ internal sealed class TransactionCommandPipeline<TCommand, TResult>
         catch (Exception ex)
         {
             _logger.LogError(ex, "Transaction failed for {Command}", typeof(TCommand).Name);
+
             await transaction.RollbackAsync(cancellationToken);
+
             throw;
         }
     }

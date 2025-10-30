@@ -1,4 +1,4 @@
-﻿using Asp.Versioning.ApiExplorer;
+using Asp.Versioning.ApiExplorer;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -32,6 +32,9 @@ namespace CleanArchitecture.Cmms.Api.Configurations
                         }
                     });
             }
+
+            // Add operation filter for Result responses
+            options.OperationFilter<ResultResponseOperationFilter>();
 
             // Optional JWT setup for future
             options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme

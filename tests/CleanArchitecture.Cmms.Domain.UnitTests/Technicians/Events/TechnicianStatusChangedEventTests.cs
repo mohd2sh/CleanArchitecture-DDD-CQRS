@@ -9,11 +9,11 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests.Technicians.Events
         public void Ctor_Should_Set_Properties_And_Default_Null_Timestamp()
         {
             // Arrange
-            Guid technicianId = Guid.NewGuid();
-            TechnicianStatus newStatus = TechnicianStatus.Unavailable;
+            var technicianId = Guid.NewGuid();
+            var newStatus = TechnicianStatus.Unavailable;
 
             // Act
-            TechnicianStatusChangedEvent domainEvent = new TechnicianStatusChangedEvent(technicianId, newStatus);
+            var domainEvent = new TechnicianStatusChangedEvent(technicianId, newStatus);
 
             // Assert
             Assert.Equal(technicianId, domainEvent.TechnicianId);
@@ -25,12 +25,12 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests.Technicians.Events
         public void Ctor_Should_Respect_Provided_Timestamp()
         {
             // Arrange
-            Guid technicianId = Guid.NewGuid();
-            TechnicianStatus newStatus = TechnicianStatus.Available;
-            DateTime providedTimestamp = DateTime.UtcNow;
+            var technicianId = Guid.NewGuid();
+            var newStatus = TechnicianStatus.Available;
+            var providedTimestamp = DateTime.UtcNow;
 
             // Act
-            TechnicianStatusChangedEvent domainEvent = new TechnicianStatusChangedEvent(technicianId, newStatus, providedTimestamp);
+            var domainEvent = new TechnicianStatusChangedEvent(technicianId, newStatus, providedTimestamp);
 
             // Assert
             Assert.Equal(providedTimestamp, domainEvent.OccurredOn);

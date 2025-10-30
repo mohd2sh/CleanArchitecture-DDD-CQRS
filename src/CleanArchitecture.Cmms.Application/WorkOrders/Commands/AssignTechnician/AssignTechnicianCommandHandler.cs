@@ -1,46 +1,29 @@
-﻿using CleanArchitecture.Cmms.Application.Abstractions.Common;
-using CleanArchitecture.Cmms.Application.Abstractions.Persistence.Repositories;
-using CleanArchitecture.Cmms.Domain.Technicians;
 using CleanArchitecture.Cmms.Domain.WorkOrders;
+using CleanArchitecture.Core.Application.Abstractions.Common;
+using CleanArchitecture.Core.Application.Abstractions.Persistence.Repositories;
 
 namespace CleanArchitecture.Cmms.Application.WorkOrders.Commands.AssignTechnician
 {
 
-    /// <summary>
-    /// The AssignTechnicianCommand is viewed as a domain service that interact with two Aggregate roots.
-    /// </summary>
     internal sealed class AssignTechnicianCommandHandler
     : ICommandHandler<AssignTechnicianCommand, Result>
     {
         private readonly IRepository<WorkOrder, Guid> _workOrderRepository;
-        private readonly IRepository<Technician, Guid> _technicianRepository;
-        private readonly IDateTimeProvider _dateTimeProvider;
 
         public AssignTechnicianCommandHandler(
-        IRepository<WorkOrder, Guid> workOrderRepository,
-        IRepository<Technician, Guid> technicianRepository,
-        IDateTimeProvider dateTimeProvider)
+        IRepository<WorkOrder, Guid> workOrderRepository)
         {
             _workOrderRepository = workOrderRepository;
-            _technicianRepository = technicianRepository;
-            _dateTimeProvider = dateTimeProvider;
         }
 
-        public async Task<Result> Handle(AssignTechnicianCommand request, CancellationToken cancellationToken)
+        public async Task<Result> Handle(AssignTechnicianCommand request, CancellationToken cancellationToken = default)
         {
-            var technician = await _technicianRepository.GetByIdAsync(request.TechnicianId, cancellationToken);
-            if (technician is null)
-                return "Technician not found.";
-
             var workOrder = await _workOrderRepository.GetByIdAsync(request.WorkOrderId, cancellationToken);
+
             if (workOrder is null)
-                return "Work order not found.";
+                return Application.WorkOrders.WorkOrderErrors.NotFound;
 
-            technician.AddAssignedOrder(workOrder.Id, _dateTimeProvider.UtcNow);
-
-            workOrder.AssignTechnician(technician.Id);
-
-            await _technicianRepository.UpdateAsync(technician, cancellationToken);
+            workOrder.AssignTechnician(request.TechnicianId);
 
             await _workOrderRepository.UpdateAsync(workOrder, cancellationToken);
 

@@ -1,6 +1,8 @@
-﻿using CleanArchitecture.Cmms.Application.Abstractions.Persistence.Repositories;
 using CleanArchitecture.Cmms.Application.Assets.Dtos;
 using CleanArchitecture.Cmms.Domain.Assets;
+using CleanArchitecture.Core.Application.Abstractions.Common;
+using CleanArchitecture.Core.Application.Abstractions.Persistence;
+using CleanArchitecture.Core.Application.Abstractions.Persistence.Repositories;
 
 namespace CleanArchitecture.Cmms.Application.Assets.Queries.GetAssetById
 {
@@ -14,11 +16,16 @@ namespace CleanArchitecture.Cmms.Application.Assets.Queries.GetAssetById
             _repository = repository;
         }
 
-        public async Task<Result<AssetDto>> Handle(GetAssetByIdQuery request, CancellationToken cancellationToken)
+        public async Task<Result<AssetDto>> Handle(GetAssetByIdQuery request, CancellationToken cancellationToken = default)
         {
-            var asset = await _repository.GetByIdAsync(request.AssetId, cancellationToken);
+            var getByIdCriteria = Criteria<Asset>
+                .New()
+                .Where(a => a.Id == request.AssetId)
+                .Build();
+
+            var asset = await _repository.FirstOrDefaultAsync(getByIdCriteria, cancellationToken);
             if (asset is null)
-                return $"Asset {request.AssetId} not found.";
+                return AssetErrors.NotFound;
 
             var dto = new AssetDto
             {

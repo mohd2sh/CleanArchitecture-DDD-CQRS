@@ -1,4 +1,6 @@
-﻿namespace CleanArchitecture.Cmms.Application.WorkOrders.Commands.CreateWorkOrder
+using CleanArchitecture.Core.Application.Abstractions.Common;
+
+namespace CleanArchitecture.Cmms.Application.WorkOrders.Commands.CreateWorkOrder
 {
     public sealed record CreateWorkOrderCommand(
         Guid AssetId,

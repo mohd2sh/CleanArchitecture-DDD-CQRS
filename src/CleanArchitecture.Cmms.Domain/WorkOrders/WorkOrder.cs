@@ -1,8 +1,8 @@
-using CleanArchitecture.Cmms.Domain.Abstractions;
-using CleanArchitecture.Cmms.Domain.WorkOrders.Enitties;
+using CleanArchitecture.Cmms.Domain.WorkOrders.Entities;
 using CleanArchitecture.Cmms.Domain.WorkOrders.Enums;
 using CleanArchitecture.Cmms.Domain.WorkOrders.Events;
 using CleanArchitecture.Cmms.Domain.WorkOrders.ValueObjects;
+using CleanArchitecture.Core.Domain.Abstractions;
 
 namespace CleanArchitecture.Cmms.Domain.WorkOrders;
 
@@ -34,10 +34,10 @@ internal sealed class WorkOrder : AggregateRoot<Guid>
     public static WorkOrder Create(Guid assetId, string title, Location location)
     {
         if (string.IsNullOrWhiteSpace(title))
-            throw new DomainException("Work order title cannot be empty.");
+            throw new DomainException(WorkOrderErrors.TitleRequired);
 
         if (assetId == Guid.Empty)
-            throw new DomainException("Asset ID must be specified.");
+            throw new DomainException(WorkOrderErrors.AssetIdRequired);
 
         return new(Guid.NewGuid(), assetId, title, location, WorkOrderStatus.Open);
     }
@@ -45,7 +45,10 @@ internal sealed class WorkOrder : AggregateRoot<Guid>
     internal void AssignTechnician(Guid technicianId)
     {
         if (Status is WorkOrderStatus.Cancelled or WorkOrderStatus.Completed)
-            throw new DomainException("Invalid state");
+            throw new DomainException(WorkOrderErrors.InvalidStateTransition);
+
+        if (TechnicianId != null && TechnicianId != technicianId)
+            Raise(new TechnicianUnAssignedEvent(Id, TechnicianId.GetValueOrDefault()));
 
         TechnicianId = technicianId;
 
@@ -54,23 +57,37 @@ internal sealed class WorkOrder : AggregateRoot<Guid>
         Raise(new TechnicianAssignedEvent(Id, technicianId));
     }
 
-    internal void AddStep(string description)
+    internal Guid AddStep(string description)
     {
         if (string.IsNullOrWhiteSpace(description))
-            throw new DomainException("Description required");
+            throw new DomainException(WorkOrderErrors.DescriptionRequired);
 
-        _steps.Add(new TaskStep(description));
+        var step = TaskStep.Create(description);
+        _steps.Add(step);
+
+        return step.Id;
     }
+
+    internal void CompleteStep(Guid stepId)
+    {
+        var step = _steps.FirstOrDefault(s => s.Id == stepId);
+
+        if (step == null)
+            throw new DomainException(WorkOrderErrors.StepNotFound);
+
+        step.MarkCompleted();
+    }
+
     internal void AddComment(string text, Guid authorId)
     {
-        if (string.IsNullOrWhiteSpace(text)) throw new DomainException("Text required");
-        _comments.Add(new Comment(text, authorId));
+        if (string.IsNullOrWhiteSpace(text)) throw new DomainException(WorkOrderErrors.TextRequired);
+        _comments.Add(Comment.Create(text, authorId));
     }
 
     internal void Start()
     {
         if (Status != WorkOrderStatus.Assigned)
-            throw new DomainException("Invalid state");
+            throw new DomainException(WorkOrderErrors.InvalidStateTransition);
 
         Status = WorkOrderStatus.InProgress;
     }
@@ -78,10 +95,10 @@ internal sealed class WorkOrder : AggregateRoot<Guid>
     internal void Complete()
     {
         if (Status != WorkOrderStatus.InProgress)
-            throw new DomainException("Invalid state");
+            throw new DomainException(WorkOrderErrors.InvalidStateTransition);
 
         if (Steps.Count > 0 && Steps.Any(s => !s.Completed))
-            throw new DomainException("All steps must be completed");
+            throw new DomainException(WorkOrderErrors.StepsNotCompleted);
 
         Status = WorkOrderStatus.Completed;
 
@@ -91,7 +108,7 @@ internal sealed class WorkOrder : AggregateRoot<Guid>
     internal void Cancel()
     {
         if (Status == WorkOrderStatus.Completed)
-            throw new DomainException("Invalid state");
+            throw new DomainException(WorkOrderErrors.InvalidStateTransition);
 
         Status = WorkOrderStatus.Cancelled;
     }

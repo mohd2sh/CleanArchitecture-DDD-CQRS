@@ -1,4 +1,4 @@
-﻿using CleanArchitecture.Cmms.Domain.Abstractions;
+﻿using CleanArchitecture.Core.Domain.Abstractions;
 
 namespace CleanArchitecture.Cmms.Domain.Assets.Entities
 {
@@ -15,10 +15,10 @@ namespace CleanArchitecture.Cmms.Domain.Assets.Entities
             : base(Guid.NewGuid())
         {
             if (string.IsNullOrWhiteSpace(description))
-                throw new DomainException("Maintenance description cannot be empty.");
+                throw new DomainException(AssetErrors.MaintenanceDescriptionRequired);
 
             if (string.IsNullOrWhiteSpace(performedBy))
-                throw new DomainException("Maintenance performer name cannot be empty.");
+                throw new DomainException(AssetErrors.MaintenancePerformerRequired);
 
             AssetId = assetId;
             StartedOn = startedOn;

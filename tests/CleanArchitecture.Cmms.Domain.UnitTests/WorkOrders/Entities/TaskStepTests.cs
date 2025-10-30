@@ -1,17 +1,17 @@
-using CleanArchitecture.Cmms.Domain.WorkOrders.Enitties;
+using CleanArchitecture.Cmms.Domain.WorkOrders.Entities;
 
 namespace CleanArchitecture.Cmms.Domain.UnitTests.WorkOrders.Entities
 {
     public class TaskStepTests
     {
         [Fact]
-        public void Ctor_Should_Set_Description_And_Default_Completed_False()
+        public void Create_Should_Set_Description_And_Default_Completed_False()
         {
             // Arrange
-            string desc = "Check filter";
+            var desc = "Check filter";
 
             // Act
-            TaskStep step = new TaskStep(desc);
+            var step = TaskStep.Create(desc);
 
             // Assert
             Assert.Equal(desc, step.Description);
@@ -22,7 +22,7 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests.WorkOrders.Entities
         public void MarkCompleted_Should_Set_Completed_True()
         {
             // Arrange
-            TaskStep step = new TaskStep("x");
+            var step = TaskStep.Create("x");
 
             // Act
             step.MarkCompleted();
@@ -35,7 +35,7 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests.WorkOrders.Entities
         public void MarkCompleted_Should_Be_Idempotent()
         {
             // Arrange
-            TaskStep step = new TaskStep("x");
+            var step = TaskStep.Create("x");
             step.MarkCompleted();
 
             // Act

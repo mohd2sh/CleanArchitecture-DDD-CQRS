@@ -1,8 +1,8 @@
-﻿using CleanArchitecture.Cmms.Domain.Abstractions;
-using CleanArchitecture.Cmms.Domain.Assets.Entities;
+﻿using CleanArchitecture.Cmms.Domain.Assets.Entities;
 using CleanArchitecture.Cmms.Domain.Assets.Enums;
 using CleanArchitecture.Cmms.Domain.Assets.Events;
 using CleanArchitecture.Cmms.Domain.Assets.ValueObjects;
+using CleanArchitecture.Core.Domain.Abstractions;
 
 namespace CleanArchitecture.Cmms.Domain.Assets
 {
@@ -29,7 +29,7 @@ namespace CleanArchitecture.Cmms.Domain.Assets
 
         public static Asset Create(string name, string type, AssetTag tag, AssetLocation location)
         {
-            Asset asset = new Asset(Guid.NewGuid(), name, type, tag, location);
+            var asset = new Asset(Guid.NewGuid(), name, type, tag, location);
 
             asset.Raise(new AssetCreatedEvent(asset.Id, name, type, tag.Value));
 
@@ -62,11 +62,11 @@ namespace CleanArchitecture.Cmms.Domain.Assets
         public void SetUnderMaintenance(string description, string performedBy, DateTime startedOn)
         {
             if (Status == AssetStatus.UnderMaintenance)
-                throw new DomainException($"Asset '{Name}' is already under maintenance.");
+                throw new DomainException(AssetErrors.AlreadyUnderMaintenance);
 
             Status = AssetStatus.UnderMaintenance;
 
-            MaintenanceRecord record = MaintenanceRecord.Create(Id, startedOn, description, performedBy);
+            var record = MaintenanceRecord.Create(Id, startedOn, description, performedBy);
             _maintenanceRecords.Add(record);
 
             Raise(new AssetStatusChangedEvent(Id, Status));
@@ -76,7 +76,7 @@ namespace CleanArchitecture.Cmms.Domain.Assets
         public void CompleteMaintenance(DateTime completedOn, string notes)
         {
             if (Status != AssetStatus.UnderMaintenance)
-                throw new DomainException($"Asset '{Name}' is not under maintenance.");
+                throw new DomainException(AssetErrors.NotUnderMaintenance);
 
             Status = AssetStatus.Active;
             Raise(new AssetStatusChangedEvent(Id, Status));

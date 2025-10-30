@@ -1,4 +1,4 @@
-﻿namespace CleanArchitecture.Cmms.Application.Technicians.Dtos
+namespace CleanArchitecture.Cmms.Application.Technicians.Dtos
 {
     public sealed class TechnicianDto
     {
@@ -9,5 +9,7 @@
         public int TotalCertifications { get; init; }
         public int SkillLevelRank { get; init; }
         public string Status { get; init; } = default!;
+
+        public TechnicianDto() { }
     }
 }

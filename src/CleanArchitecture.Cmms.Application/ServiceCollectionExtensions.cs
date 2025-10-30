@@ -1,5 +1,8 @@
 using System.Reflection;
 using CleanArchitecture.Cmms.Application.Behaviors;
+using CleanArchitecture.Cmms.Application.ErrorManagement;
+using CleanArchitecture.Cmms.Application.Integrations.Events.WorkOrderCompleted;
+using CleanArchitecture.Core.Application.Abstractions.Events;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -14,22 +17,33 @@ public static class ServiceCollectionExtensions
         // Register Command & Query Handlers
         AddCommandAndQueryHandlers(services, assembly);
 
-        AddCommandPipelines(services);
+        // Register Domain Event Handlers
+        AddDomainEventHandlers(services, assembly);
 
-        services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(ServiceCollectionExtensions).Assembly));
+        // Register Integration Event Handlers
+        AddIntegrationEventHandlers(services, assembly);
+
+        AddPipelines(services);
 
         //Fluent Validation
         services.AddValidatorsFromAssembly(assembly, includeInternalTypes: true);
 
+        services.AddSingleton<IErrorExporter, ErrorExporter>();
+
+        // Register mock email service
+        services.AddScoped<IEmailService, MockEmailService>();
         return services;
     }
 
-    private static void AddCommandPipelines(IServiceCollection services)
+    private static void AddPipelines(IServiceCollection services)
     {
-        services.AddTransient(typeof(MediatR.IPipelineBehavior<,>), typeof(LoggingPipeline<,>));
-        services.AddTransient(typeof(MediatR.IPipelineBehavior<,>), typeof(ValidationPipeline<,>));
-        services.AddTransient(typeof(MediatR.IPipelineBehavior<,>), typeof(TransactionCommandPipeline<,>));
-        services.AddTransient(typeof(MediatR.IPipelineBehavior<,>), typeof(DomainEventsPipeline<,>));
+        // Generic pipeline - runs for both commands and queries
+        services.AddScoped(typeof(IPipeline<,>), typeof(LoggingPipeline<,>));
+        services.AddScoped(typeof(IPipeline<,>), typeof(ValidationPipeline<,>));
+
+        // Command-specific pipelines - run only for commands
+        services.AddScoped(typeof(ICommandPipeline<,>), typeof(TransactionCommandPipeline<,>));
+        services.AddScoped(typeof(ICommandPipeline<,>), typeof(DomainEventsPipeline<,>));
     }
 
     private static void AddCommandAndQueryHandlers(IServiceCollection services, Assembly assembly)
@@ -42,9 +56,48 @@ public static class ServiceCollectionExtensions
                      i.GetGenericTypeDefinition() == typeof(IQueryHandler<,>)))
                 .Select(i => new { Handler = t, Interface = i }));
 
-        foreach (var h in handlerTypes)
+        foreach (var handler in handlerTypes)
         {
-            services.AddTransient(h.Interface, h.Handler);
+            services.AddScoped(handler.Interface, handler.Handler);
+        }
+    }
+
+    private static void AddDomainEventHandlers(IServiceCollection services, Assembly assembly)
+    {
+        var domainEventHandlerTypes = assembly.GetTypes()
+            .Where(t => !t.IsAbstract && !t.IsInterface)
+            .Where(t => t.GetInterfaces().Any(i => i.IsGenericType &&
+                i.GetGenericTypeDefinition() == typeof(IDomainEventHandler<>)));
+
+        foreach (var handlerType in domainEventHandlerTypes)
+        {
+            var interfaces = handlerType.GetInterfaces()
+                .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IDomainEventHandler<>));
+
+            foreach (var interfaceType in interfaces)
+            {
+                services.AddScoped(interfaceType, handlerType);
+            }
+        }
+    }
+
+    private static void AddIntegrationEventHandlers(IServiceCollection services, Assembly assembly)
+    {
+        // Register integration event handlers manually
+        var integrationHandlerTypes = assembly.GetTypes()
+            .Where(t => !t.IsAbstract && !t.IsInterface)
+            .Where(t => t.GetInterfaces().Any(i => i.IsGenericType &&
+                i.GetGenericTypeDefinition() == typeof(IIntegrationEventHandler<>)));
+
+        foreach (var handlerType in integrationHandlerTypes)
+        {
+            var interfaces = handlerType.GetInterfaces()
+                .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IIntegrationEventHandler<>));
+
+            foreach (var interfaceType in interfaces)
+            {
+                services.AddScoped(interfaceType, handlerType);
+            }
         }
     }
 }
