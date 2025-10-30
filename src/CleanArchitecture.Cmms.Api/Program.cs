@@ -7,7 +7,9 @@ using CleanArchitecture.Cmms.Application;
 using CleanArchitecture.Cmms.Infrastructure;
 using CleanArchitecture.Cmms.Infrastructure.Persistence;
 using CleanArchitecture.Cmms.Infrastructure.Persistence.EfCore;
+using CleanArchitecture.Core.Application.Abstractions.Common;
 using CleanArchitecture.Outbox;
+using Microsoft.AspNetCore.Mvc;
 using Serilog;
 
 Log.Logger = new LoggerConfiguration()
@@ -29,6 +31,27 @@ try
     builder.Services.AddControllers(options =>
     {
         options.Filters.Add<ResultToHttpStatusFilter>();
+    })
+        .ConfigureApiBehaviorOptions(options =>
+    {
+        //TODO Shift to a util or service
+        options.InvalidModelStateResponseFactory = context =>
+        {
+            var errors = context.ModelState
+                .Where(e => e.Value?.Errors.Count > 0)
+                .Select(e => new
+                {
+                    Field = e.Key,
+                    Messages = e.Value!.Errors.Select(x => x.ErrorMessage).ToArray()
+                })
+                .ToList();
+
+            var errorMessage = string.Join("; ", errors.SelectMany(e => e.Messages));
+            var error = Error.Validation("Validation.ModelState", errorMessage);
+            var result = Result.Failure(error);
+
+            return new BadRequestObjectResult(result);
+        };
     });
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
@@ -58,14 +81,17 @@ try
 
     var app = builder.Build();
 
-    using (var scope = app.Services.CreateScope())
-    {
-        var db = scope.ServiceProvider.GetRequiredService<WriteDbContext>();
-        await DatabaseSeeder.SeedAsync(db);
-    }
+
+
 
     if (app.Environment.IsDevelopment())
     {
+        using (var scope = app.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<WriteDbContext>();
+            await DatabaseSeeder.SeedAsync(db);
+        }
+
         var provider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
 
         app.UseSwagger();
@@ -96,3 +122,6 @@ finally
 {
     await Log.CloseAndFlushAsync();
 }
+
+// Make Program class accessible for integration tests
+public partial class Program { }

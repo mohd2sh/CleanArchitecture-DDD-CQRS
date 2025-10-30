@@ -47,6 +47,9 @@ internal sealed class WorkOrder : AggregateRoot<Guid>
         if (Status is WorkOrderStatus.Cancelled or WorkOrderStatus.Completed)
             throw new DomainException(WorkOrderErrors.InvalidStateTransition);
 
+        if (TechnicianId != null && TechnicianId != technicianId)
+            Raise(new TechnicianUnAssignedEvent(Id, TechnicianId.GetValueOrDefault()));
+
         TechnicianId = technicianId;
 
         Status = Status == WorkOrderStatus.Open ? WorkOrderStatus.Assigned : Status;
@@ -54,12 +57,25 @@ internal sealed class WorkOrder : AggregateRoot<Guid>
         Raise(new TechnicianAssignedEvent(Id, technicianId));
     }
 
-    internal void AddStep(string description)
+    internal Guid AddStep(string description)
     {
         if (string.IsNullOrWhiteSpace(description))
             throw new DomainException(WorkOrderErrors.DescriptionRequired);
 
-        _steps.Add(TaskStep.Create(description));
+        var step = TaskStep.Create(description);
+        _steps.Add(step);
+
+        return step.Id;
+    }
+
+    internal void CompleteStep(Guid stepId)
+    {
+        var step = _steps.FirstOrDefault(s => s.Id == stepId);
+
+        if (step == null)
+            throw new DomainException(WorkOrderErrors.StepNotFound);
+
+        step.MarkCompleted();
     }
 
     internal void AddComment(string text, Guid authorId)

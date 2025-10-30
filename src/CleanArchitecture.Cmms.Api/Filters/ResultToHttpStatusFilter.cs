@@ -1,4 +1,4 @@
-﻿using CleanArchitecture.Core.Application.Abstractions.Common;
+using CleanArchitecture.Core.Application.Abstractions.Common;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
@@ -13,7 +13,7 @@ public class ResultToHttpStatusFilter : IAsyncResultFilter
         {
             if (!result.IsSuccess && result.Error != null)
             {
-                context.HttpContext.Response.StatusCode = result.Error.Type switch
+                objectResult.StatusCode = result.Error.Type switch
                 {
                     ErrorType.Validation => StatusCodes.Status400BadRequest,
                     ErrorType.NotFound => StatusCodes.Status404NotFound,

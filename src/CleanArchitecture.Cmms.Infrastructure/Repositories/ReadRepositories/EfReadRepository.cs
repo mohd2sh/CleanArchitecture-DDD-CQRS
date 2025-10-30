@@ -28,11 +28,11 @@ namespace CleanArchitecture.Cmms.Infrastructure.Repositories.ReadRepositories
 
         public async Task<PaginatedList<T>> ListAsync(Criteria<T> criteria, CancellationToken cancellationToken = default)
         {
-            var query = _db.Set<T>().AsQueryable().Apply(criteria).AsNoTracking();
+            var (query, totalCount) = await _db.Set<T>()
+                .AsQueryable()
+                .ApplyWithCountAsync(criteria, cancellationToken);
 
-            var totalCount = await query.CountAsync(cancellationToken);
-
-            var items = await query.ToListAsync(cancellationToken);
+            var items = await query.AsNoTracking().ToListAsync(cancellationToken);
 
             return PaginatedList<T>.CreateFromOffset(items, totalCount, criteria.Skip, criteria.Take);
         }

@@ -1,4 +1,4 @@
-﻿using CleanArchitecture.Cmms.Domain.Technicians.Entities;
+using CleanArchitecture.Cmms.Domain.Technicians.Entities;
 using CleanArchitecture.Cmms.Domain.Technicians.Enums;
 using CleanArchitecture.Cmms.Domain.Technicians.Events;
 using CleanArchitecture.Cmms.Domain.Technicians.ValueObjects;
@@ -62,6 +62,18 @@ namespace CleanArchitecture.Cmms.Domain.Technicians
             _assignments.Add(assignment);
 
             Raise(new TechnicianAssignedToWorkOrderEvent(Id, workOrderId));
+        }
+
+        public void UnAssignedOrder(Guid workOrderId)
+        {
+            var _assignment = _assignments.FirstOrDefault(a => a.WorkOrderId == workOrderId);
+
+            if (_assignment == null)
+                throw new DomainException(TechnicianErrors.AssignmentNotFound);
+
+            _assignments.Remove(_assignment);
+
+            Raise(new TechnicianUnAssignedToWorkOrderEvent(Id, workOrderId));
         }
 
         public void CompleteAssignment(Guid workOrderId, DateTime completedOn)

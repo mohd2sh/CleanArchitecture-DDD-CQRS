@@ -37,7 +37,7 @@ namespace CleanArchitecture.Cmms.Application.Technicians.Queries.GetTechnicianAs
                 .SelectMany(t => t.Assignments)
                 .Select(a => new TechnicianAssignmentDto
                 {
-                    WorkOrderId = a.Id,
+                    WorkOrderId = a.WorkOrderId,
                     AssignedOn = a.AssignedOn,
                     CompletedOn = a.CompletedOn
                 })

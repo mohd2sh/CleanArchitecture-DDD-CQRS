@@ -5,6 +5,7 @@ using CleanArchitecture.Cmms.Application.WorkOrders.Commands.AssignTechnician;
 using CleanArchitecture.Cmms.Application.WorkOrders.Commands.CompleteWorkOrder;
 using CleanArchitecture.Cmms.Application.WorkOrders.Commands.CreateWorkOrder;
 using CleanArchitecture.Cmms.Application.WorkOrders.Commands.StartWorkOrder;
+using CleanArchitecture.Cmms.Application.WorkOrders.Commands.CompleteStep;
 using CleanArchitecture.Cmms.Application.WorkOrders.Dtos;
 using CleanArchitecture.Cmms.Application.WorkOrders.Queries.GetActiveWorkOrder;
 using CleanArchitecture.Cmms.Application.WorkOrders.Queries.GetWorkOrderById;
@@ -59,6 +60,15 @@ namespace CleanArchitecture.Cmms.Api.Controllers.V1
         public async Task<IActionResult> Complete(Guid id, CancellationToken cancellationToken)
         {
             var command = new CompleteWorkOrderCommand(id);
+            var result = await _mediator.Send(command, cancellationToken);
+            return Ok(result);
+        }
+
+        [HttpPost("{id:guid}/steps/{stepId:guid}/complete")]
+        [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> CompleteStep(Guid id, Guid stepId, CancellationToken cancellationToken)
+        {
+            var command = new CompleteStepCommand(id, stepId);
             var result = await _mediator.Send(command, cancellationToken);
             return Ok(result);
         }

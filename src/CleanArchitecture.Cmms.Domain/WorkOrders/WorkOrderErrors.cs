@@ -43,4 +43,9 @@ public static class WorkOrderErrors
     public static readonly DomainError TextRequired = DomainError.Create(
         "WorkOrder.TextRequired",
         "Text required");
+
+    [DomainError]
+    public static readonly DomainError StepNotFound = DomainError.Create(
+       "WorkOrder.StepNotFound",
+       "Step NotFound");
 }

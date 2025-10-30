@@ -18,13 +18,13 @@ namespace CleanArchitecture.Cmms.Application.Technicians.Queries.GetAvailableTec
             _repository = repository;
         }
 
-        public async Task<Result<PaginatedList<TechnicianDto>>> Handle(GetAvailableTechniciansQuery request, CancellationToken cancellationToken)
+        public async Task<Result<PaginatedList<TechnicianDto>>> Handle(GetAvailableTechniciansQuery request, CancellationToken cancellationToken = default)
         {
             var criteria = Criteria<Technician>.New()
                  .Where(p => p.Status == TechnicianStatus.Available)
                  .OrderByAsc(p => p.Name)
-                 .Skip(request.Pagination.PageNumber)
-                 .Take(request.Pagination.PageSize)
+                 .Skip(request.Pagination.Skip)
+                 .Take(request.Pagination.Take)
                  .Build();
 
             var technicians = await _repository.ListAsync(criteria, cancellationToken);
@@ -36,6 +36,7 @@ namespace CleanArchitecture.Cmms.Application.Technicians.Queries.GetAvailableTec
                 Name = t.Name,
                 SkillLevelName = t.SkillLevel.ToString(),
                 TotalCertifications = t.Certifications.Count,
+                Status = t.Status.ToString()
             }).ToList();
 
             return technicians.ToNew(dtoList);
