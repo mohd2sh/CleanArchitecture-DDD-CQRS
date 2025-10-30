@@ -21,15 +21,17 @@ In a CMMS (Computerized Maintenance Management System), operations frequently sp
 
 ### Why This Matters
 
-Eric Evans defines aggregates as *"a cluster of associated objects that we treat as a unit for the purpose of data changes"* (Domain-Driven Design, Chapter 6). The fundamental rule:
+Eric Evans defines aggregates as *“a cluster of associated objects that we treat as a unit for the purpose of data changes”*  
+(*Domain-Driven Design*).
 
-> **"One aggregate should not depend on the state of another aggregate to maintain its invariants."**  
-> — Eric Evans, Domain-Driven Design (2003)
+He explains that an aggregate must maintain its own invariants independently —  
+**one aggregate should not depend on the state of another to remain consistent.**  
+
+This principle ensures each aggregate forms a clear consistency boundary and can evolve or persist independently without requiring coordination with others.
 
 Vaughn Vernon reinforces this in Implementing Domain-Driven Design:
 
-> **"Aggregates should be designed small. When multiple aggregates are needed for a single command, use a Domain Service or Application Service."**  
-> — Vaughn Vernon, IDDD, Chapter 10
+> **Vaughn Vernon (paraphrased): Aggregates should be kept small. When a business operation requires coordination across multiple aggregates, handle it through a Domain Service or an Application Service.**  
 
 The question becomes: **Which coordination pattern best maintains these principles while remaining pragmatic?**
 
@@ -77,27 +79,20 @@ public class CompleteWorkOrderCommandHandler
 
 **Analysis:**
 
-This is the **Transaction Script** anti-pattern. Martin Fowler describes it:
+The command handler coordinates multiple aggregates to complete a workflow.
+This approach is acceptable when the logic is straightforward and each aggregate can perform its work independently.
 
-> **"Transaction Script organizes business logic by procedures where each procedure handles a single request from the presentation. Most business applications can be thought of as a series of transactions... The dominant pattern is to have one procedure for each action."**  
-> — Martin Fowler, Patterns of Enterprise Application Architecture (2002)
-
-**Why It's Problematic:**
-
-Vaughn Vernon explicitly warns against this:
-
-> **"Avoid putting business logic in Application Services. Application Services should be thin and delegate to Domain Services or Aggregates."**  
-> — Vaughn Vernon, IDDD, Chapter 4
+However, it can become problematic if the handler needs data from one aggregate to compute or validate something in another.
+That usually means the aggregate boundaries are off, and the logic likely belongs inside a domain service or a single, larger aggregate.
 
 **Problems:**
--  Violates Single Responsibility Principle (handler does too much)
--  Command handler becomes a "god object"
--  Violates bounded context boundaries (handler knows about all contexts)
+-  Tight coupling to multiple repositories
+-  Harder to evolve
+-  Cross-aggregate lookups often indicate poor domain design
 -  Hard to test (requires mocking multiple repositories)
--  Business logic leaks into application layer
--  Violates architecture tests (cross-context repository access)
+-  Business logic might leaks into application layer
 
-**Verdict:**  **Anti-Pattern** - Not DDD-aligned
+**Verdict:**  Acceptable for simple use cases within one bounded context.
 
 ---
 
@@ -132,14 +127,9 @@ This creates **tight command-level coupling** between bounded contexts.
 -  Violates bounded context autonomy
 -  Creates synchronous coupling at command level
 -  Handler must know about other contexts' command contracts
--  Difficult to evolve to microservices (would need distributed transactions)
+-  Difficult to evolve to async style microservices
 -  Commands are meant for external requests, not internal coordination
 -  Unclear transaction boundaries (who commits what?)
-
-**Vaughn Vernon on Cross-Context Commands:**
-
-> **"Commands should not be used for communication between bounded contexts. Use Integration Events for that purpose."**  
-> — Vaughn Vernon, IDDD, Chapter 13
 
 **Verdict:**  **Not Recommended** - Violates bounded context independence
 
@@ -173,17 +163,12 @@ public class AssignTechnicianCommandHandler
 
 **Analysis:**
 
-This is **more acceptable** than sending commands, but still creates coupling.
+This is **more acceptable** than sending commands, but still introduces runtime coupling and potential consistency risks between bounded contexts.
 
-**When It's Acceptable:**
-- ✓ Read-only access (no state modification)
-- ✓ Validation purposes only
-- ✓ Can easily become API call in microservices
 
 **Problems:**
 -  Still couples at query level
 -  Potential race condition (data might change between query and command)
--  Not truly needed if events handle validation
 
 **Verdict:**  **Acceptable but not ideal** - Creates read coupling
 
@@ -267,6 +252,7 @@ This is **explicitly endorsed** by DDD authorities.
 -  Service depends on multiple aggregates
 -  Harder to extract to microservices (need to split service)
 -  Can become a "transaction script" if not careful
+-  Requires careful modeling to avoid cross-context leakage
 
 **When to Use:**
 - Complex orchestration logic (if-then-else across aggregates)
@@ -275,22 +261,18 @@ This is **explicitly endorsed** by DDD authorities.
 
 ** Design Smell Warning:**
 
-If you find yourself needing a computed value from one aggregate to create or modify another aggregate, this is a strong indicator of poor domain modeling. As Vaughn Vernon states:
-
-> **"If you think you need to query one aggregate to get data to modify another, you are probably missing a concept in your model. The data you need should already be in the aggregate you're modifying, or it should be passed in as a command parameter."**  
-> — Vaughn Vernon, Implementing Domain-Driven Design, Chapter 10
+If you find yourself needing a computed value from one aggregate to create or modify another aggregate, this is a strong indicator of poor domain modeling.
 
 **Better Approaches:**
 - Include necessary data in the command (denormalization)
-- Use eventual consistency with domain events
+- Use domain events
 - Rethink your aggregate boundaries
-- Consider if the data truly belongs in a different aggregate
 
 **Verdict:**  **Legitimate DDD Pattern** - Use for complex cases, but re-examine your model if you need cross-aggregate computed values
 
 ---
 
-### Option 5: Domain Events (Synchronous/Transactional) 
+### Option 5: Domain Events (Synchronous And Asynchronous) 
 
 **Pattern:**
 ```csharp
@@ -416,31 +398,11 @@ This is the **core DDD event-driven pattern**.
 
 ---
 
-
-
-### Option 6: Saga Pattern 
-
-**Pattern:**
-Distributed transaction coordinator across microservices with compensating transactions.
-
-**Analysis:**
-
-This is **only for microservices** with distributed transactions.
-
-**When to Use:**
-- Microservices with separate databases
-- Long-running business processes
-- Need compensation logic for failures
-
-**Verdict:**  **Microservices Only** - Not applicable to monolith
-
----
-
 ## Decision
 
 ### Primary Pattern: Domain Events (Synchronous/Transactional)
 
-**We choose Domain Events as the primary coordination pattern.**
+**choose Domain Events as the primary coordination pattern.**
 
 ### Rationale
 
@@ -457,11 +419,7 @@ This is **only for microservices** with distributed transactions.
 For operations with **complex orchestration logic** or **bidirectional data flow**, we allow Domain Services as a pragmatic exception:
 
 ```csharp
-// 90% of cases: Events
 workOrder.Complete(); // → Event → Handlers
-
-// 10% of cases: Domain Service
-await _complexOperationService.ExecuteAsync(...);
 ```
 
 ### Future Evolution
@@ -472,71 +430,24 @@ await _complexOperationService.ExecuteAsync(...);
 - All handlers in same process
 
 **Future (Microservices):**
-- Change marker: `[TransactionalEvent]` → `[IntegrationEvent]`
-- Add Outbox Pattern infrastructure
-- Background worker processes events
+- Outbox published to Bus
+- Saga introduced if necessary
 - Eventual consistency between services
 
 **Migration Path:**
 ```csharp
-// Today
-[TransactionalEvent]
-public sealed class WorkOrderCompletedEvent : IDomainEvent { }
+// Transactional
+internal sealed class WorkOrderCompletedEventHandler : IDomainEventHandler<WorkOrderCompletedEvent>
 
 // Tomorrow (microservices)
-[IntegrationEvent]
-public sealed class WorkOrderCompletedEvent : IIntegrationEvent { }
+internal sealed class WorkOrderCompletedHandler
+    : IIntegrationEventHandler<WorkOrderCompletedEvent>
 // Infrastructure automatically uses Outbox + Message Bus
 ```
 
----
 
-
-## Implementation Guidelines
-
-### Rule 1: Command Handlers Modify Only Their Aggregate
-
-```csharp
-//  GOOD
-public class CompleteWorkOrderCommandHandler
-{
-    private readonly IRepository<WorkOrder, Guid> _workOrderRepo;
-    
-    public async Task<Result> Handle(...)
-    {
-        var workOrder = await _workOrderRepo.GetByIdAsync(...);
-        workOrder.Complete(); // Raises event
-        return Result.Success();
-    }
-}
-
-//  BAD - There is an Arch test that search and assert for this violation
-public class CompleteWorkOrderCommandHandler
-{
-    private readonly IRepository<WorkOrder, Guid> _workOrderRepo;
-    private readonly IRepository<Asset, Guid> _assetRepo; //  Wrong!
-    private readonly IRepository<Technician, Guid> _technicianRepo; //  Wrong!
-}
-```
-
-### Rule 2: Event Handlers React in Their Own Context
-
-```csharp
-//  GOOD - Asset context owns Asset updates
-namespace Application.Assets.Events
-{
-    internal class WorkOrderCompletedEventHandler 
-    {
-        private readonly IRepository<Asset, Guid> _assetRepo;
-        // Only Asset repository
-    }
-}
-```
-
-
-### Rule 3: Make Event Handlers Idempotent
-
-
+### Related Decisions
+- ADR-003: Domain Events vs Integration Events — distinction between `IDomainEventHandler` and `IIntegrationEventHandler`.
 
 ---
 
@@ -556,27 +467,6 @@ This test ensures handlers don't inject repositories from other contexts, forcin
 
 ---
 
-## Examples from Production DDD Systems
-
-### Kamil Grzybek - Modular Monolith with DDD
-
-[GitHub Repository](https://github.com/kgrzybek/modular-monolith-with-ddd)
-
-- Uses **Domain Events within modules** (synchronous)
-- Uses **Integration Events between modules** (asynchronous with Outbox)
-- Uses **Domain Services** for complex coordination
-
-### Microsoft eShopOnContainers
-
-- Uses **Integration Events** between microservices
-- Event Bus with RabbitMQ
-- Eventual consistency model
-
----
-
-
-
-
 ## Notes
 
 This decision prioritizes **clean boundaries and microservices-readiness** over immediate simplicity. While handler orchestration might seem simpler initially, the event-driven approach provides:
@@ -585,8 +475,6 @@ This decision prioritizes **clean boundaries and microservices-readiness** over 
 2. Clear bounded context boundaries
 3. Natural evolution path to distributed architecture
 4. Testability and extensibility
-
-The decision aligns with both **tactical DDD patterns** (aggregates, events) and **strategic DDD** (bounded contexts, context mapping).
 
 ---
 

@@ -34,59 +34,6 @@ This template demonstrates that Clean Architecture doesn't have to be complex. I
 - **Pragmatic CQRS** - Separate read/write models where it adds value
 - **Architectural Governance** - Automated tests prevent boundary violations
 
-## Quick Start
-
-### Prerequisites
-- .NET 8 SDK
-- Docker (recommended) or SQL Server (LocalDB, Express, or full)
-- Visual Studio 2022 or VS Code
-
-### Option 1: Docker Compose (Recommended)
-
-The easiest way to run the application with all dependencies:
-
-```bash
-git clone https://github.com/your-username/Company.Cmms.git
-cd Company.Cmms
-docker-compose up
-```
-
-**What's included:**
-- SQL Server 2022 container with automatic setup
-- API service
-- Automatic database migrations and seeding
-- Access APIs
-
-### Option 2: Local Development
-
-Run the API locally with your own SQL Server instance:
-
-```bash
-git clone https://github.com/your-username/Company.Cmms.git
-cd Company.Cmms
-dotnet run --project src/CleanArchitecture.Cmms.Api
-```
-
-**Configure connection strings (optional):**
-```json
-// appsettings.Development.json
-{
-  "ConnectionStrings": {
-    "WriteDb": "Server=(localdb)\\mssqllocaldb;Database=CmmsWrite;Trusted_Connection=true;",
-    "ReadDb": "Server=(localdb)\\mssqllocaldb;Database=CmmsRead;Trusted_Connection=true;"
-  }
-}
-```
-
-The application automatically creates databases, runs migrations, and seeds initial data on first run.
-
-### Explore the API
-
-Open Swagger UI and try the endpoints:
-- Create a work order
-- Assign a technician
-- Complete the work order
-- Observe domain events and integration events in action
 
 ## Key Features Overview
 
@@ -112,10 +59,11 @@ This template includes production-ready implementations of enterprise patterns:
 - Structured error export API for frontend localization
 
 ### Quality & Documentation
-- **Comprehensive architecture tests**: 15+ automated tests enforcing DDD/Clean Architecture
+- **Architecture unit tests**: automated tests enforcing DDD/Clean Architecture
+- **ADRs**: Documented architectural decisions — start with `docs/architectural-decisions/`
 - Unit tests for Domain & Application layers
-- FluentValidation integration
 - Swagger/OpenAPI with versioning
+- **Integration tests**: Testcontainers-based end-to-end scenarios 
 - Docker Compose with SQL Server 2022
 
 ## Architecture Overview
@@ -558,6 +506,51 @@ This template implements several architectural patterns based on Domain-Driven D
 - **[ADR-004: Outbox Pattern for Guaranteed Delivery](docs/architectural-decisions/ADR-004-outbox-pattern.md)** - **IMPLEMENTED** - Transactional Outbox Pattern with background processor for reliable, guaranteed delivery of integration events with at-least-once semantics.
 
 These ADRs document the "why" behind architectural decisions, with implementation details visible in the codebase.
+
+
+## Quick Start
+
+### Prerequisites
+- .NET 8 SDK
+- Docker (recommended) or SQL Server (LocalDB, Express, or full)
+- Visual Studio 2022 or VS Code
+
+### Option 1: Docker Compose (Recommended)
+
+The easiest way to run the application with all dependencies:
+
+```bash
+git clone https://github.com/mohd2sh/Company.Cmms.git
+cd Company.Cmms
+docker-compose up
+```
+
+**What's included:**
+- SQL Server 2022 container with automatic setup
+- API service
+- Automatic database migrations and seeding
+- Access APIs
+
+### Option 2: Local Development
+
+Run the API locally with your own SQL Server instance:
+
+```bash
+git clone https://github.com/mohd2sh/Company.Cmms.git
+cd Company.Cmms
+dotnet run --project src/CleanArchitecture.Cmms.Api
+```
+
+The application automatically creates databases, runs migrations, and seeds initial data on first run.
+
+### Explore the API
+
+Open Swagger UI and try the endpoints:
+- Create a work order
+- Assign a technician
+- Complete the work order
+- Observe domain events and integration events in action
+
 
 ## Contributing
 
