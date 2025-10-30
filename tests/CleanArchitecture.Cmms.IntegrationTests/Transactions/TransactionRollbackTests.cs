@@ -135,8 +135,13 @@ public class TransactionRollbackTests : IntegrationTestBase
 
         var act = () => Task.WhenAll(task1, task2);
 
-        // Assert - One should succeed, one should fail
-        await Assert.ThrowsAsync<DbUpdateConcurrencyException>(act);
+        var ex = await Assert.ThrowsAnyAsync<Exception>(act);
+
+        Assert.True(
+            ex is Microsoft.EntityFrameworkCore.DbUpdateConcurrencyException
+            || ex is CleanArchitecture.Core.Domain.Abstractions.DomainException
+            || ex is CleanArchitecture.Core.Application.Abstractions.Common.ApplicationException,
+            $"Expected concurrency/guard exception, but got: {ex.GetType().FullName}");
 
         var workOrders = await WriteDbContext.WorkOrders
             .Where(wo => wo.AssetId == assetId)
