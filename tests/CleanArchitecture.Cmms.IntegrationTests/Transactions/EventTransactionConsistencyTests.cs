@@ -78,7 +78,6 @@ public class EventTransactionConsistencyTests : IntegrationTestBase
         var asset = await WriteDbContext.Assets.FindAsync(assetId);
         var technician = await WriteDbContext.Technicians.FindAsync(technicianId);
 
-
         Assert.Equal(WorkOrderStatus.Completed, workOrder.Status);
         Assert.Equal(AssetStatus.Active, asset.Status);
 

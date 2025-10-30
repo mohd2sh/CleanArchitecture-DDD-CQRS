@@ -1,13 +1,9 @@
-using CleanArchitecture.Cmms.Application.WorkOrders.Commands.CreateWorkOrder;
-using CleanArchitecture.Cmms.Application.WorkOrders.Commands.CompleteWorkOrder;
 using CleanArchitecture.Cmms.Application.WorkOrders.Commands.AssignTechnician;
+using CleanArchitecture.Cmms.Application.WorkOrders.Commands.CompleteWorkOrder;
+using CleanArchitecture.Cmms.Application.WorkOrders.Commands.CreateWorkOrder;
 using CleanArchitecture.Cmms.Application.WorkOrders.Commands.StartWorkOrder;
-using CleanArchitecture.Cmms.Domain.Assets;
 using CleanArchitecture.Cmms.Domain.Assets.Enums;
-using CleanArchitecture.Cmms.Domain.Technicians;
-using CleanArchitecture.Cmms.Domain.WorkOrders;
 using CleanArchitecture.Cmms.Domain.WorkOrders.Enums;
-using CleanArchitecture.Outbox.Abstractions;
 using CleanArchitecture.Cmms.IntegrationTests.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 
@@ -209,7 +205,7 @@ public class DomainEventTests : IntegrationTestBase
         // All aggregates should be in correct final state
         Assert.Equal(WorkOrderStatus.Completed, workOrder.Status);
         Assert.Equal(AssetStatus.Active, asset.Status);
-        
+
         var assignment = technician.Assignments.FirstOrDefault(a => a.WorkOrderId == workOrderId.Value);
         Assert.NotNull(assignment);
         Assert.True(assignment.IsCompleted);

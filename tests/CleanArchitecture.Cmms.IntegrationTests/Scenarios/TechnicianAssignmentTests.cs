@@ -151,8 +151,8 @@ public class TechnicianAssignmentTests : IntegrationTestBase
     public async Task GetAvailableTechnicians_ShouldReturnOnlyAvailable()
     {
         // Arrange
-        var availableTech1Id = await CreateTechnicianAsync("Available Tech 1", "Senior", 3);
-        var availableTech2Id = await CreateTechnicianAsync("Available Tech 2", "Expert", 5);
+        await CreateTechnicianAsync("Available Tech 1", "Senior", 3);
+        await CreateTechnicianAsync("Available Tech 2", "Expert", 5);
         var unavailableTechId = await CreateTechnicianAsync("Unavailable Tech", "Junior", 1);
 
         // Set one technician as unavailable

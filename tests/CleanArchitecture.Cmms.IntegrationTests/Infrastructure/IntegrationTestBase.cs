@@ -10,7 +10,7 @@ namespace CleanArchitecture.Cmms.IntegrationTests.Infrastructure;
 
 public abstract class IntegrationTestBase : IClassFixture<CmmsWebApplicationFactory>, IAsyncLifetime
 {
-    private static Respawner? _respawner;
+    private static Respawner _respawner;
     private static readonly SemaphoreSlim _respawnerLock = new(1, 1);
     private readonly CmmsWebApplicationFactory _factory;
     protected HttpClient Client { get; private set; }
@@ -74,7 +74,6 @@ public abstract class IntegrationTestBase : IClassFixture<CmmsWebApplicationFact
         Scope?.Dispose();
         await Task.CompletedTask;
     }
-
 
     protected async Task<Guid> CreateAssetAsync(string tag = "TEST-001", string name = "Test Asset", string type = "Equipment", string site = "Main Site", string area = "Production", string zone = "Zone A")
     {

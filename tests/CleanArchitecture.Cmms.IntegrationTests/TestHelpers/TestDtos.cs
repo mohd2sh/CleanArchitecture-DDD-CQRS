@@ -15,7 +15,7 @@ public class ResultDto<T>
 {
     public bool IsSuccess { get; set; }
     public bool IsFailure { get; set; }
-    public ErrorDto? Error { get; set; }
+    public ErrorDto Error { get; set; }
     public T Value { get; set; }
 }
 

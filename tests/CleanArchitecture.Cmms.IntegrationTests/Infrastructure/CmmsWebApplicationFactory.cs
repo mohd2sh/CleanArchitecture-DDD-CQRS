@@ -1,4 +1,5 @@
 using System.Data;
+using CleanArchitecture.Cmms.Api;
 using CleanArchitecture.Cmms.Infrastructure.Persistence.EfCore;
 using CleanArchitecture.Outbox.Persistence;
 using DotNet.Testcontainers.Builders;
@@ -30,7 +31,6 @@ public sealed class CmmsWebApplicationFactory : WebApplicationFactory<Program>, 
     {
         await _sqlServerContainer.StartAsync();
 
-
         var options = new DbContextOptionsBuilder<WriteDbContext>()
             .UseSqlServer(ConnectionString)
             .Options;
@@ -43,7 +43,6 @@ public sealed class CmmsWebApplicationFactory : WebApplicationFactory<Program>, 
         using var scope = Services.CreateScope();
         using var writeDb = new WriteDbContext(options);
         using var outboxDb = new OutboxDbContext(outBoxOptions);
-
 
         await writeDb.Database.EnsureCreatedAsync();
         await outboxDb.Database.MigrateAsync();
@@ -75,7 +74,6 @@ public sealed class CmmsWebApplicationFactory : WebApplicationFactory<Program>, 
             services.AddDbContext<OutboxDbContext>(o =>
                 o.UseSqlServer(connectionString)
                  .EnableSensitiveDataLogging());
-
 
             services.AddTransient<IDbConnection>(_ => new SqlConnection(connectionString));
 

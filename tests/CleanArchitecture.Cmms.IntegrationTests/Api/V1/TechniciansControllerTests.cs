@@ -241,7 +241,7 @@ public class TechniciansControllerTests : IntegrationTestBase
     public async Task GET_AvailableTechnicians_WithPagination_ReturnsCorrectPage()
     {
         // Arrange - Create multiple technicians
-        for (int i = 1; i <= 5; i++)
+        for (var i = 1; i <= 5; i++)
         {
             await CreateTechnicianAsync($"Tech {i}", "Senior", 3);
         }

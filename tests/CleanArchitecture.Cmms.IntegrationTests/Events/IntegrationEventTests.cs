@@ -245,7 +245,7 @@ public class IntegrationEventTests : IntegrationTestBase
             .ToListAsync();
 
         // Verify events are ordered by creation time
-        for (int i = 1; i < outboxEvents.Count; i++)
+        for (var i = 1; i < outboxEvents.Count; i++)
         {
             Assert.True(outboxEvents[i].CreatedAt >= outboxEvents[i - 1].CreatedAt);
         }
