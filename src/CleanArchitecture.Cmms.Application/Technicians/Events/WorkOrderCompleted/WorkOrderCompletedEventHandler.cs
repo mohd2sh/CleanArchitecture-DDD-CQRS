@@ -23,7 +23,7 @@ namespace CleanArchitecture.Cmms.Application.Technicians.Events.WorkOrderComplet
                 throw new Core.Application.Abstractions.Common.ApplicationException(TechnicianErrors.NotFound);
             }
 
-            technician.CompleteAssignment(domainEvent.WorkOrderId, domainEvent.OccurredOn.Value);
+            technician.CompleteAssignment(domainEvent.WorkOrderId, domainEvent.OccurredOn ?? DateTime.UtcNow);
         }
     }
 }

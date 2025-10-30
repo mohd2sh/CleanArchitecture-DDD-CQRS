@@ -3,7 +3,7 @@ using CleanArchitecture.Cmms.Domain.WorkOrders.Events;
 using CleanArchitecture.Core.Application.Abstractions.Events;
 using CleanArchitecture.Core.Application.Abstractions.Persistence.Repositories;
 
-namespace CleanArchitecture.Cmms.Application.Technicians.Events.TechnicianAssignedEventHandler
+namespace CleanArchitecture.Cmms.Application.Technicians.Events.TechnicianAssigned
 {
     internal class TechnicianAssignedEventHandler : IDomainEventHandler<TechnicianAssignedEvent>
     {
@@ -21,7 +21,7 @@ namespace CleanArchitecture.Cmms.Application.Technicians.Events.TechnicianAssign
             if (technician == null)
                 throw new Core.Application.Abstractions.Common.ApplicationException(TechnicianErrors.NotFound);
 
-            technician.AddAssignedOrder(domainEvent.WorkOrderId, domainEvent.OccurredOn.Value);
+            technician.AddAssignedOrder(domainEvent.WorkOrderId, domainEvent.OccurredOn ?? DateTime.UtcNow);
 
             await _technicianRepository.UpdateAsync(technician, cancellationToken);
         }
