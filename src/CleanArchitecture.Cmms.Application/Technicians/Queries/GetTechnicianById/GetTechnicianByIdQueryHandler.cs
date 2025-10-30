@@ -1,6 +1,8 @@
-﻿using CleanArchitecture.Cmms.Application.Abstractions.Persistence.Repositories;
 using CleanArchitecture.Cmms.Application.Technicians.Dtos;
 using CleanArchitecture.Cmms.Domain.Technicians;
+using CleanArchitecture.Core.Application.Abstractions.Common;
+using CleanArchitecture.Core.Application.Abstractions.Persistence;
+using CleanArchitecture.Core.Application.Abstractions.Persistence.Repositories;
 
 namespace CleanArchitecture.Cmms.Application.Technicians.Queries.GetTechnicianById
 {
@@ -14,14 +16,18 @@ namespace CleanArchitecture.Cmms.Application.Technicians.Queries.GetTechnicianBy
             _repository = repository;
         }
 
-        public async Task<Result<TechnicianDto>> Handle(GetTechnicianByIdQuery request, CancellationToken cancellationToken)
+        public async Task<Result<TechnicianDto>> Handle(GetTechnicianByIdQuery request, CancellationToken cancellationToken = default)
         {
-            var technician = await _repository.GetByIdAsync(request.TechnicianId, cancellationToken);
+            var getByIdCriteria = Criteria<Technician>
+               .New()
+               .Where(a => a.Id == request.TechnicianId)
+               .Build();
+
+            var technician = await _repository.FirstOrDefaultAsync(getByIdCriteria, cancellationToken);
 
             if (technician is null)
-                return $"Technician {request.TechnicianId} not found.";
+                return TechnicianErrors.NotFound;
 
-            //TODO: create a mapping Technician=> TechnicianDto
             var dto = new TechnicianDto
             {
                 Id = technician.Id,

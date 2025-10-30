@@ -1,7 +1,9 @@
-﻿using CleanArchitecture.Cmms.Application.Abstractions.Persistence;
-using CleanArchitecture.Cmms.Application.Abstractions.Persistence.Repositories;
 using CleanArchitecture.Cmms.Application.Technicians.Dtos;
 using CleanArchitecture.Cmms.Domain.Technicians;
+using CleanArchitecture.Core.Application.Abstractions.Common;
+using CleanArchitecture.Core.Application.Abstractions.Persistence;
+using CleanArchitecture.Core.Application.Abstractions.Persistence.Repositories;
+using CleanArchitecture.Core.Application.Abstractions.Query;
 
 namespace CleanArchitecture.Cmms.Application.Technicians.Queries.GetTechnicianAssignments
 {
@@ -17,7 +19,7 @@ namespace CleanArchitecture.Cmms.Application.Technicians.Queries.GetTechnicianAs
 
         public async Task<Result<PaginatedList<TechnicianAssignmentDto>>> Handle(
             GetTechnicianAssignmentsQuery request,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default)
         {
             var criteria = Criteria<Technician>.New()
                 .Where(p => p.Id == request.TechnicianId)
@@ -29,13 +31,13 @@ namespace CleanArchitecture.Cmms.Application.Technicians.Queries.GetTechnicianAs
 
             var technicians = await _repository.ListAsync(criteria, cancellationToken);
             if (technicians == null || technicians.Items.Count == 0)
-                return "Technician not found.";
+                return TechnicianErrors.NotFound;
 
             var assignmentsDto = technicians.Items
                 .SelectMany(t => t.Assignments)
                 .Select(a => new TechnicianAssignmentDto
                 {
-                    WorkOrderId = a.Id,
+                    WorkOrderId = a.WorkOrderId,
                     AssignedOn = a.AssignedOn,
                     CompletedOn = a.CompletedOn
                 })

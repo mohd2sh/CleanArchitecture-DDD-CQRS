@@ -8,11 +8,11 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests.Technicians.Events
         public void Ctor_Should_Set_Properties_And_Default_Null_Timestamp()
         {
             // Arrange
-            Guid technicianId = Guid.NewGuid();
-            string certificationCode = "ELEC-1";
+            var technicianId = Guid.NewGuid();
+            var certificationCode = "ELEC-1";
 
             // Act
-            TechnicianCertificationAddedEvent domainEvent = new TechnicianCertificationAddedEvent(technicianId, certificationCode);
+            var domainEvent = new TechnicianCertificationAddedEvent(technicianId, certificationCode);
 
             // Assert
             Assert.Equal(technicianId, domainEvent.TechnicianId);
@@ -24,12 +24,12 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests.Technicians.Events
         public void Ctor_Should_Respect_Provided_Timestamp()
         {
             // Arrange
-            Guid technicianId = Guid.NewGuid();
-            string certificationCode = "HVAC-2";
-            DateTime providedTimestamp = DateTime.UtcNow;
+            var technicianId = Guid.NewGuid();
+            var certificationCode = "HVAC-2";
+            var providedTimestamp = DateTime.UtcNow;
 
             // Act
-            TechnicianCertificationAddedEvent domainEvent = new TechnicianCertificationAddedEvent(technicianId, certificationCode, providedTimestamp);
+            var domainEvent = new TechnicianCertificationAddedEvent(technicianId, certificationCode, providedTimestamp);
 
             // Assert
             Assert.Equal(providedTimestamp, domainEvent.OccurredOn);

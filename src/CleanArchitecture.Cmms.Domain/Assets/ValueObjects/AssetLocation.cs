@@ -1,9 +1,22 @@
-﻿using CleanArchitecture.Cmms.Domain.Abstractions;
+﻿using CleanArchitecture.Core.Domain.Abstractions;
 
 namespace CleanArchitecture.Cmms.Domain.Assets.ValueObjects
 {
-    internal sealed record AssetLocation(string Site, string Area, string Zone) : ValueObject
+    internal sealed record AssetLocation : ValueObject
     {
+        public string Site { get; private set; }
+        public string Area { get; private set; }
+        public string Zone { get; private set; }
+
+        private AssetLocation(string site, string area, string zone)
+        {
+            Site = site;
+            Area = area;
+            Zone = zone;
+        }
+
+        private AssetLocation() { } // EF Core parameterless ctor
+
         public static AssetLocation Create(string site, string area, string zone)
             => new(site, area, zone);
 

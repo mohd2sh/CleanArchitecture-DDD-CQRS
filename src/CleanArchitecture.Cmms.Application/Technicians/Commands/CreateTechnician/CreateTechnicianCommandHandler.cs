@@ -1,6 +1,7 @@
-﻿using CleanArchitecture.Cmms.Application.Abstractions.Persistence.Repositories;
 using CleanArchitecture.Cmms.Domain.Technicians;
 using CleanArchitecture.Cmms.Domain.Technicians.ValueObjects;
+using CleanArchitecture.Core.Application.Abstractions.Common;
+using CleanArchitecture.Core.Application.Abstractions.Persistence.Repositories;
 
 namespace CleanArchitecture.Cmms.Application.Technicians.Commands.CreateTechnician
 {
@@ -14,9 +15,9 @@ namespace CleanArchitecture.Cmms.Application.Technicians.Commands.CreateTechnici
             _repository = repository;
         }
 
-        public async Task<Result<Guid>> Handle(CreateTechnicianCommand request, CancellationToken cancellationToken)
+        public async Task<Result<Guid>> Handle(CreateTechnicianCommand request, CancellationToken cancellationToken = default)
         {
-            var skillLevel = new SkillLevel(request.SkillLevelName, request.SkillLevelRank);
+            var skillLevel = SkillLevel.Create(request.SkillLevelName, request.SkillLevelRank);
 
             var technician = Technician.Create(request.Name, skillLevel);
 

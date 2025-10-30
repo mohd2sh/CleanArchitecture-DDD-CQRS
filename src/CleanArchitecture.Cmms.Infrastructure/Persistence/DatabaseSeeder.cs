@@ -1,4 +1,4 @@
-﻿using CleanArchitecture.Cmms.Domain.Assets;
+using CleanArchitecture.Cmms.Domain.Assets;
 using CleanArchitecture.Cmms.Domain.Assets.ValueObjects;
 using CleanArchitecture.Cmms.Domain.Technicians;
 using CleanArchitecture.Cmms.Domain.Technicians.ValueObjects;
@@ -18,11 +18,13 @@ namespace CleanArchitecture.Cmms.Infrastructure.Persistence
             if (!await context.Technicians.AnyAsync(ct))
             {
                 var techs = new List<Technician>
-            {
-                Technician.Create("John Doe", SkillLevel.Journeyman),
-                Technician.Create("Jane Smith", SkillLevel.Master),
-                Technician.Create("Tom Wilson", SkillLevel.Apprentice)
-            };
+                {
+                    Technician.Create("John Doe", SkillLevel.Journeyman),
+                    Technician.Create("Jane Smith", SkillLevel.Master),
+                    Technician.Create("Tom Wilson", SkillLevel.Apprentice)
+                };
+                techs[0].AddCertification(Certification.Create("CERT-001", DateTime.UtcNow, DateTime.UtcNow.AddDays(10)));
+
                 await context.Technicians.AddRangeAsync(techs, ct);
             }
 
@@ -46,7 +48,7 @@ namespace CleanArchitecture.Cmms.Infrastructure.Persistence
                 var workOrders = new List<WorkOrder>
             {
                 WorkOrder.Create(assets[0].Id,"Replace filter on HVAC Unit",
-                    new Location("Plant-B", "Roof", "Zone-1"))
+                  Location.Create("Plant-B", "Roof", "Zone-1"))
             };
                 await context.WorkOrders.AddRangeAsync(workOrders, ct);
             }

@@ -1,4 +1,5 @@
 ﻿using CleanArchitecture.Cmms.Application.WorkOrders.Dtos;
+using CleanArchitecture.Core.Application.Abstractions.Common;
 
 namespace CleanArchitecture.Cmms.Application.WorkOrders.Queries.GetWorkOrderById
 {

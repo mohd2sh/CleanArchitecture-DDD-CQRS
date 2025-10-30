@@ -8,14 +8,14 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests.Technicians.ValueObjects
         public void Static_Properties_Should_Have_Expected_Ranks()
         {
             // Arrange
-            SkillLevel apprentice = SkillLevel.Apprentice;
-            SkillLevel journeyman = SkillLevel.Journeyman;
-            SkillLevel master = SkillLevel.Master;
+            var apprentice = SkillLevel.Apprentice;
+            var journeyman = SkillLevel.Journeyman;
+            var master = SkillLevel.Master;
 
             // Act
-            int apprenticeRank = apprentice.Rank;
-            int journeymanRank = journeyman.Rank;
-            int masterRank = master.Rank;
+            var apprenticeRank = apprentice.Rank;
+            var journeymanRank = journeyman.Rank;
+            var masterRank = master.Rank;
 
             // Assert
             Assert.Equal(1, apprenticeRank);
@@ -27,11 +27,11 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests.Technicians.ValueObjects
         public void IsHigherThan_Should_Return_Correct_Comparison()
         {
             // Arrange
-            SkillLevel lower = SkillLevel.Apprentice;
-            SkillLevel higher = SkillLevel.Master;
+            var lower = SkillLevel.Apprentice;
+            var higher = SkillLevel.Master;
 
             // Act
-            bool result = higher.IsHigherThan(lower);
+            var result = higher.IsHigherThan(lower);
 
             // Assert
             Assert.True(result);
@@ -41,11 +41,11 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests.Technicians.ValueObjects
         public void Equality_Should_Be_Value_Based()
         {
             // Arrange
-            SkillLevel levelA = new SkillLevel("Custom", 5);
-            SkillLevel levelB = new SkillLevel("Custom", 5);
+            var levelA = SkillLevel.Create("Custom", 5);
+            var levelB = SkillLevel.Create("Custom", 5);
 
             // Act
-            bool areEqual = levelA == levelB;
+            var areEqual = levelA == levelB;
 
             // Assert
             Assert.True(areEqual);
@@ -55,10 +55,10 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests.Technicians.ValueObjects
         public void ToString_Should_Return_LevelName()
         {
             // Arrange
-            SkillLevel level = SkillLevel.Journeyman;
+            var level = SkillLevel.Journeyman;
 
             // Act
-            string text = level.ToString();
+            var text = level.ToString();
 
             // Assert
             Assert.Equal("Journeyman", text);

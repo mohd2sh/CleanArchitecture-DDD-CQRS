@@ -1,6 +1,7 @@
-﻿using CleanArchitecture.Cmms.Application.Abstractions.Persistence.Repositories;
 using CleanArchitecture.Cmms.Domain.Assets;
 using CleanArchitecture.Cmms.Domain.Assets.ValueObjects;
+using CleanArchitecture.Core.Application.Abstractions.Common;
+using CleanArchitecture.Core.Application.Abstractions.Persistence.Repositories;
 
 namespace CleanArchitecture.Cmms.Application.Assets.Commands.CreateAsset
 {
@@ -14,7 +15,7 @@ namespace CleanArchitecture.Cmms.Application.Assets.Commands.CreateAsset
             _repository = repository;
         }
 
-        public async Task<Result<Guid>> Handle(CreateAssetCommand request, CancellationToken cancellationToken)
+        public async Task<Result<Guid>> Handle(CreateAssetCommand request, CancellationToken cancellationToken = default)
         {
 
             var tag = AssetTag.Create(request.TagCode);

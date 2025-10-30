@@ -1,4 +1,4 @@
-﻿using CleanArchitecture.Cmms.Application.Abstractions.Persistence;
+using CleanArchitecture.Core.Application.Abstractions.Persistence;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace CleanArchitecture.Cmms.Infrastructure.Persistence.EfCore;

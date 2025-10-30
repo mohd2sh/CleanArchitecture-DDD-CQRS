@@ -1,0 +1,58 @@
+name: Integration Tests
+
+on:
+  pull_request:
+    branches: [ develop, main ]
+
+concurrency:
+  group: integration-tests-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  integration-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+      DOTNET_CLI_TELEMETRY_OPTOUT: 1
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Cache NuGet
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Restore
+        run: dotnet restore CleanArchitecture.Cmms.sln
+
+      - name: Build (Release)
+        run: dotnet build CleanArchitecture.Cmms.sln --configuration Release --no-restore
+
+      - name: Test (Integration)
+        run: >
+          dotnet test tests/CleanArchitecture.Cmms.IntegrationTests/CleanArchitecture.Cmms.IntegrationTests.csproj
+          --configuration Release
+          --no-build
+          --logger "trx;LogFileName=integration.trx"
+          --collect:"XPlat Code Coverage"
+
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-test-results
+          path: |
+            **/TestResults/**/*.trx
+            **/TestResults/**/coverage.cobertura.xml
+
+

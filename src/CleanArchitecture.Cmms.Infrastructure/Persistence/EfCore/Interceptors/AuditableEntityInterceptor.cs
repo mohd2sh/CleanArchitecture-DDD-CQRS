@@ -1,5 +1,5 @@
-﻿using CleanArchitecture.Cmms.Application.Abstractions.Common;
-using CleanArchitecture.Cmms.Domain.Abstractions;
+using CleanArchitecture.Core.Application.Abstractions.Common;
+using CleanArchitecture.Core.Domain.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 

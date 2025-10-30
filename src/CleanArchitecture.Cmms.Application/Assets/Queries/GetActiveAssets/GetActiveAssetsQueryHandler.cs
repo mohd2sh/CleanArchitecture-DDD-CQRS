@@ -1,8 +1,10 @@
-﻿using CleanArchitecture.Cmms.Application.Abstractions.Persistence;
-using CleanArchitecture.Cmms.Application.Abstractions.Persistence.Repositories;
 using CleanArchitecture.Cmms.Application.Assets.Dtos;
 using CleanArchitecture.Cmms.Domain.Assets;
 using CleanArchitecture.Cmms.Domain.Assets.Enums;
+using CleanArchitecture.Core.Application.Abstractions.Common;
+using CleanArchitecture.Core.Application.Abstractions.Persistence;
+using CleanArchitecture.Core.Application.Abstractions.Persistence.Repositories;
+using CleanArchitecture.Core.Application.Abstractions.Query;
 
 namespace CleanArchitecture.Cmms.Application.Assets.Queries.GetActiveAssets
 {
@@ -18,17 +20,17 @@ namespace CleanArchitecture.Cmms.Application.Assets.Queries.GetActiveAssets
 
         public async Task<Result<PaginatedList<AssetDto>>> Handle(
             GetActiveAssetsQuery request,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default)
         {
 
-            var criteria = Criteria<Asset>.New()
+            var getActiveAssetsCriteria = Criteria<Asset>.New()
                 .Where(a => a.Status == AssetStatus.Active)
                 .OrderByAsc(a => a.Name)
                 .Skip(request.Pagination.Skip)
                 .Take(request.Pagination.Take)
                 .Build();
 
-            var paginatedAssets = await _repository.ListAsync(criteria, cancellationToken);
+            var paginatedAssets = await _repository.ListAsync(getActiveAssetsCriteria, cancellationToken);
 
             var dtos = paginatedAssets.Items.Select(a => new AssetDto
             {

@@ -1,7 +1,6 @@
-﻿using MediatR;
-using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using System.Text.Json;
+using Microsoft.Extensions.Logging;
 
 namespace CleanArchitecture.Cmms.Application.Behaviors
 {
@@ -14,7 +13,7 @@ namespace CleanArchitecture.Cmms.Application.Behaviors
             _logger = logger;
         }
 
-        public async Task<TResult> Handle(TRequest request, RequestHandlerDelegate<TResult> next, CancellationToken cancellationToken)
+        public async Task<TResult> Handle(TRequest request, PipelineDelegate<TResult> next, CancellationToken cancellationToken = default)
         {
             var requestName = typeof(TRequest).Name;
             var requestJson = JsonSerializer.Serialize(request);

@@ -1,5 +1,5 @@
-﻿using CleanArchitecture.Cmms.Domain.Abstractions;
-using CleanArchitecture.Cmms.Domain.Assets.Enums;
+﻿using CleanArchitecture.Cmms.Domain.Assets.Enums;
+using CleanArchitecture.Core.Domain.Abstractions;
 
 namespace CleanArchitecture.Cmms.Domain.Assets.Events
 {

@@ -1,8 +1,0 @@
-namespace CleanArchitecture.Cmms.Domain.Abstractions
-{
-    internal interface IHasDomainEvents
-    {
-        IReadOnlyCollection<IDomainEvent> DomainEvents { get; }
-        void ClearDomainEvents();
-    }
-}

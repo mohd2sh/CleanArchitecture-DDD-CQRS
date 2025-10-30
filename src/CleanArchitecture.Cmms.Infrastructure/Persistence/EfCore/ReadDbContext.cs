@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace CleanArchitecture.Cmms.Infrastructure.Persistence.EfCore
 {
@@ -9,6 +9,7 @@ namespace CleanArchitecture.Cmms.Infrastructure.Persistence.EfCore
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+
             base.OnConfiguring(optionsBuilder);
         }
     }

@@ -1,4 +1,6 @@
-﻿namespace CleanArchitecture.Cmms.Application.WorkOrders.Commands.AssignTechnician
+using CleanArchitecture.Core.Application.Abstractions.Common;
+
+namespace CleanArchitecture.Cmms.Application.WorkOrders.Commands.AssignTechnician
 {
     public sealed record AssignTechnicianCommand(Guid WorkOrderId, Guid TechnicianId)
     : ICommand<Result>;
