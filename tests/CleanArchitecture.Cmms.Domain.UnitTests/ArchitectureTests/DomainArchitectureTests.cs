@@ -249,7 +249,8 @@ namespace CleanArchitecture.Cmms.Domain.UnitTests.ArchitectureTests
                 .InAssembly(DomainAssembly)
                 .That()
                 .ImplementInterface(typeof(IDomainEvent))
-                .GetTypes();
+                .GetTypes()
+                .ToList();
 
             var violations = new List<string>();
 

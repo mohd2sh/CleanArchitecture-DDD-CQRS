@@ -1,4 +1,4 @@
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
@@ -35,6 +35,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CleanArchitecture.Core.Application", "src\core\CleanArchitecture.Core.Application\CleanArchitecture.Core.Application.csproj", "{8444FE07-6578-4656-B540-B8BE822C4300}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "outbox", "outbox", "{515A4A8F-DA10-4E85-9A9C-C5B095B67CA3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CleanArchitecture.Cmms.IntegrationTests", "tests\CleanArchitecture.Cmms.IntegrationTests\CleanArchitecture.Cmms.IntegrationTests.csproj", "{0604A70A-E517-469E-8F51-84FCC4B70375}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -86,6 +88,10 @@ Global
 		{8444FE07-6578-4656-B540-B8BE822C4300}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8444FE07-6578-4656-B540-B8BE822C4300}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8444FE07-6578-4656-B540-B8BE822C4300}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0604A70A-E517-469E-8F51-84FCC4B70375}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0604A70A-E517-469E-8F51-84FCC4B70375}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0604A70A-E517-469E-8F51-84FCC4B70375}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0604A70A-E517-469E-8F51-84FCC4B70375}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -98,5 +104,6 @@ Global
 		{22DBD8B1-A97F-43A0-984E-710D7D00A949} = {515A4A8F-DA10-4E85-9A9C-C5B095B67CA3}
 		{F7BFAC4A-9454-4ECC-BFDB-E049CED47F6D} = {0FDC867A-8694-44E2-AAF4-D183CCBFC5A0}
 		{8444FE07-6578-4656-B540-B8BE822C4300} = {0FDC867A-8694-44E2-AAF4-D183CCBFC5A0}
+		{0604A70A-E517-469E-8F51-84FCC4B70375} = {346E28AC-5DF1-489A-9D60-BA9B92FF457F}
 	EndGlobalSection
 EndGlobal
