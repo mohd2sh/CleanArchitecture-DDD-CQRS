@@ -2,40 +2,39 @@ using System.Diagnostics;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 
-namespace CleanArchitecture.Cmms.Application.Behaviors
+namespace CleanArchitecture.Cmms.Application.Behaviors;
+
+public class LoggingPipeline<TRequest, TResult> : IPipeline<TRequest, TResult> where TRequest : notnull
 {
-    public class LoggingPipeline<TRequest, TResult> : IPipeline<TRequest, TResult> where TRequest : notnull
+    private readonly ILogger<LoggingPipeline<TRequest, TResult>> _logger;
+
+    public LoggingPipeline(ILogger<LoggingPipeline<TRequest, TResult>> logger)
     {
-        private readonly ILogger<LoggingPipeline<TRequest, TResult>> _logger;
+        _logger = logger;
+    }
 
-        public LoggingPipeline(ILogger<LoggingPipeline<TRequest, TResult>> logger)
+    public async Task<TResult> Handle(TRequest request, PipelineDelegate<TResult> next, CancellationToken cancellationToken = default)
+    {
+        var requestName = typeof(TRequest).Name;
+        var requestJson = JsonSerializer.Serialize(request);
+
+        _logger.LogInformation("Handling {RequestName}: {RequestContent}", requestName, requestJson);
+
+        var stopwatch = Stopwatch.StartNew();
+        TResult response;
+        try
         {
-            _logger = logger;
+            response = await next();
+        }
+        finally
+        {
+            stopwatch.Stop();
         }
 
-        public async Task<TResult> Handle(TRequest request, PipelineDelegate<TResult> next, CancellationToken cancellationToken = default)
-        {
-            var requestName = typeof(TRequest).Name;
-            var requestJson = JsonSerializer.Serialize(request);
+        var responseJson = JsonSerializer.Serialize(response);
+        _logger.LogInformation("Handled {RequestName} in {ElapsedMilliseconds}ms. Response: {ResponseContent}",
+            requestName, stopwatch.ElapsedMilliseconds, responseJson);
 
-            _logger.LogInformation("Handling {RequestName}: {RequestContent}", requestName, requestJson);
-
-            var stopwatch = Stopwatch.StartNew();
-            TResult response;
-            try
-            {
-                response = await next();
-            }
-            finally
-            {
-                stopwatch.Stop();
-            }
-
-            var responseJson = JsonSerializer.Serialize(response);
-            _logger.LogInformation("Handled {RequestName} in {ElapsedMilliseconds}ms. Response: {ResponseContent}",
-                requestName, stopwatch.ElapsedMilliseconds, responseJson);
-
-            return response;
-        }
+        return response;
     }
 }

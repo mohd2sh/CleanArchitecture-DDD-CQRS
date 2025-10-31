@@ -1,6 +1,5 @@
-namespace CleanArchitecture.Core.Domain.Abstractions
+namespace CleanArchitecture.Core.Domain.Abstractions;
+
+public interface IAggregateRoot
 {
-    public interface IAggregateRoot
-    {
-    }
 }

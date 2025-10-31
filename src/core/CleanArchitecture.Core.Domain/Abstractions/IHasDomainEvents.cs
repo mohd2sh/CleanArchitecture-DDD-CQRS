@@ -1,8 +1,7 @@
-namespace CleanArchitecture.Core.Domain.Abstractions
+namespace CleanArchitecture.Core.Domain.Abstractions;
+
+public interface IHasDomainEvents
 {
-    public interface IHasDomainEvents
-    {
-        IReadOnlyCollection<IDomainEvent> DomainEvents { get; }
-        void ClearDomainEvents();
-    }
+    IReadOnlyCollection<IDomainEvent> DomainEvents { get; }
+    void ClearDomainEvents();
 }

@@ -1,12 +1,11 @@
-﻿using FluentValidation;
+using FluentValidation;
 
-namespace CleanArchitecture.Cmms.Application.WorkOrders.Commands.CreateWorkOrder
+namespace CleanArchitecture.Cmms.Application.WorkOrders.Commands.CreateWorkOrder;
+
+internal sealed class CreateWorkOrderCommandValidator : AbstractValidator<CreateWorkOrderCommand>
 {
-    internal sealed class CreateWorkOrderCommandValidator : AbstractValidator<CreateWorkOrderCommand>
+    public CreateWorkOrderCommandValidator()
     {
-        public CreateWorkOrderCommandValidator()
-        {
-            RuleFor(x => x.Title).NotEmpty().MaximumLength(200);
-        }
+        RuleFor(x => x.Title).NotEmpty().MaximumLength(200);
     }
 }

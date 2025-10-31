@@ -1,4 +1,4 @@
-﻿namespace CleanArchitecture.Cmms.Application.ErrorManagement.Models;
+namespace CleanArchitecture.Cmms.Application.ErrorManagement.Models;
 
 public record ErrorExportResult
 {

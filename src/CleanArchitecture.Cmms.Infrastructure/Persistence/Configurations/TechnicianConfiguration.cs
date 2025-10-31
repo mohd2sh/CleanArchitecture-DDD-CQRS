@@ -1,98 +1,97 @@
-﻿using CleanArchitecture.Cmms.Domain.Technicians;
+using CleanArchitecture.Cmms.Domain.Technicians;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace CleanArchitecture.Cmms.Infrastructure.Persistence.Configurations
+namespace CleanArchitecture.Cmms.Infrastructure.Persistence.Configurations;
+
+internal sealed class TechnicianConfiguration : AuditableEntityConfiguration<Technician, Guid>
 {
-    internal sealed class TechnicianConfiguration : AuditableEntityConfiguration<Technician, Guid>
+    protected override void ConfigureCore(EntityTypeBuilder<Technician> builder)
     {
-        protected override void ConfigureCore(EntityTypeBuilder<Technician> builder)
+        var schema = "technicians";
+
+        builder.ToTable("Technicians", schema);
+
+        builder.HasKey(t => t.Id);
+
+        builder.Property(t => t.Name)
+               .IsRequired()
+               .HasMaxLength(150);
+
+        builder.Property(t => t.Status)
+               .HasConversion<string>()
+               .IsRequired();
+
+        builder.Property(t => t.MaxConcurrentAssignments)
+               .IsRequired();
+
+        builder.OwnsOne(t => t.SkillLevel, skill =>
         {
-            var schema = "technicians";
+            skill.Property(s => s.LevelName)
+                 .HasColumnName("SkillLevelName")
+                 .HasMaxLength(50)
+                 .IsRequired();
 
-            builder.ToTable("Technicians", schema);
+            skill.Property(s => s.Rank)
+                 .HasColumnName("SkillRank")
+                 .IsRequired();
+        });
 
-            builder.HasKey(t => t.Id);
+        builder.OwnsMany(t => t.Certifications, cert =>
+        {
+            cert.ToTable("TechnicianCertifications", schema);
 
-            builder.Property(t => t.Name)
-                   .IsRequired()
-                   .HasMaxLength(150);
+            cert.WithOwner().HasForeignKey("TechnicianId");
 
-            builder.Property(t => t.Status)
-                   .HasConversion<string>()
-                   .IsRequired();
+            cert.HasKey("TechnicianId", "Code");
 
-            builder.Property(t => t.MaxConcurrentAssignments)
-                   .IsRequired();
+            cert.Property(c => c.Code)
+                .HasColumnName("CertificationCode")
+                .HasMaxLength(50)
+                .IsRequired();
 
-            builder.OwnsOne(t => t.SkillLevel, skill =>
-            {
-                skill.Property(s => s.LevelName)
-                     .HasColumnName("SkillLevelName")
-                     .HasMaxLength(50)
-                     .IsRequired();
+            cert.Property(c => c.IssuedOn)
+                .HasColumnName("IssuedOn")
+                .IsRequired();
 
-                skill.Property(s => s.Rank)
-                     .HasColumnName("SkillRank")
-                     .IsRequired();
-            });
+            cert.Property(c => c.ExpiresOn)
+                .HasColumnName("ExpiresOn");
 
-            builder.OwnsMany(t => t.Certifications, cert =>
-            {
-                cert.ToTable("TechnicianCertifications", schema);
+            cert.HasIndex("TechnicianId");
+        });
 
-                cert.WithOwner().HasForeignKey("TechnicianId");
+        builder.OwnsMany(t => t.Assignments, assignment =>
+        {
+            assignment.ToTable("TechnicianAssignments", schema);
 
-                cert.HasKey("TechnicianId", "Code");
+            assignment.WithOwner().HasForeignKey("TechnicianId");
+            assignment.HasKey("Id");
 
-                cert.Property(c => c.Code)
-                    .HasColumnName("CertificationCode")
-                    .HasMaxLength(50)
-                    .IsRequired();
+            assignment.Property(a => a.Id)
+                      .ValueGeneratedNever();
 
-                cert.Property(c => c.IssuedOn)
-                    .HasColumnName("IssuedOn")
-                    .IsRequired();
+            assignment.Property(a => a.WorkOrderId)
+                      .IsRequired();
 
-                cert.Property(c => c.ExpiresOn)
-                    .HasColumnName("ExpiresOn");
+            assignment.Property(a => a.AssignedOn)
+                      .IsRequired();
 
-                cert.HasIndex("TechnicianId");
-            });
+            assignment.Property(a => a.CompletedOn)
+                      .IsRequired(false);
 
-            builder.OwnsMany(t => t.Assignments, assignment =>
-            {
-                assignment.ToTable("TechnicianAssignments", schema);
+            assignment.HasIndex("TechnicianId");
+        });
 
-                assignment.WithOwner().HasForeignKey("TechnicianId");
-                assignment.HasKey("Id");
+        builder.Navigation(t => t.Assignments)
+               .Metadata.SetField("_assignments");
 
-                assignment.Property(a => a.Id)
-                          .ValueGeneratedNever();
+        builder.Navigation(t => t.Assignments)
+               .UsePropertyAccessMode(PropertyAccessMode.Field);
 
-                assignment.Property(a => a.WorkOrderId)
-                          .IsRequired();
+        builder.Navigation(t => t.Certifications)
+               .Metadata.SetField("_certifications");
 
-                assignment.Property(a => a.AssignedOn)
-                          .IsRequired();
-
-                assignment.Property(a => a.CompletedOn)
-                          .IsRequired(false);
-
-                assignment.HasIndex("TechnicianId");
-            });
-
-            builder.Navigation(t => t.Assignments)
-                   .Metadata.SetField("_assignments");
-
-            builder.Navigation(t => t.Assignments)
-                   .UsePropertyAccessMode(PropertyAccessMode.Field);
-
-            builder.Navigation(t => t.Certifications)
-                   .Metadata.SetField("_certifications");
-
-            builder.Navigation(t => t.Certifications)
-                   .UsePropertyAccessMode(PropertyAccessMode.Field);
-        }
+        builder.Navigation(t => t.Certifications)
+               .UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }

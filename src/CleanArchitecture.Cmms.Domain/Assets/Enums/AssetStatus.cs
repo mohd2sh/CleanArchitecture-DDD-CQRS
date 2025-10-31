@@ -1,10 +1,9 @@
-﻿namespace CleanArchitecture.Cmms.Domain.Assets.Enums
+namespace CleanArchitecture.Cmms.Domain.Assets.Enums;
+
+public enum AssetStatus
 {
-    public enum AssetStatus
-    {
-        Active = 1,
-        Inactive = 2,
-        Decommissioned = 3,
-        UnderMaintenance = 4
-    }
+    Active = 1,
+    Inactive = 2,
+    Decommissioned = 3,
+    UnderMaintenance = 4
 }
