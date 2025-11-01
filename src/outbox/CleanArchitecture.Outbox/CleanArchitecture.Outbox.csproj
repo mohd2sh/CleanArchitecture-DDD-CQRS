@@ -16,4 +16,8 @@
     <ProjectReference Include="..\..\core\CleanArchitecture.Core.Application\CleanArchitecture.Core.Application.csproj" />
     <ProjectReference Include="..\CleanArchitecture.Outbox.Abstractions\CleanArchitecture.Outbox.Abstractions.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Migrations\" />
+  </ItemGroup>
 </Project>

@@ -1,6 +1,7 @@
 # Clean Architecture DDD CQRS Template
 
 ![Integration Tests](https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS/actions/workflows/integration-tests.yml/badge.svg)
+![Outbox Integration Tests](https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS/actions/workflows/outbox-integration-tests.yml/badge.svg)
 ![Unit & Architecture Tests](https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS/actions/workflows/dotnet-test.yml/badge.svg)
 ![Docker Build](https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS/actions/workflows/docker-build.yml/badge.svg)
 
@@ -125,7 +126,7 @@ The template implements a dual event handler system with guaranteed delivery via
 #### IDomainEventHandler (Transactional Events)
 
 **Characteristics:**
-- Executes **synchronously** within the same transaction
+- Executes within the same transaction
 - Modifies aggregate state via repositories
 - Changes committed atomically with the command
 - Failure causes transaction rollback
@@ -151,7 +152,7 @@ public class WorkOrderCreatedEventHandler : IDomainEventHandler<WorkOrderCreated
 #### IIntegrationEventHandler (Asynchronous Events)
 
 **Characteristics:**
-- Executes **asynchronously** via Outbox Pattern
+- Executes via Outbox Pattern (outside the command scoped)
 - Written to outbox table in same transaction as command
 - Background processor handles delivery
 - Guaranteed delivery with automatic retry
@@ -199,8 +200,6 @@ The current implementation uses a simple, in-process approach:
 -  At-least-once delivery semantics
 -  Production-ready reliability
 
-**Abstraction for 3rd Party Frameworks:**
-The `IOutboxStore` interface abstraction allows easy migration to 3rd party implementations (MassTransit, NServiceBus, etc.) when moving to microservices. Simply implement a new `IOutboxStore` using your chosen framework—no changes to business code or handlers required.
 
 **Migration Path to Microservices:**
 ```csharp
@@ -256,7 +255,7 @@ builder.Property(e => e.RowVersion)
 
 ### Error Management System
 
-The template implements a comprehensive error management system with attribute-based discovery, export capability, and architecture testing.
+The template implements error management system with attribute-based discovery, export capability, and architecture testing. See **[ADR-005: Attribute-Based Error Management System](docs/architectural-decisions/ADR-005-error-management-system.md)**.
 
 **Domain Layer Errors:**
 ```csharp
