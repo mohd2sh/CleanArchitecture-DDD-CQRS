@@ -22,10 +22,10 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Build Docker image
-        run: docker-compose build
+        run: docker build -f src/CleanArchitecture.Cmms.Api/Dockerfile -t cmms-api:test .
 
       - name: Verify build
         run: |
-          docker-compose images
+          docker images cmms-api:test
           echo "Docker build completed successfully"
 

@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -14,17 +15,17 @@ namespace CleanArchitecture.Outbox.Processing;
 /// </summary>
 public sealed class OutboxProcessor : BackgroundService
 {
-    private readonly IOutboxProcessor _processor;
+    private readonly IServiceScopeFactory _serviceScopeFactory;
     private readonly ILogger<OutboxProcessor> _logger;
     private readonly int _workerId;
     private readonly TimeSpan _pollingInterval = TimeSpan.FromSeconds(5);
 
     public OutboxProcessor(
-        IOutboxProcessor processor,
+        IServiceScopeFactory serviceScopeFactory,
         ILogger<OutboxProcessor> logger,
         int workerId = 1)
     {
-        _processor = processor;
+        _serviceScopeFactory = serviceScopeFactory;
         _logger = logger;
         _workerId = workerId;
     }
@@ -37,7 +38,9 @@ public sealed class OutboxProcessor : BackgroundService
         {
             try
             {
-                await _processor.ProcessOutboxMessagesAsync(stoppingToken);
+                using var scope = _serviceScopeFactory.CreateScope();
+                var processor = scope.ServiceProvider.GetRequiredService<IOutboxProcessor>();
+                await processor.ProcessOutboxMessagesAsync(stoppingToken);
             }
             catch (Exception ex)
             {

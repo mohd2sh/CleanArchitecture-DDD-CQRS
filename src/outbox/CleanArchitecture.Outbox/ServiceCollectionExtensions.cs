@@ -34,7 +34,7 @@ public static class ServiceCollectionExtensions
         {
             var workerId = i + 1;
             services.AddSingleton<IHostedService>(sp => new OutboxProcessor(
-                sp.GetRequiredService<IOutboxProcessor>(),
+                sp.GetRequiredService<IServiceScopeFactory>(),
                 sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<OutboxProcessor>>(),
                 workerId));
         }
