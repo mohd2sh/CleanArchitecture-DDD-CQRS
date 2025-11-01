@@ -583,6 +583,7 @@ If this template helped you or your team, please consider giving it a star! It h
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
 ---
 
 **Built for the .NET community**
