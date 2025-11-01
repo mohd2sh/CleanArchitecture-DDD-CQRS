@@ -1,12 +1,11 @@
-﻿using CleanArchitecture.Cmms.Application.WorkOrders.Dtos;
+using CleanArchitecture.Cmms.Application.WorkOrders.Dtos;
 using CleanArchitecture.Core.Application.Abstractions.Persistence.Repositories;
 using CleanArchitecture.Core.Application.Abstractions.Query;
 
-namespace CleanArchitecture.Cmms.Application.WorkOrders.Interfaces
+namespace CleanArchitecture.Cmms.Application.WorkOrders.Interfaces;
+
+public interface IWorkOrderReadRepository : IReadRepository
 {
-    public interface IWorkOrderReadRepository : IReadRepository
-    {
-        Task<PaginatedList<WorkOrderListItemDto>> GetActiveWithTechnicianAndAssetAsync(PaginationParam pagination, CancellationToken ct);
-        Task<WorkOrderDto?> GetWorkOrderById(Guid id, CancellationToken ct);
-    }
+    Task<PaginatedList<WorkOrderListItemDto>> GetActiveWithTechnicianAndAssetAsync(PaginationParam pagination, CancellationToken ct);
+    Task<WorkOrderDto?> GetWorkOrderById(Guid id, CancellationToken ct);
 }

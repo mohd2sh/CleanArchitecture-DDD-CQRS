@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using CleanArchitecture.Outbox.Abstractions;
@@ -8,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CleanArchitecture.Outbox.Persistence;
 
-internal sealed class EfCoreOutboxStore : IOutboxStore
+internal sealed class EfCoreOutboxStore : ICustomOutboxStore
 {
     private readonly OutboxDbContext _context;
 
@@ -23,14 +21,16 @@ internal sealed class EfCoreOutboxStore : IOutboxStore
         await _context.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<List<OutboxMessage>> GetUnprocessedAsync(int batchSize = 10, CancellationToken cancellationToken = default)
+    public async Task<OutboxMessage?> GetNextUnprocessedMessageAsync(CancellationToken cancellationToken = default)
     {
-        //TODO: Implement dead lettered?
         return await _context.OutboxMessages
-            .Where(m => m.ProcessedAt == null && m.RetryCount < m.MaxRetries)
-            .OrderBy(m => m.CreatedAt)
-            .Take(batchSize)
-            .ToListAsync(cancellationToken);
+            .FromSqlInterpolated($@"
+                SELECT TOP (1) *
+                FROM OutboxMessages WITH (UPDLOCK, ROWLOCK, READPAST)
+                WHERE ProcessedAt IS NULL 
+                  AND RetryCount < MaxRetries
+                ORDER BY CreatedAt")
+            .FirstOrDefaultAsync(cancellationToken);
     }
 
     public async Task MarkAsProcessedAsync(Guid messageId, CancellationToken cancellationToken = default)
@@ -46,11 +46,40 @@ internal sealed class EfCoreOutboxStore : IOutboxStore
     public async Task IncrementRetryAsync(Guid messageId, string error, CancellationToken cancellationToken = default)
     {
         var message = await _context.OutboxMessages.FindAsync(new object[] { messageId }, cancellationToken);
-        if (message != null)
+
+        if (message == null)
         {
-            message.RetryCount++;
-            message.LastError = error.Length > 2000 ? error.Substring(0, 2000) : error;
-            await _context.SaveChangesAsync(cancellationToken);
+            return;
         }
+
+        message.RetryCount++;
+
+        message.LastError = error.Length > 2000 ? error.Substring(0, 2000) : error;
+
+        if (message.RetryCount >= message.MaxRetries)
+        {
+            MoveToDeadLetterAsync(message);
+        }
+
+        await _context.SaveChangesAsync(cancellationToken);
+    }
+
+    private void MoveToDeadLetterAsync(OutboxMessage message)
+    {
+        var deadLetterMessage = new DeadLetterMessage
+        {
+            Id = message.Id,
+            EventType = message.EventType,
+            Payload = message.Payload,
+            CreatedAt = message.CreatedAt,
+            MovedToDeadLetterAt = DateTime.UtcNow,
+            RetryCount = message.RetryCount,
+            LastError = message.LastError,
+            MaxRetries = message.MaxRetries
+        };
+
+        _context.DeadLetterMessages.Add(deadLetterMessage);
+
+        _context.OutboxMessages.Remove(message);
     }
 }

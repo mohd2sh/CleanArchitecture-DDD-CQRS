@@ -2,28 +2,27 @@ using CleanArchitecture.Cmms.Application.WorkOrders.Dtos;
 using CleanArchitecture.Cmms.Application.WorkOrders.Interfaces;
 using CleanArchitecture.Core.Application.Abstractions.Common;
 
-namespace CleanArchitecture.Cmms.Application.WorkOrders.Queries.GetWorkOrderById
+namespace CleanArchitecture.Cmms.Application.WorkOrders.Queries.GetWorkOrderById;
+
+internal sealed class GetWorkOrderByIdQueryHandler
+ : IQueryHandler<GetWorkOrderByIdQuery, Result<WorkOrderDto>>
 {
-    internal sealed class GetWorkOrderByIdQueryHandler
-     : IQueryHandler<GetWorkOrderByIdQuery, Result<WorkOrderDto>>
+    private readonly IWorkOrderReadRepository _repository;
+
+    public GetWorkOrderByIdQueryHandler(IWorkOrderReadRepository repository)
     {
-        private readonly IWorkOrderReadRepository _repository;
+        _repository = repository;
+    }
 
-        public GetWorkOrderByIdQueryHandler(IWorkOrderReadRepository repository)
-        {
-            _repository = repository;
-        }
+    public async Task<Result<WorkOrderDto>> Handle(GetWorkOrderByIdQuery request, CancellationToken cancellationToken = default)
+    {
+        var entity = await _repository.GetWorkOrderById(request.Id, cancellationToken);
 
-        public async Task<Result<WorkOrderDto>> Handle(GetWorkOrderByIdQuery request, CancellationToken cancellationToken = default)
-        {
-            var entity = await _repository.GetWorkOrderById(request.Id, cancellationToken);
+        if (entity is null)
+            return WorkOrderErrors.NotFound;
 
-            if (entity is null)
-                return WorkOrderErrors.NotFound;
+        var dto = new WorkOrderDto(entity.Id, entity.Title, entity.Status.ToString());
 
-            var dto = new WorkOrderDto(entity.Id, entity.Title, entity.Status.ToString());
-
-            return dto;
-        }
+        return dto;
     }
 }

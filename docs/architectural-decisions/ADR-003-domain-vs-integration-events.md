@@ -230,7 +230,7 @@ public class EmailWorkOrderCompletedHandler : IIntegrationEventHandler<WorkOrder
 
 ## Future Evolution
 
-### Current State (Monolith)
+### Default Implementation (Single-Process Setup)
 
 **Domain Events:**
 - Synchronous execution within process
@@ -242,7 +242,7 @@ public class EmailWorkOrderCompletedHandler : IIntegrationEventHandler<WorkOrder
 - Background processor in same process
 - In-process handler invocation
 
-### Future State (Microservices)
+### Microservices Deployment
 
 **Domain Events:**
 - Remain internal to each service
@@ -256,7 +256,7 @@ public class EmailWorkOrderCompletedHandler : IIntegrationEventHandler<WorkOrder
 - Schema registry for event contracts
 - Introduce Saga and Compensation messages
 
-**No Code Changes Required:** Handler interfaces remain the same, only infrastructure changes and more new functionality.
+**No Business Code Changes Required:** Handler interfaces remain identical—only infrastructure configuration changes. When migrating to fully distributed async architectures, compensation events or Saga may be required for distributed transaction handling.
 
 ---
 

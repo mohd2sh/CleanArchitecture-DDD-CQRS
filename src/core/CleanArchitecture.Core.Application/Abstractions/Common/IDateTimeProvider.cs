@@ -1,9 +1,8 @@
-﻿namespace CleanArchitecture.Core.Application.Abstractions.Common
+namespace CleanArchitecture.Core.Application.Abstractions.Common;
+
+public interface IDateTimeProvider
 {
-    public interface IDateTimeProvider
-    {
-        DateTime UtcNow { get; }
-        DateTime Now { get; }
-        DateOnly Today { get; }
-    }
+    DateTime UtcNow { get; }
+    DateTime Now { get; }
+    DateOnly Today { get; }
 }

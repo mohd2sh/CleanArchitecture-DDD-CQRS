@@ -1,6 +1,5 @@
 using CleanArchitecture.Cmms.Application.Technicians.Commands.AddCertification;
 using CleanArchitecture.Cmms.Domain.Technicians;
-using CleanArchitecture.Cmms.Domain.Technicians.Enums;
 using CleanArchitecture.Cmms.Domain.Technicians.ValueObjects;
 using CleanArchitecture.Core.Application.Abstractions.Persistence.Repositories;
 using CleanArchitecture.Core.Domain.Abstractions;

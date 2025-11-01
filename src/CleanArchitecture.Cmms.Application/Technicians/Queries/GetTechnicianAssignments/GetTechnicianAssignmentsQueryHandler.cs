@@ -5,45 +5,44 @@ using CleanArchitecture.Core.Application.Abstractions.Persistence;
 using CleanArchitecture.Core.Application.Abstractions.Persistence.Repositories;
 using CleanArchitecture.Core.Application.Abstractions.Query;
 
-namespace CleanArchitecture.Cmms.Application.Technicians.Queries.GetTechnicianAssignments
+namespace CleanArchitecture.Cmms.Application.Technicians.Queries.GetTechnicianAssignments;
+
+internal sealed class GetTechnicianAssignmentsQueryHandler
+ : IQueryHandler<GetTechnicianAssignmentsQuery, Result<PaginatedList<TechnicianAssignmentDto>>>
 {
-    internal sealed class GetTechnicianAssignmentsQueryHandler
-     : IQueryHandler<GetTechnicianAssignmentsQuery, Result<PaginatedList<TechnicianAssignmentDto>>>
+    private readonly IReadRepository<Technician, Guid> _repository;
+
+    public GetTechnicianAssignmentsQueryHandler(IReadRepository<Technician, Guid> repository)
     {
-        private readonly IReadRepository<Technician, Guid> _repository;
+        _repository = repository;
+    }
 
-        public GetTechnicianAssignmentsQueryHandler(IReadRepository<Technician, Guid> repository)
-        {
-            _repository = repository;
-        }
+    public async Task<Result<PaginatedList<TechnicianAssignmentDto>>> Handle(
+        GetTechnicianAssignmentsQuery request,
+        CancellationToken cancellationToken = default)
+    {
+        var criteria = Criteria<Technician>.New()
+            .Where(p => p.Id == request.TechnicianId)
+            .Include(p => p.Assignments)
+            .OrderByAsc(p => p.Name)
+            .Skip(request.Pagination.Skip)
+            .Take(request.Pagination.Take)
+            .Build();
 
-        public async Task<Result<PaginatedList<TechnicianAssignmentDto>>> Handle(
-            GetTechnicianAssignmentsQuery request,
-            CancellationToken cancellationToken = default)
-        {
-            var criteria = Criteria<Technician>.New()
-                .Where(p => p.Id == request.TechnicianId)
-                .Include(p => p.Assignments)
-                .OrderByAsc(p => p.Name)
-                .Skip(request.Pagination.Skip)
-                .Take(request.Pagination.Take)
-                .Build();
+        var technicians = await _repository.ListAsync(criteria, cancellationToken);
+        if (technicians == null || technicians.Items.Count == 0)
+            return TechnicianErrors.NotFound;
 
-            var technicians = await _repository.ListAsync(criteria, cancellationToken);
-            if (technicians == null || technicians.Items.Count == 0)
-                return TechnicianErrors.NotFound;
+        var assignmentsDto = technicians.Items
+            .SelectMany(t => t.Assignments)
+            .Select(a => new TechnicianAssignmentDto
+            {
+                WorkOrderId = a.WorkOrderId,
+                AssignedOn = a.AssignedOn,
+                CompletedOn = a.CompletedOn
+            })
+            .ToList();
 
-            var assignmentsDto = technicians.Items
-                .SelectMany(t => t.Assignments)
-                .Select(a => new TechnicianAssignmentDto
-                {
-                    WorkOrderId = a.WorkOrderId,
-                    AssignedOn = a.AssignedOn,
-                    CompletedOn = a.CompletedOn
-                })
-                .ToList();
-
-            return technicians.ToNew(assignmentsDto);
-        }
+        return technicians.ToNew(assignmentsDto);
     }
 }

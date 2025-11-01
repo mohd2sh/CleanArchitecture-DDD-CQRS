@@ -215,13 +215,16 @@ The outbox uses a dedicated `OutboxDbContext` separate from the main application
 
 ## Future Evolution
 
-### Phase 1: Current Implementation
+### Phase 1: Default Implementation (Simple)
 
 **Characteristics:**
 - Single application instance
 - In-process event handlers
 - Shared database for outbox
 - Simple deployment
+- **EF Core-based `IOutboxStore` implementation** (`EfCoreOutboxStore`)
+
+**Key Point:** The `IOutboxStore` abstraction makes this a simple starting point that's easy to replace later.
 
 ### Phase 2: Message Bus Integration
 
