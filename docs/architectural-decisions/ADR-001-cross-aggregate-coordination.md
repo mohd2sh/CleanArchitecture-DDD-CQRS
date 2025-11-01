@@ -424,15 +424,17 @@ workOrder.Complete(); // → Event → Handlers
 
 ### Future Evolution
 
-**Current (Monolith with single database):**
+**Default Implementation (Single-Process Deployment):**
 - Synchronous domain events
 - Single ACID transaction
 - All handlers in same process
 
-**Future (Microservices):**
+**Microservices Evolution:**
 - Outbox published to Bus
 - Saga introduced if necessary
 - Eventual consistency between services
+
+**Note:** The template is designed to work seamlessly in both architectures.
 
 **Migration Path:**
 ```csharp
