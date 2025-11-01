@@ -23,7 +23,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\CleanArchitecture.Outbox\CleanArchitecture.Outbox.csproj" />
     <ProjectReference Include="..\..\CleanArchitecture.Outbox.Abstractions\CleanArchitecture.Outbox.Abstractions.csproj" />
-    <ProjectReference Include="..\..\..\Core\CleanArchitecture.Core.Application\CleanArchitecture.Core.Application.csproj" />
+    <ProjectReference Include="..\..\..\core\CleanArchitecture.Core.Application\CleanArchitecture.Core.Application.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -31,7 +31,9 @@ jobs:
         run: dotnet build --configuration Release --no-restore
 
       - name: Run tests
-        run: dotnet test --configuration Release --no-build --collect:"XPlat Code Coverage" --logger "trx;LogFileName=test_results.trx"
+        run: |
+          dotnet test tests/CleanArchitecture.Cmms.Domain.UnitTests/CleanArchitecture.Cmms.Domain.UnitTests.csproj --configuration Release --no-build --collect:"XPlat Code Coverage" --logger "trx;LogFileName=domain_unit_tests.trx"
+          dotnet test tests/CleanArchitecture.Cmms.Application.UnitTests/CleanArchitecture.Cmms.Application.UnitTests.csproj --configuration Release --no-build --collect:"XPlat Code Coverage" --logger "trx;LogFileName=application_unit_tests.trx"
 
       - name: Upload Test Artifacts
         if: always()
