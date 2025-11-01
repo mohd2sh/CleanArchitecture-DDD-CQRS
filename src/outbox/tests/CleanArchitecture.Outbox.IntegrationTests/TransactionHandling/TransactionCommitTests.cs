@@ -19,6 +19,7 @@ public class TransactionCommitTests : OutboxTestBase
         await RunTestProcessorsAsync(workerCount: 1, expectedProcessedCount: 1);
 
         // Assert
+        DbContext.ChangeTracker.Clear();
         var updated = await DbContext.OutboxMessages.FindAsync(message.Id);
         Assert.NotNull(updated);
         Assert.NotNull(updated.ProcessedAt);
