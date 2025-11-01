@@ -15,7 +15,7 @@ public class TransactionCommitTests : OutboxTestBase
         // Arrange
         var message = await CreateTestEventMessage();
 
-        // Act - Process using test BackgroundService with signal-driven completion
+        // Act 
         await RunTestProcessorsAsync(workerCount: 1, expectedProcessedCount: 1);
 
         // Assert

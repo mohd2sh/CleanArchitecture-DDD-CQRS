@@ -168,8 +168,12 @@ public abstract class OutboxTestBase : IClassFixture<OutboxWebApplicationFactory
             // Subscribe to processing cycle events
             testWorker.ProcessingCycleCompleted += async (sender, args) =>
             {
-                // Check processed count after each cycle
-                var currentCount = await GetProcessedCount();
+                using var scope = _factory.Services.CreateScope();
+                var dbContext = scope.ServiceProvider.GetRequiredService<OutboxDbContext>();
+
+                var currentCount = await dbContext.OutboxMessages
+                    .Where(m => m.ProcessedAt != null)
+                    .CountAsync();
 
                 // Signal completion if target reached
                 if (currentCount >= expectedProcessedCount && !completionSource.Task.IsCompleted)
@@ -232,8 +236,12 @@ public abstract class OutboxTestBase : IClassFixture<OutboxWebApplicationFactory
         // Subscribe to processing cycle events
         testWorker.ProcessingCycleCompleted += async (sender, args) =>
         {
-            // Check processed count after each cycle
-            var currentCount = await GetProcessedCount();
+            using var scope = _factory.Services.CreateScope();
+            var dbContext = scope.ServiceProvider.GetRequiredService<OutboxDbContext>();
+
+            var currentCount = await dbContext.OutboxMessages
+                .Where(m => m.ProcessedAt != null)
+                .CountAsync();
 
             // Signal completion if target reached
             if (currentCount >= expectedProcessedCount && !completionSource.Task.IsCompleted)
