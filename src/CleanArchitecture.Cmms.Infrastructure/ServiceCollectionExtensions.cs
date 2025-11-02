@@ -7,6 +7,7 @@ using CleanArchitecture.Cmms.Infrastructure.Persistence.EfCore.Interceptors;
 using CleanArchitecture.Cmms.Infrastructure.Repositories.ReadRepositories;
 using CleanArchitecture.Cmms.Infrastructure.Repositories.ReadRepositories.WorkOrders;
 using CleanArchitecture.Cmms.Infrastructure.Repositories.WriteRepositories;
+using CleanArchitecture.Cmms.Infrastructure.Messaging.Conventions;
 using CleanArchitecture.Core.Application.Abstractions.Common;
 using CleanArchitecture.Core.Application.Abstractions.Events;
 using CleanArchitecture.Core.Application.Abstractions.Messaging;
@@ -30,6 +31,8 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<IMediator, CustomMediator>();
         services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
+        services.AddSingleton<IIntegrationEventConvention, DefaultIntegrationEventConvention>();
+        services.AddScoped<IIntegrationEventDispatcher, IntegrationEventDispatcher>();
 
         services.AddSingleton<IDateTimeProvider, SystemDateTimeProvider>();
 
