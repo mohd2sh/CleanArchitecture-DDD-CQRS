@@ -1,4 +1,4 @@
-# Clean Architecture DDD CQRS Template
+# .NET CQRS DDD Template - Clean Architecture with Domain-Driven Design
 
 ![Integration Tests](https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS/actions/workflows/integration-tests.yml/badge.svg)
 ![Outbox Integration Tests](https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS/actions/workflows/outbox-integration-tests.yml/badge.svg)
@@ -9,7 +9,7 @@ A ready template demonstrating Clean Architecture, Domain-Driven Design (DDD), a
 
 ## Introduction
 
-This template implements a **Computerized Maintenance Management System (CMMS)** - a domain that manages work orders, asset maintenance, and technician assignments. The CMMS domain is perfect for demonstrating DDD patterns because it has:
+This template implements a **Computerized Maintenance Management System (CMMS)** - a domain that manages work orders, asset maintenance, and technician assignments. The CMMS domain is perfect for demonstrating .NET CQRS DDD patterns because it has:
 
 - **Clear business boundaries** (Work Orders, Technicians, Assets)
 - **Complex business rules** (assignment constraints, status transitions)
@@ -29,7 +29,12 @@ The system handles the complete maintenance lifecycle: from creating work orders
 
 ## Philosophy
 
-This template demonstrates that Clean Architecture doesn't have to be complex. It shows how to apply DDD and CQRS pragmatically - with enough structure to maintain boundaries and enable testing, but without over-engineering or speculative abstractions.
+This template demonstrates that implementing .NET CQRS DDD doesn't have to be complex. It shows how to apply DDD and CQRS pragmatically in .NET - with enough structure to maintain boundaries and enable testing, but without over-engineering or speculative abstractions.
+
+**Perfect for:**
+- Teams building enterprise .NET applications with CQRS and DDD
+- Developers learning how to implement .NET CQRS DDD patterns
+- Architects evaluating .NET CQRS DDD implementations
 
 ### Design Principles
 
@@ -95,7 +100,7 @@ Shows the flexible read path supporting multiple data sources (Read Replica, Red
 
 ### CQRS Implementation
 
-This template separates read and write operations for optimal performance and scalability.
+This Dotnet CQRS implementation separates read and write operations for optimal performance and scalability.
 
 **Write Side (Commands):**
 - Uses EF Core with change tracking and transactions
