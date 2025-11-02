@@ -7,23 +7,21 @@ plugins:
   - jekyll-sitemap
   - jekyll-seo-tag
 
-# GitHub Pages settings
+
 github: [metadata]
 repository: mohd2sh/CleanArchitecture-DDD-CQRS
 
-# SEO settings
+
 author: Mohammad Shakhtour
 keywords: "clean architecture, DDD, CQRS, .NET 8, domain-driven design, outbox pattern, enterprise architecture, C#, software architecture"
 
-google_site_verification: "A6tHTS5FsuxXuWy3LSg5yzVrA7j2R3S2R9he25A0aWs"
 
-# Markdown settings
 markdown: kramdown
 kramdown:
   input: GFM
   syntax_highlighter: rouge
 
-# Exclude from processing
+
 exclude:
   - Gemfile
   - Gemfile.lock

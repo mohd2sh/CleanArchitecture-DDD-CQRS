@@ -6,115 +6,105 @@ keywords: "clean architecture, DDD, CQRS, .NET 8, domain-driven design, outbox p
 author: "Mohammad Shakhtour"
 ---
 
-# Clean Architecture DDD CQRS Template for .NET 8
+# Clean Architecture DDD CQRS Template
 
-A template demonstrating Clean Architecture, Domain-Driven Design (DDD), and CQRS principles in .NET 8. This template provides a solid foundation for building maintainable, testable, and scalable enterprise applications.
+![Integration Tests](https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS/actions/workflows/integration-tests.yml/badge.svg)
+![Outbox Integration Tests](https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS/actions/workflows/outbox-integration-tests.yml/badge.svg)
+![Unit & Architecture Tests](https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS/actions/workflows/dotnet-test.yml/badge.svg)
+![Docker Build](https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS/actions/workflows/docker-build.yml/badge.svg)
 
-## Overview
+A ready template demonstrating Clean Architecture, Domain-Driven Design (DDD), and CQRS principles in .NET 8. This template provides a solid foundation for building maintainable, testable, and scalable applications.
 
-This repository contains implementation of enterprise software architecture patterns using a realistic Computerized Maintenance Management System (CMMS) domain. Unlike simple Todo app examples, this template demonstrates how to handle real-world complexity with proper architectural patterns.
+**Repository**: [CleanArchitecture-DDD-CQRS](https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS) on GitHub
 
-The template is designed for teams who need a pragmatic approach to Clean Architecture - one that balances best practices with practical implementation concerns. Every architectural decision is documented through Architectural Decision Records (ADRs), explaining not just what was built, but why.
+## Introduction
 
-## Key Features
+This template implements a **Computerized Maintenance Management System (CMMS)** - a domain that manages work orders, asset maintenance, and technician assignments. The CMMS domain is perfect for demonstrating DDD patterns because it has:
 
-### Clean Architecture Implementation
+- **Clear business boundaries** (Work Orders, Technicians, Assets)
+- **Complex business rules** (assignment constraints, status transitions)
+- **Rich domain models** with encapsulated behavior
+- **Real-world scenarios** that teams can relate to
 
-The template implements strict layer separation following Clean Architecture principles:
+### CMMS Domain Context
 
-- **Domain Layer**: Core business logic with no external dependencies
-- **Application Layer**: Use cases and orchestration, depends only on domain
-- **Infrastructure Layer**: External concerns like databases and messaging
-- **API Layer**: Presentation layer that depends on application
+A CMMS system manages maintenance operations for organizations:
 
-Architecture tests automatically enforce these boundaries, preventing architectural degradation over time.
+- **Assets** represent equipment, machinery, or facilities that require maintenance
+- **Work Orders** track maintenance tasks, repairs, or inspections needed for assets
+- **Technicians** are skilled workers who perform the maintenance work
+- **Assignments** connect technicians to work orders based on skills and availability
 
-### Domain-Driven Design Patterns
+The system handles the complete maintenance lifecycle: from creating work orders when issues are reported, to assigning qualified technicians, tracking progress, and completing the work.
 
-The template demonstrates DDD tactical patterns:
+## Philosophy
 
-- **Aggregates**: Encapsulate business logic and maintain invariants
-- **Value Objects**: Ensure immutability and domain constraints
-- **Domain Events**: Coordinate across aggregates without breaking boundaries
-- **Bounded Contexts**: Separate feature modules (WorkOrders, Technicians, Assets)
+This template demonstrates that Clean Architecture doesn't have to be complex. It shows how to apply DDD and CQRS pragmatically - with enough structure to maintain boundaries and enable testing, but without over-engineering or speculative abstractions.
 
-### CQRS Architecture
+### Design Principles
 
-Command Query Responsibility Segregation is implemented with clear separation:
+- **Domain-First Design** - Business logic lives in the domain, not in services
+- **Explicit Boundaries** - Each layer has a clear purpose and dependency rules
+- **Testability by Design** - Every component can be tested in isolation
+- **Pragmatic CQRS** - Separate read/write models where it adds value
+- **Architectural Governance** - Automated tests prevent boundary violations
 
-- **Write Side**: Uses EF Core with change tracking for strong consistency
-- **Read Side**: Uses Dapper for optimized queries and eventual consistency
-- **Architecture Enforcement**: Tests prevent commands from using read repositories and queries from using write repositories
+## Key Features Overview
+
+This template includes implementations of enterprise patterns:
+
+### Core Architecture
+- Clean Architecture layers with dependency inversion
+- DDD tactical patterns (Aggregates, Entities, Value Objects, Domain Events)
+- CQRS: EF Core for writes, flexible read sources (Dapper, read replicas, Redis, Elasticsearch)
+- Repository pattern with Unit of Work
+- Custom Mediator: No MediatR dependency, full control over CQRS pipeline
 
 ### Event-Driven Architecture
+- **Dual Event Handlers**: `IDomainEventHandler` (transactional) + `IIntegrationEventHandler` (async)
+- **Outbox Pattern**: Guaranteed event delivery with at-least-once semantics
+- **Cross-aggregate coordination** via domain events (per ADR-001)
 
-Dual event handler system provides flexibility for different consistency requirements:
+### Reliability & Consistency
+- Optimistic concurrency control with SQL Server RowVersion
+- Result pattern for consistent error handling
+- Pipeline behaviors (Validation, Transaction, Logging, Events)
+- Structured error export API for frontend localization
 
-- **Domain Event Handlers**: Execute synchronously within transactions for immediate consistency
-- **Integration Event Handlers**: Execute asynchronously via Outbox Pattern for eventual consistency
+### Quality & Documentation
+- **Architecture unit tests**: automated tests enforcing DDD/Clean Architecture
+- **ADRs**: Documented architectural decisions — see [Architectural Decision Records](architectural-decisions/)
+- **Unit tests** for Domain & Application layers
+- **OpenAPI** with versioning
+- **Integration tests**: Testcontainers-based end-to-end scenarios 
 
-This separation makes it explicit when you need ACID guarantees versus when eventual consistency is acceptable.
+## Architecture Overview
 
-### Outbox Pattern
+![System Architecture Overview](https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS/raw/main/docs/diagrams/Overview.png)
 
-Complete implementation of the Transactional Outbox Pattern:
+### CQRS Flow with Events
 
-- Integration events written to database within command transaction
-- Background processor handles delivery with retry logic
-- Dead letter queue for failed events
-- Survives application restarts
-- At-least-once delivery semantics
+**Write Path (Commands):**
 
-The implementation is ready to evolve from in-process handlers to message bus integration (RabbitMQ, Azure Service Bus) without changing the core abstraction.
+![Command Flow](https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS/raw/main/docs/diagrams/CommandFlow.png)
 
-### Architecture Tests
+Shows a write path from command through handler, domain events, transactional handlers, integration event handlers, outbox pattern, and background worker.
 
-Automated tests enforce architectural rules:
+**Read Path (Queries):**
 
-- Layer dependency rules (Application cannot depend on Infrastructure)
-- CQRS boundary enforcement (Queries cannot use write repositories)
-- Aggregate encapsulation (Internal domain types, proper constructors)
-- Value object immutability
-- Error management structure
+![Query Flow](https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS/raw/main/docs/diagrams/QueryFlow.png)
 
-These tests run in CI/CD and catch violations before code review.
+Shows the flexible read path supporting multiple data sources (Read Replica, Redis Cache, Elasticsearch, Dapper) with eventual consistency.
 
-### Error Management System
+**Command Sequence Diagram:**
 
-Structured error management with attribute-based discovery:
-
-- Domain errors and application errors clearly separated
-- Export API for frontend localization
-- Stable error codes across versions
-- Architecture tests ensure proper usage
-
-## Architecture Diagrams
-
-Visual representations of the system architecture:
-
-- [System Overview](diagrams/Overview.png) - High-level architecture
-- [Command Flow](diagrams/CommandFlow.png) - Write path with events
-- [Query Flow](diagrams/QueryFlow.png) - Read path with multiple sources
-- [Command Sequence](diagrams/CommandSequenceDiagram.svg) - Detailed sequence diagram
-
-## Architectural Decision Records
-
-Six documented architectural decisions explain the reasoning behind key choices:
-
-1. **[ADR-001: Cross-Aggregate Coordination](architectural-decisions/ADR-001-cross-aggregate-coordination.md)** - Why domain events for coordination
-2. **[ADR-002: Optimistic Concurrency Control](architectural-decisions/ADR-002-optimistic-concurrency-control.md)** - RowVersion pattern implementation
-3. **[ADR-003: Domain Events vs Integration Events](architectural-decisions/ADR-003-domain-vs-integration-events.md)** - When to use each type
-4. **[ADR-004: Outbox Pattern](architectural-decisions/ADR-004-outbox-pattern.md)** - Guaranteed delivery implementation
-5. **[ADR-005: Error Management System](architectural-decisions/ADR-005-error-management-system.md)** - Attribute-based error handling
-6. **[ADR-006: Unobtrusive Mode](architectural-decisions/ADR-006-unobtrusive-mode-integration-events.md)** - Message conventions for events
-
-Each ADR documents the problem, considered options, decision, and consequences.
+![Command Sequence Diagram](https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS/raw/main/docs/diagrams/CommandSequenceDiagram.svg)
 
 ## Quick Start
 
-### Using Docker Compose
+### Option 1: Docker Compose (Recommended)
 
-The fastest way to get started:
+The easiest way to run the application with all dependencies:
 
 ```bash
 git clone https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS.git
@@ -122,11 +112,15 @@ cd CleanArchitecture-DDD-CQRS
 docker-compose up
 ```
 
-This sets up SQL Server, runs migrations, and starts the API automatically.
+**What's included:**
+- SQL Server 2022 container with automatic setup
+- API service
+- Automatic database migrations and seeding
+- Access APIs
 
-### Local Development
+### Option 2: Local Development
 
-For local development:
+Run the API locally with your own SQL Server instance:
 
 ```bash
 git clone https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS.git
@@ -134,100 +128,118 @@ cd CleanArchitecture-DDD-CQRS
 dotnet run --project src/CleanArchitecture.Cmms.Api
 ```
 
-The application automatically creates the database and runs migrations on first startup.
+The application automatically creates databases, runs migrations, and seeds initial data on first run.
 
 ### Explore the API
 
-Once running, access Swagger UI at `http://localhost:5000/swagger` to:
-
-- Create work orders
-- Assign technicians
-- Complete work orders
+Open Swagger UI and try the endpoints:
+- Create a work order
+- Assign a technician
+- Complete the work order
 - Observe domain events and integration events in action
 
-## Testing
+## Architecture Tests
 
-The template includes comprehensive test coverage:
+The template includes many **architecture tests** that automatically enforce DDD principles and Clean Architecture boundaries. New team members can work confidently - architectural violations are caught at automated unit tests.
 
-- **Unit Tests**: Domain logic and application handlers
-- **Architecture Tests**: Enforce architectural boundaries
-- **Integration Tests**: End-to-end scenarios with Testcontainers
+### Domain Layer Protection
 
-Run all tests:
+**Immutability & Encapsulation:**
+- `ValueObjects_Should_Be_Immutable` - No public setters allowed
+- `ValueObjects_Should_Be_Sealed` - Prevents inheritance and maintains invariants
+- `Aggregates_Should_Have_Internal_Or_Private_Constructors` - Enforces factory methods
+
+**Type Safety:**
+- `DomainEvents_Should_Be_Sealed_And_EndWith_Event` - Naming conventions enforced
+- `Domain_Types_Should_Be_Internal` - Prevents domain leakage to outer layers
+- `Domain_Should_Not_Depend_On_Other_Layers` - Dependency rule enforcement
+
+### Application Layer Boundaries
+
+**Layer Isolation:**
+- `Application_Should_Not_Depend_On_Infrastructure_Or_Api` - Clean Architecture enforcement
+- `Commands_And_Queries_Should_Be_Immutable` - CQRS contracts are immutable
+
+**Read/Write Separation:**
+- `QueryHandlers_Should_Not_Use_IRepository` - Queries forbidden from using write-side repositories
+- `CommandHandlers_Should_Not_Use_IReadRepository` - Commands forbidden from using read-side repositories
+
+**Why:** Enforces CQRS separation at compile-time, prevents accidental coupling
+
+## Architectural Decision Records
+
+This template implements several architectural patterns based on Domain-Driven Design and Clean Architecture principles.
+
+- **[ADR-001: Cross-Aggregate Coordination Pattern](https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS/blob/main/docs/architectural-decisions/ADR-001-cross-aggregate-coordination.md)** - Domain events for coordinating operations across aggregates
+- **[ADR-002: Optimistic Concurrency Control](https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS/blob/main/docs/architectural-decisions/ADR-002-optimistic-concurrency-control.md)** - RowVersion pattern to prevent race conditions
+- **[ADR-003: Domain Events vs Integration Events](https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS/blob/main/docs/architectural-decisions/ADR-003-domain-vs-integration-events.md)** - Dual handler system for different consistency requirements
+- **[ADR-004: Outbox Pattern for Guaranteed Delivery](https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS/blob/main/docs/architectural-decisions/ADR-004-outbox-pattern.md)** - Transactional Outbox Pattern with background processor
+- **[ADR-005: Attribute-Based Error Management System](https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS/blob/main/docs/architectural-decisions/ADR-005-error-management-system.md)** - Centralized error management with attribute-based discovery
+- **[ADR-006: Unobtrusive Mode for Integration Events](https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS/blob/main/docs/architectural-decisions/ADR-006-unobtrusive-mode-integration-events.md)** - Message conventions for discovering integration events
+
+These ADRs document the "why" behind architectural decisions, with implementation details visible in the codebase.
+
+## Testing Strategy
+
+### Unit Tests
 ```bash
+# Run all tests
 dotnet test
+
+# Run specific test categories
+dotnet test --filter "Category=Domain"
+dotnet test --filter "Category=Application"
 ```
 
-Run architecture tests only:
-```bash
-dotnet test --filter "Category=Architecture"
+### Test Categories
+- **Domain Tests** - Business logic and rules
+- **Application Tests** - Command/Query handlers
+- **Architecture Tests** - Boundary enforcement
+- **Integration Tests** - End-to-end scenarios
+
+## Project Structure
+
 ```
+src/
+├── core/                                  # Core Framework
+│   ├── CleanArchitecture.Core.Application
+│   └── CleanArchitecture.Core.Domain
+│
+├── CleanArchitecture.Cmms.Domain/          # Domain Layer
+├── CleanArchitecture.Cmms.Application/   # Application Layer
+├── CleanArchitecture.Cmms.Infrastructure/ # Infrastructure Layer
+│
+├── outbox/                                # Outbox Pattern
+│   ├── CleanArchitecture.Outbox.Abstractions
+│   └── CleanArchitecture.Outbox
+│
+└── CleanArchitecture.Cmms.Api/            # API Layer
 
-## Domain Example: CMMS System
-
-The template uses a Computerized Maintenance Management System as the domain example. This domain was chosen because it:
-
-- Has clear business boundaries (Work Orders, Technicians, Assets)
-- Requires complex business rules (assignment constraints, status transitions)
-- Needs rich domain models with encapsulated behavior
-- Demonstrates real-world scenarios teams encounter
-
-### Domain Entities
-
-**Assets**: Equipment or machinery requiring maintenance. Assets have maintenance schedules and operational status.
-
-**Work Orders**: Maintenance tasks, repairs, or inspections for assets. Work orders track priority, status, and assignment.
-
-**Technicians**: Skilled workers who perform maintenance. Technicians have skill sets and capacity constraints.
-
-**Assignments**: Connect technicians to work orders based on skills and availability.
-
-This domain complexity requires proper DDD patterns, making it a better learning example than trivial applications.
-
-## What Makes This Different
-
-Most architecture templates are either too simple (Todo apps that don't need DDD) or too complex (over-engineered with unnecessary abstractions). This template:
-
-- Uses a realistic domain that actually requires the patterns demonstrated
-- Includes complete implementations, not just placeholders
-- Documents decisions through ADRs
-- Enforces architecture through automated tests
-- Balances best practices with pragmatism
-
-## Use Cases
-
-This template is valuable for:
-
-- **New Projects**: Skip the architecture debate and start with a solid foundation
-- **Learning DDD/CQRS**: See patterns applied to real complexity
-- **Team Onboarding**: Architecture tests teach constraints automatically
-- **Pattern Evaluation**: Understand how different patterns work together
-
-## Technology Stack
-
-- **.NET 8**: Latest framework features
-- **EF Core**: Write-side data access with change tracking
-- **Dapper**: Read-side optimized queries
-- **SQL Server**: Database with RowVersion for concurrency
-- **Testcontainers**: Integration testing with real databases
-- **xUnit**: Testing framework
-- **FluentValidation**: Input validation
+tests/
+├── CleanArchitecture.Cmms.Domain.UnitTests/
+├── CleanArchitecture.Cmms.Application.UnitTests/
+├── CleanArchitecture.Cmms.Infrastructure.UnitTests/
+└── CleanArchitecture.Cmms.IntegrationTests/
+```
 
 ## Contributing
 
-Contributions are welcome. Please see the [Contributing Guidelines](https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS/blob/main/CONTRIBUTING.md) for details.
+We welcome contributions! Please see our [Contributing Guidelines](https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS/blob/main/CONTRIBUTING.md) for details.
 
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS/blob/main/LICENSE) file for details.
 
-## Repository
+## Repository Links
 
-**GitHub**: [CleanArchitecture-DDD-CQRS](https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS)
+- **GitHub Repository**: [CleanArchitecture-DDD-CQRS](https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS)
+- **Architectural Decision Records**: [docs/architectural-decisions/](https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS/tree/main/docs/architectural-decisions)
+- **Architecture Diagrams**: [docs/diagrams/](https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS/tree/main/docs/diagrams)
 
-If you find this template useful, please give it a star on GitHub. It helps others discover better approaches to building .NET applications.
+## Give it a Star
+
+If this template helped you or your team, please consider giving it a star on [GitHub](https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS)! It helps others discover this project and motivates continued development.
 
 ---
 
-**Built for developers, by developers. Practical patterns for real-world applications.**
-
+**Built for the .NET community**
