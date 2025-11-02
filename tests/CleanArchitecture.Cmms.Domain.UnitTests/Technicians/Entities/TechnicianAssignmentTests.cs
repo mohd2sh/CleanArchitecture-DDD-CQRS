@@ -1,44 +1,43 @@
 using CleanArchitecture.Cmms.Domain.Technicians.Entities;
 
-namespace CleanArchitecture.Cmms.Domain.UnitTests.Technicians.Entities
+namespace CleanArchitecture.Cmms.Domain.UnitTests.Technicians.Entities;
+
+public class TechnicianAssignmentTests
 {
-    public class TechnicianAssignmentTests
+    [Fact]
+    public void Create_Should_Set_Properties()
     {
-        [Fact]
-        public void Create_Should_Set_Properties()
-        {
-            // Arrange
-            var workOrderId = Guid.NewGuid();
-            var assignedOn = DateTime.UtcNow;
+        // Arrange
+        var workOrderId = Guid.NewGuid();
+        var assignedOn = DateTime.UtcNow;
 
-            // Act
-            var assignment = TechnicianAssignment.Create(workOrderId, assignedOn);
+        // Act
+        var assignment = TechnicianAssignment.Create(workOrderId, assignedOn);
 
-            // Assert
-            Assert.Equal(workOrderId, assignment.WorkOrderId);
-            Assert.Equal(assignedOn, assignment.AssignedOn);
-            Assert.False(assignment.IsCompleted);
-            Assert.Null(assignment.CompletedOn);
-        }
+        // Assert
+        Assert.Equal(workOrderId, assignment.WorkOrderId);
+        Assert.Equal(assignedOn, assignment.AssignedOn);
+        Assert.False(assignment.IsCompleted);
+        Assert.Null(assignment.CompletedOn);
+    }
 
-        [Fact]
-        public void CompleteAssignment_Should_Set_CompletedOn_And_Be_Idempotent()
-        {
-            // Arrange
-            var workOrderId = Guid.NewGuid();
-            var assignedOn = DateTime.UtcNow.AddMinutes(-5);
-            var assignment = TechnicianAssignment.Create(workOrderId, assignedOn);
-            var completedOn = DateTime.UtcNow;
+    [Fact]
+    public void CompleteAssignment_Should_Set_CompletedOn_And_Be_Idempotent()
+    {
+        // Arrange
+        var workOrderId = Guid.NewGuid();
+        var assignedOn = DateTime.UtcNow.AddMinutes(-5);
+        var assignment = TechnicianAssignment.Create(workOrderId, assignedOn);
+        var completedOn = DateTime.UtcNow;
 
-            // Act
-            assignment.CompleteAssignment(completedOn);
-            var firstCompletedOn = assignment.CompletedOn;
-            assignment.CompleteAssignment(completedOn.AddMinutes(1)); // idempotent, should not change
+        // Act
+        assignment.CompleteAssignment(completedOn);
+        var firstCompletedOn = assignment.CompletedOn;
+        assignment.CompleteAssignment(completedOn.AddMinutes(1)); // idempotent, should not change
 
-            // Assert
-            Assert.True(assignment.IsCompleted);
-            Assert.Equal(completedOn, firstCompletedOn);
-            Assert.Equal(firstCompletedOn, assignment.CompletedOn);
-        }
+        // Assert
+        Assert.True(assignment.IsCompleted);
+        Assert.Equal(completedOn, firstCompletedOn);
+        Assert.Equal(firstCompletedOn, assignment.CompletedOn);
     }
 }

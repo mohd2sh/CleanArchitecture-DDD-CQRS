@@ -1,90 +1,89 @@
-﻿using CleanArchitecture.Cmms.Domain.Assets;
+using CleanArchitecture.Cmms.Domain.Assets;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace CleanArchitecture.Cmms.Infrastructure.Persistence.Configurations
+namespace CleanArchitecture.Cmms.Infrastructure.Persistence.Configurations;
+
+internal sealed class AssetConfiguration : AuditableEntityConfiguration<Asset, Guid>
 {
-    internal sealed class AssetConfiguration : AuditableEntityConfiguration<Asset, Guid>
+    protected override void ConfigureCore(EntityTypeBuilder<Asset> builder)
     {
-        protected override void ConfigureCore(EntityTypeBuilder<Asset> builder)
+        var schema = "assets";
+
+        builder.ToTable("Assets", schema);
+
+        builder.HasKey(a => a.Id);
+
+        builder.Property(a => a.Name)
+               .IsRequired()
+               .HasMaxLength(200);
+
+        builder.Property(a => a.Type)
+               .IsRequired()
+               .HasMaxLength(100);
+
+        builder.Property(a => a.Status)
+               .HasConversion<string>()
+               .IsRequired();
+
+        // Value Object: AssetTag
+        builder.OwnsOne(a => a.Tag, tag =>
         {
-            var schema = "assets";
+            tag.Property(t => t.Value)
+               .HasColumnName("Tag")
+               .HasMaxLength(100)
+               .IsRequired();
+        });
 
-            builder.ToTable("Assets", schema);
+        // Value Object: AssetLocation
+        builder.OwnsOne(a => a.Location, location =>
+        {
+            location.Property(l => l.Site)
+                    .HasColumnName("Site")
+                    .HasMaxLength(100)
+                    .IsRequired();
 
-            builder.HasKey(a => a.Id);
+            location.Property(l => l.Area)
+                    .HasColumnName("Area")
+                    .HasMaxLength(100)
+                    .IsRequired();
 
-            builder.Property(a => a.Name)
-                   .IsRequired()
-                   .HasMaxLength(200);
+            location.Property(l => l.Zone)
+                    .HasColumnName("Zone")
+                    .HasMaxLength(100)
+                    .IsRequired();
+        });
 
-            builder.Property(a => a.Type)
-                   .IsRequired()
-                   .HasMaxLength(100);
+        builder.OwnsMany(a => a.MaintenanceRecords, record =>
+        {
+            record.ToTable("MaintenanceRecords", schema);
 
-            builder.Property(a => a.Status)
-                   .HasConversion<string>()
-                   .IsRequired();
+            record.WithOwner().HasForeignKey("AssetId");
+            record.HasKey("Id");
 
-            // Value Object: AssetTag
-            builder.OwnsOne(a => a.Tag, tag =>
-            {
-                tag.Property(t => t.Value)
-                   .HasColumnName("Tag")
-                   .HasMaxLength(100)
-                   .IsRequired();
-            });
+            record.Property(r => r.Id)
+                  .ValueGeneratedNever();
 
-            // Value Object: AssetLocation
-            builder.OwnsOne(a => a.Location, location =>
-            {
-                location.Property(l => l.Site)
-                        .HasColumnName("Site")
-                        .HasMaxLength(100)
-                        .IsRequired();
+            record.Property(r => r.AssetId)
+                  .IsRequired();
 
-                location.Property(l => l.Area)
-                        .HasColumnName("Area")
-                        .HasMaxLength(100)
-                        .IsRequired();
+            record.Property(r => r.StartedOn)
+                  .IsRequired();
 
-                location.Property(l => l.Zone)
-                        .HasColumnName("Zone")
-                        .HasMaxLength(100)
-                        .IsRequired();
-            });
+            record.Property(r => r.Description)
+                  .HasMaxLength(500)
+                  .IsRequired();
 
-            builder.OwnsMany(a => a.MaintenanceRecords, record =>
-            {
-                record.ToTable("MaintenanceRecords", schema);
+            record.Property(r => r.PerformedBy)
+                  .HasMaxLength(150)
+                  .IsRequired();
 
-                record.WithOwner().HasForeignKey("AssetId");
-                record.HasKey("Id");
+            record.HasIndex("AssetId");
+        });
 
-                record.Property(r => r.Id)
-                      .ValueGeneratedNever();
-
-                record.Property(r => r.AssetId)
-                      .IsRequired();
-
-                record.Property(r => r.StartedOn)
-                      .IsRequired();
-
-                record.Property(r => r.Description)
-                      .HasMaxLength(500)
-                      .IsRequired();
-
-                record.Property(r => r.PerformedBy)
-                      .HasMaxLength(150)
-                      .IsRequired();
-
-                record.HasIndex("AssetId");
-            });
-
-            builder.Navigation(a => a.MaintenanceRecords)
-                   .Metadata.SetField("_maintenanceRecords");
-            builder.Navigation(a => a.MaintenanceRecords)
-                   .UsePropertyAccessMode(PropertyAccessMode.Field);
-        }
+        builder.Navigation(a => a.MaintenanceRecords)
+               .Metadata.SetField("_maintenanceRecords");
+        builder.Navigation(a => a.MaintenanceRecords)
+               .UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CleanArchitecture.Outbox.Migrations
 {
     [DbContext(typeof(OutboxDbContext))]
-    [Migration("20251019214823_AddOutboxTable")]
-    partial class AddOutboxTable
+    [Migration("20251101193359_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -62,10 +62,52 @@ namespace CleanArchitecture.Outbox.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ProcessedAt", "CreatedAt")
+                    b.HasIndex("ProcessedAt", "RetryCount", "CreatedAt")
                         .HasFilter("[ProcessedAt] IS NULL");
 
                     b.ToTable("OutboxMessages", (string)null);
+                });
+
+            modelBuilder.Entity("CleanArchitecture.Outbox.Persistence.DeadLetterMessage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("EventType")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("LastError")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<int>("MaxRetries")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(3);
+
+                    b.Property<DateTime>("MovedToDeadLetterAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Payload")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("RetryCount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MovedToDeadLetterAt");
+
+                    b.ToTable("DeadLetterMessages", (string)null);
                 });
 #pragma warning restore 612, 618
         }

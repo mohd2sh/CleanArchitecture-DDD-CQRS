@@ -1,5 +1,10 @@
 # Clean Architecture DDD CQRS Template
 
+![Integration Tests](https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS/actions/workflows/integration-tests.yml/badge.svg)
+![Outbox Integration Tests](https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS/actions/workflows/outbox-integration-tests.yml/badge.svg)
+![Unit & Architecture Tests](https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS/actions/workflows/dotnet-test.yml/badge.svg)
+![Docker Build](https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS/actions/workflows/docker-build.yml/badge.svg)
+
 A ready template demonstrating Clean Architecture, Domain-Driven Design (DDD), and CQRS principles in .NET 8. This template provides a solid foundation for building maintainable, testable, and scalable applications.
 
 ## Introduction
@@ -37,34 +42,32 @@ This template demonstrates that Clean Architecture doesn't have to be complex. I
 
 ## Key Features Overview
 
-This template includes production-ready implementations of enterprise patterns:
+This template includes implementations of enterprise patterns:
 
 ### Core Architecture
 - Clean Architecture layers with dependency inversion
 - DDD tactical patterns (Aggregates, Entities, Value Objects, Domain Events)
-- **CQRS**: EF Core for writes, flexible read sources (Dapper, read replicas, Redis, Elasticsearch)
+- CQRS: EF Core for writes, flexible read sources (Dapper, read replicas, Redis, Elasticsearch)
 - Repository pattern with Unit of Work
-- **Custom Mediator**: No MediatR dependency, full control over CQRS pipeline
+- Custom Mediator: No MediatR dependency, full control over CQRS pipeline
 
 ### Event-Driven Architecture
 - **Dual Event Handlers**: `IDomainEventHandler` (transactional) + `IIntegrationEventHandler` (async)
 - **Outbox Pattern**: Guaranteed event delivery with at-least-once semantics
 - **Cross-aggregate coordination** via domain events (per ADR-001)
-- Background processor for integration event delivery
 
 ### Reliability & Consistency
-- **Optimistic concurrency control** with SQL Server RowVersion
+- Optimistic concurrency control with SQL Server RowVersion
 - Result pattern for consistent error handling
 - Pipeline behaviors (Validation, Transaction, Logging, Events)
 - Structured error export API for frontend localization
 
 ### Quality & Documentation
 - **Architecture unit tests**: automated tests enforcing DDD/Clean Architecture
-- **ADRs**: Documented architectural decisions — start with `docs/architectural-decisions/`
-- Unit tests for Domain & Application layers
-- Swagger/OpenAPI with versioning
+- **ADRs**: Documented architectural decisions — see [Architectural Decision Records](docs/architectural-decisions/)
+- **Unit tests** for Domain & Application layers
+- **OpenAPI** with versioning
 - **Integration tests**: Testcontainers-based end-to-end scenarios 
-- Docker Compose with SQL Server 2022
 
 ## Architecture Overview
 
@@ -76,13 +79,17 @@ This template includes production-ready implementations of enterprise patterns:
 
 ![Command Flow](docs/diagrams/CommandFlow.png)
 
-Shows the complete write path from command through handler, domain events, transactional handlers, integration event handlers, outbox pattern, and background worker.
+Shows a write path from command through handler, domain events, transactional handlers, integration event handlers, outbox pattern, and background worker.
 
 **Read Path (Queries):**
 
 ![Query Flow](docs/diagrams/QueryFlow.png)
 
 Shows the flexible read path supporting multiple data sources (Read Replica, Redis Cache, Elasticsearch, Dapper) with eventual consistency.
+
+**Command Sequence Diagram:**
+
+![Command Sequence Diagram](docs/diagrams/CommandSequenceDiagram.svg)
 
 ## Core Patterns Explained
 
@@ -119,7 +126,7 @@ The template implements a dual event handler system with guaranteed delivery via
 #### IDomainEventHandler (Transactional Events)
 
 **Characteristics:**
-- Executes **synchronously** within the same transaction
+- Executes within the same transaction
 - Modifies aggregate state via repositories
 - Changes committed atomically with the command
 - Failure causes transaction rollback
@@ -145,7 +152,7 @@ public class WorkOrderCreatedEventHandler : IDomainEventHandler<WorkOrderCreated
 #### IIntegrationEventHandler (Asynchronous Events)
 
 **Characteristics:**
-- Executes **asynchronously** via Outbox Pattern
+- Executes via Outbox Pattern (outside the command scoped)
 - Written to outbox table in same transaction as command
 - Background processor handles delivery
 - Guaranteed delivery with automatic retry
@@ -172,6 +179,13 @@ public class EmailWorkOrderCompletedHandler : IIntegrationEventHandler<WorkOrder
 
 #### Outbox Pattern Implementation
 
+**Current Implementation (Simple):**
+The current implementation uses a simple, in-process approach:
+- EF Core-based `EfCoreOutboxStore` implements `IOutboxStore` abstraction
+- In-process event handlers via background worker
+- SQL Server database table for persistence
+- Straightforward polling-based processor
+
 **How It Works:**
 1. Integration events written to `Outbox` table within command's transaction
 2. Background processor polls outbox for unprocessed events
@@ -186,14 +200,17 @@ public class EmailWorkOrderCompletedHandler : IIntegrationEventHandler<WorkOrder
 -  At-least-once delivery semantics
 -  Production-ready reliability
 
+
 **Migration Path to Microservices:**
 ```csharp
-// Today (Monolith)
-IntegrationEvent → Outbox Table → Background Worker → Handlers
+// Default Implementation (In-Process)
+IntegrationEvent → IOutboxStore (EF Core) → Background Worker → Handlers
 
-// Tomorrow (Microservices)
-IntegrationEvent → Outbox Table → Background Worker → Message Bus (RabbitMQ) → External Services
+// Microservices (Same Abstraction)
+IntegrationEvent → IOutboxStore → Message Bus → External Services 
 ```
+
+**Note:** This template works for both single-process deployments and microservices architectures. For microservices, you might consider 3rd party libraries for cross-cutting concerns (Saga, send/receive messages, bus integration) or build them custom.
 
 #### Decision Flowchart: Which Handler to Use?
 
@@ -215,7 +232,7 @@ This template implements **optimistic concurrency control** using SQL Server's `
 
 **RowVersion Implementation:**
 ```csharp
-// Domain/Abstractions/AggregateRoot.cs
+// Core/Domain/Abstractions/AggregateRoot.cs
 public abstract class AggregateRoot<TId> : AuditableEntity<TId>, IAggregateRoot
 {
     [Timestamp]
@@ -238,7 +255,7 @@ builder.Property(e => e.RowVersion)
 
 ### Error Management System
 
-The template implements a comprehensive error management system with attribute-based discovery, export capability, and architecture testing.
+The template implements error management system with attribute-based discovery, export capability, and architecture testing. See **[ADR-005: Attribute-Based Error Management System](docs/architectural-decisions/ADR-005-error-management-system.md)**.
 
 **Domain Layer Errors:**
 ```csharp
@@ -297,7 +314,7 @@ WriteDbContext (EF Core) + ReadDbContext (Dapper)
 
 ### 3. Result Pattern Over Exceptions
 ```csharp
-return Result.Failure("Asset not found");
+ public static implicit operator Result<T>(Error error)
 ```
 **Why:** Business rule violations aren't exceptional - they're expected business outcomes.
 
@@ -365,39 +382,39 @@ WorkOrders/ | Technicians/ | Assets/
 ```
 **Why:** Features isolated, preventing cross-domain coupling.
 
+### 11. Integration Tests with Testcontainers
+```csharp
+public sealed class CmmsWebApplicationFactory : WebApplicationFactory<Program>
+{
+    private readonly MsSqlContainer _sqlServerContainer;
+    // Testcontainers-based SQL Server instance
+}
+```
+**Why:** End-to-end tests with real database (Testcontainers), full application stack (WebApplicationFactory), and database cleanup (Respawn) ensure system behavior matches production. Tests cover API endpoints, event flows, transaction consistency, and cross-aggregate coordination scenarios.
+
 ## Project Structure
 
 ```
 src/
+├── core/                                  # Core Framework
+│   ├── CleanArchitecture.Core.Application
+│   └── CleanArchitecture.Core.Domain
+│
 ├── CleanArchitecture.Cmms.Domain/          # Domain Layer
-│   ├── Abstractions/                      # Base classes and interfaces
-│   ├── WorkOrders/                        # Work Order aggregate
-│   ├── Technicians/                       # Technician aggregate
-│   └── Assets/                           # Asset aggregate
-│
-├── CleanArchitecture.Cmms.Application/     # Application Layer
-│   ├── Abstractions/                      # Interfaces and contracts
-│   ├── WorkOrders/                        # Work Order use cases
-│   │   ├── Commands/                      # Write operations
-│   │   ├── Queries/                       # Read operations
-│   │   └── Dtos/                         # Data transfer objects
-│   ├── Behaviors/                        # Pipeline behaviors
-│   └── Primitives/                       # Result, Pagination, etc.
-│
+├── CleanArchitecture.Cmms.Application/   # Application Layer
 ├── CleanArchitecture.Cmms.Infrastructure/ # Infrastructure Layer
-│   ├── Persistence/                       # Database contexts
-│   ├── Repositories/                      # Repository implementations
-│   └── Messaging/                        # MediatR adapter
 │
-├── CleanArchitecture.Cmms.Outbox/         # Outbox Pattern
-│   ├── Abstractions/                      # IOutboxStore interface
-│   ├── Persistence/                       # OutboxDbContext
-│   └── Processing/                        # Background processor
+├── outbox/                                # Outbox Pattern
+│   ├── CleanArchitecture.Outbox.Abstractions
+│   └── CleanArchitecture.Outbox
 │
-└── CleanArchitecture.Cmms.Api/           # API Layer
-    ├── Controllers/                       # API endpoints
-    ├── Middlewares/                      # Exception handling
-    └── Filters/                          # Result mapping
+└── CleanArchitecture.Cmms.Api/            # API Layer
+
+tests/
+├── CleanArchitecture.Cmms.Domain.UnitTests/
+├── CleanArchitecture.Cmms.Application.UnitTests/
+├── CleanArchitecture.Cmms.Infrastructure.UnitTests/
+└── CleanArchitecture.Cmms.IntegrationTests/
 ```
 
 ## Testing Strategy
@@ -420,7 +437,7 @@ dotnet test --filter "Category=Application"
 
 ## Architecture Tests
 
-The template includes **15+ architecture tests** that automatically enforce DDD principles and Clean Architecture boundaries. New team members can work confidently - architectural violations are caught at automated unit tests.
+The template includes many **architecture tests** that automatically enforce DDD principles and Clean Architecture boundaries. New team members can work confidently - architectural violations are caught at automated unit tests.
 
 ### Domain Layer Protection
 
@@ -469,7 +486,7 @@ The template includes **15+ architecture tests** that automatically enforce DDD 
 
 **For New Developers:**
 - No need to memorize architectural rules
-- Violations caught immediately during development
+- Violations caught immediately during development and PRs
 - Clear error messages explain what's wrong
 
 **For Teams:**
@@ -505,6 +522,10 @@ This template implements several architectural patterns based on Domain-Driven D
 
 - **[ADR-004: Outbox Pattern for Guaranteed Delivery](docs/architectural-decisions/ADR-004-outbox-pattern.md)** - **IMPLEMENTED** - Transactional Outbox Pattern with background processor for reliable, guaranteed delivery of integration events with at-least-once semantics.
 
+- **[ADR-005: Attribute-Based Error Management System](docs/architectural-decisions/ADR-005-error-management-system.md)** - **IMPLEMENTED** - Centralized error management with attribute-based discovery, export API for frontend localization, and architecture test enforcement.
+
+- **[ADR-006: Unobtrusive Mode for Integration Events](docs/architectural-decisions/ADR-006-unobtrusive-mode-integration-events.md)** - **IMPLEMENTED** - Message conventions (unobtrusive mode) for discovering integration events.
+
 These ADRs document the "why" behind architectural decisions, with implementation details visible in the codebase.
 
 
@@ -520,8 +541,8 @@ These ADRs document the "why" behind architectural decisions, with implementatio
 The easiest way to run the application with all dependencies:
 
 ```bash
-git clone https://github.com/mohd2sh/Company.Cmms.git
-cd Company.Cmms
+git clone https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS.git
+cd CleanArchitecture-DDD-CQRS
 docker-compose up
 ```
 
@@ -536,8 +557,8 @@ docker-compose up
 Run the API locally with your own SQL Server instance:
 
 ```bash
-git clone https://github.com/mohd2sh/Company.Cmms.git
-cd Company.Cmms
+git clone https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS.git
+cd CleanArchitecture-DDD-CQRS
 dotnet run --project src/CleanArchitecture.Cmms.Api
 ```
 
@@ -556,15 +577,14 @@ Open Swagger UI and try the endpoints:
 
 We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
 
-## Give it a Star
+## ⭐ Give it a Star
 
 If this template helped you or your team, please consider giving it a star! It helps others discover this project and motivates continued development.
-
-[![GitHub stars](https://img.shields.io/github/stars/mohd2sh/CleanArchitecture-DDD-CQRS?style=social)](https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS/stargazers)
 
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
 ---
 
 **Built for the .NET community**

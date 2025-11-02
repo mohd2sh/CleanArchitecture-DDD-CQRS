@@ -3,29 +3,28 @@ using CleanArchitecture.Cmms.Domain.Assets.ValueObjects;
 using CleanArchitecture.Core.Application.Abstractions.Common;
 using CleanArchitecture.Core.Application.Abstractions.Persistence.Repositories;
 
-namespace CleanArchitecture.Cmms.Application.Assets.Commands.CreateAsset
+namespace CleanArchitecture.Cmms.Application.Assets.Commands.CreateAsset;
+
+internal sealed class CreateAssetCommandHandler
+ : ICommandHandler<CreateAssetCommand, Result<Guid>>
 {
-    internal sealed class CreateAssetCommandHandler
-     : ICommandHandler<CreateAssetCommand, Result<Guid>>
+    private readonly IRepository<Asset, Guid> _repository;
+
+    public CreateAssetCommandHandler(IRepository<Asset, Guid> repository)
     {
-        private readonly IRepository<Asset, Guid> _repository;
+        _repository = repository;
+    }
 
-        public CreateAssetCommandHandler(IRepository<Asset, Guid> repository)
-        {
-            _repository = repository;
-        }
+    public async Task<Result<Guid>> Handle(CreateAssetCommand request, CancellationToken cancellationToken = default)
+    {
 
-        public async Task<Result<Guid>> Handle(CreateAssetCommand request, CancellationToken cancellationToken = default)
-        {
+        var tag = AssetTag.Create(request.TagCode);
+        var location = AssetLocation.Create(request.Site, request.Area, request.Zone);
 
-            var tag = AssetTag.Create(request.TagCode);
-            var location = AssetLocation.Create(request.Site, request.Area, request.Zone);
+        var asset = Asset.Create(request.Name, request.Type, tag, location);
 
-            var asset = Asset.Create(request.Name, request.Type, tag, location);
+        await _repository.AddAsync(asset, cancellationToken);
 
-            await _repository.AddAsync(asset, cancellationToken);
-
-            return asset.Id;
-        }
+        return asset.Id;
     }
 }

@@ -1,38 +1,37 @@
 using CleanArchitecture.Cmms.Domain.Technicians.Events;
 
-namespace CleanArchitecture.Cmms.Domain.UnitTests.Technicians.Events
+namespace CleanArchitecture.Cmms.Domain.UnitTests.Technicians.Events;
+
+public class TechnicianAssignedToWorkOrderEventTests
 {
-    public class TechnicianAssignedToWorkOrderEventTests
+    [Fact]
+    public void Ctor_Should_Set_Properties_And_Default_Null_Timestamp()
     {
-        [Fact]
-        public void Ctor_Should_Set_Properties_And_Default_Null_Timestamp()
-        {
-            // Arrange
-            var technicianId = Guid.NewGuid();
-            var workOrderId = Guid.NewGuid();
+        // Arrange
+        var technicianId = Guid.NewGuid();
+        var workOrderId = Guid.NewGuid();
 
-            // Act
-            var domainEvent = new TechnicianAssignedToWorkOrderEvent(technicianId, workOrderId);
+        // Act
+        var domainEvent = new TechnicianAssignedToWorkOrderEvent(technicianId, workOrderId);
 
-            // Assert
-            Assert.Equal(technicianId, domainEvent.TechnicianId);
-            Assert.Equal(workOrderId, domainEvent.WorkOrderId);
-            Assert.Null(domainEvent.OccurredOn);
-        }
+        // Assert
+        Assert.Equal(technicianId, domainEvent.TechnicianId);
+        Assert.Equal(workOrderId, domainEvent.WorkOrderId);
+        Assert.Null(domainEvent.OccurredOn);
+    }
 
-        [Fact]
-        public void Ctor_Should_Respect_Provided_Timestamp()
-        {
-            // Arrange
-            var technicianId = Guid.NewGuid();
-            var workOrderId = Guid.NewGuid();
-            var providedTimestamp = DateTime.UtcNow;
+    [Fact]
+    public void Ctor_Should_Respect_Provided_Timestamp()
+    {
+        // Arrange
+        var technicianId = Guid.NewGuid();
+        var workOrderId = Guid.NewGuid();
+        var providedTimestamp = DateTime.UtcNow;
 
-            // Act
-            var domainEvent = new TechnicianAssignedToWorkOrderEvent(technicianId, workOrderId, providedTimestamp);
+        // Act
+        var domainEvent = new TechnicianAssignedToWorkOrderEvent(technicianId, workOrderId, providedTimestamp);
 
-            // Assert
-            Assert.Equal(providedTimestamp, domainEvent.OccurredOn);
-        }
+        // Assert
+        Assert.Equal(providedTimestamp, domainEvent.OccurredOn);
     }
 }

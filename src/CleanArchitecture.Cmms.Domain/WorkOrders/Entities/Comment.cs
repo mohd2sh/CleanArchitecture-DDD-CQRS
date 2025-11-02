@@ -1,22 +1,21 @@
 using CleanArchitecture.Core.Domain.Abstractions;
 
-namespace CleanArchitecture.Cmms.Domain.WorkOrders.Entities
+namespace CleanArchitecture.Cmms.Domain.WorkOrders.Entities;
+
+
+internal sealed class Comment : Entity<Guid>
 {
-
-    internal sealed class Comment : Entity<Guid>
+    private Comment() { }
+    private Comment(string text, Guid authorId)
     {
-        private Comment() { }
-        private Comment(string text, Guid authorId)
-        {
-            Id = Guid.NewGuid();
-            Text = text;
-            AuthorId = authorId;
-        }
-
-        public static Comment Create(string text, Guid authorId)
-            => new(text, authorId);
-
-        public string Text { get; private set; } = default!;
-        public Guid AuthorId { get; private set; }
+        Id = Guid.NewGuid();
+        Text = text;
+        AuthorId = authorId;
     }
+
+    public static Comment Create(string text, Guid authorId)
+        => new(text, authorId);
+
+    public string Text { get; private set; } = default!;
+    public Guid AuthorId { get; private set; }
 }

@@ -1,4 +1,4 @@
-﻿namespace CleanArchitecture.Core.Application.Abstractions.Persistence;
+namespace CleanArchitecture.Core.Application.Abstractions.Persistence;
 
 public interface ITransaction : IAsyncDisposable
 {

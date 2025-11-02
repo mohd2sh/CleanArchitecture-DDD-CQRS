@@ -1,11 +1,10 @@
-﻿using CleanArchitecture.Cmms.Application.ErrorManagement.Models;
+using CleanArchitecture.Cmms.Application.ErrorManagement.Models;
 
-namespace CleanArchitecture.Cmms.Application.ErrorManagement
+namespace CleanArchitecture.Cmms.Application.ErrorManagement;
+
+public interface IErrorExporter
 {
-    public interface IErrorExporter
-    {
-        ErrorExportResult ExportAll();
-        Dictionary<string, ApplicationErrorInfo> ExportApplicationErrors();
-        Dictionary<string, DomainErrorInfo> ExportDomainErrors();
-    }
+    ErrorExportResult ExportAll();
+    Dictionary<string, ApplicationErrorInfo> ExportApplicationErrors();
+    Dictionary<string, DomainErrorInfo> ExportDomainErrors();
 }

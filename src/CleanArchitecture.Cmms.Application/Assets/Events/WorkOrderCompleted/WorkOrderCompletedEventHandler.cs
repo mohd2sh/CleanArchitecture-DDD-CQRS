@@ -5,36 +5,35 @@ using CleanArchitecture.Core.Application.Abstractions.Events;
 using CleanArchitecture.Core.Application.Abstractions.Persistence.Repositories;
 using Microsoft.Extensions.Logging;
 
-namespace CleanArchitecture.Cmms.Application.Assets.Events.WorkOrderCompleted
+namespace CleanArchitecture.Cmms.Application.Assets.Events.WorkOrderCompleted;
+
+internal sealed class WorkOrderCompletedEventHandler
+: IDomainEventHandler<WorkOrderCompletedEvent>
 {
-    internal sealed class WorkOrderCompletedEventHandler
-    : IDomainEventHandler<WorkOrderCompletedEvent>
+    private readonly IRepository<Asset, Guid> _assetRepository;
+    private readonly IDateTimeProvider _dateTimeProvider;
+    private readonly ILogger<WorkOrderCompletedEventHandler> _logger;
+
+    public WorkOrderCompletedEventHandler(IRepository<Asset, Guid> assetRepository, IDateTimeProvider dateTimeProvider, ILogger<WorkOrderCompletedEventHandler> logger)
     {
-        private readonly IRepository<Asset, Guid> _assetRepository;
-        private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly ILogger<WorkOrderCompletedEventHandler> _logger;
+        _assetRepository = assetRepository;
+        _dateTimeProvider = dateTimeProvider;
+        _logger = logger;
+    }
 
-        public WorkOrderCompletedEventHandler(IRepository<Asset, Guid> assetRepository, IDateTimeProvider dateTimeProvider, ILogger<WorkOrderCompletedEventHandler> logger)
+    public async Task Handle(
+        WorkOrderCompletedEvent domainEvent,
+        CancellationToken cancellationToken = default)
+    {
+        var asset = await _assetRepository.GetByIdAsync(domainEvent.AssetId, cancellationToken);
+        if (asset is null)
         {
-            _assetRepository = assetRepository;
-            _dateTimeProvider = dateTimeProvider;
-            _logger = logger;
+            _logger.LogWarning("Asset with ID {AssetId} not found for Work Order {WorkOrderId}",
+                domainEvent.AssetId, domainEvent.WorkOrderId);
+
+            throw new Core.Application.Abstractions.Common.ApplicationException(AssetErrors.NotFound);
         }
 
-        public async Task Handle(
-            WorkOrderCompletedEvent domainEvent,
-            CancellationToken cancellationToken = default)
-        {
-            var asset = await _assetRepository.GetByIdAsync(domainEvent.AssetId, cancellationToken);
-            if (asset is null)
-            {
-                _logger.LogWarning("Asset with ID {AssetId} not found for Work Order {WorkOrderId}",
-                    domainEvent.AssetId, domainEvent.WorkOrderId);
-
-                throw new Core.Application.Abstractions.Common.ApplicationException(AssetErrors.NotFound);
-            }
-
-            asset.CompleteMaintenance(_dateTimeProvider.UtcNow, "Work order completed successfully");
-        }
+        asset.CompleteMaintenance(_dateTimeProvider.UtcNow, "Work order completed successfully");
     }
 }

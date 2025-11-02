@@ -1,4 +1,4 @@
-﻿namespace CleanArchitecture.Core.Application.Abstractions.Messaging;
+namespace CleanArchitecture.Core.Application.Abstractions.Messaging;
 
 /// <summary>
 /// Pipeline behavior that executes only for queries.

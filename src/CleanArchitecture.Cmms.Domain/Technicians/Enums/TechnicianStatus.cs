@@ -1,9 +1,8 @@
-﻿namespace CleanArchitecture.Cmms.Domain.Technicians.Enums
+namespace CleanArchitecture.Cmms.Domain.Technicians.Enums;
+
+public enum TechnicianStatus
 {
-    public enum TechnicianStatus
-    {
-        Available = 1,
-        Unavailable = 2,
-        OnLeave = 3
-    }
+    Available = 1,
+    Unavailable = 2,
+    OnLeave = 3
 }

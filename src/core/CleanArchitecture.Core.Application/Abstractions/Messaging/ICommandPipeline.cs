@@ -1,4 +1,4 @@
-﻿namespace CleanArchitecture.Core.Application.Abstractions.Messaging;
+namespace CleanArchitecture.Core.Application.Abstractions.Messaging;
 
 public interface ICommandPipeline<in TCommand, TResponse>
     where TCommand : ICommand<TResponse>
