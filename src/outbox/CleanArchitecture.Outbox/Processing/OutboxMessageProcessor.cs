@@ -106,24 +106,14 @@ public sealed class OutboxMessageProcessor : IOutboxProcessor
             throw new InvalidOperationException($"Event type not found: {message.EventType}");
         }
 
-        var domainEvent = JsonSerializer.Deserialize(message.Payload, eventType, SerializerOptions);
-        if (domainEvent == null)
+        var integrationEvent = JsonSerializer.Deserialize(message.Payload, eventType, SerializerOptions);
+        if (integrationEvent == null)
         {
             throw new InvalidOperationException("Deserialization failed");
         }
 
-        // Find and invoke integration event handlers
-        var handlerInterfaceType = typeof(IIntegrationEventHandler<>).MakeGenericType(eventType);
-        var handlers = scope.ServiceProvider.GetServices(handlerInterfaceType);
-
-        foreach (var handler in handlers)
-        {
-            var handleMethod = handlerInterfaceType.GetMethod("Handle");
-            if (handleMethod != null)
-            {
-                await (Task)handleMethod.Invoke(handler, new[] { domainEvent, cancellationToken })!;
-            }
-        }
+        var dispatcher = scope.ServiceProvider.GetRequiredService<IIntegrationEventDispatcher>();
+        await dispatcher.PublishAsync(integrationEvent, cancellationToken);
     }
 
     private static bool IsSqlException(Exception ex)

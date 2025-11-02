@@ -42,6 +42,12 @@ public sealed class OutboxWebApplicationFactory : IAsyncLifetime, IDisposable
         services.AddScoped<ICustomOutboxStore, EfCoreOutboxStore>();
         services.AddScoped<IOutboxProcessor, OutboxMessageProcessor>();
 
+        // Register integration event convention (required for dispatcher)
+        services.AddSingleton<IIntegrationEventConvention, TestIntegrationEventConvention>();
+
+        // Register integration event dispatcher (test implementation)
+        services.AddScoped<IIntegrationEventDispatcher, TestIntegrationEventDispatcher>();
+
         // Register logging
         services.AddLogging();
 

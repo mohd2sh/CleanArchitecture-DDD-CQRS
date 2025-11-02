@@ -1,4 +1,3 @@
-using System;
 using CleanArchitecture.Outbox.Abstractions;
 using CleanArchitecture.Outbox.Persistence;
 using CleanArchitecture.Outbox.Processing;

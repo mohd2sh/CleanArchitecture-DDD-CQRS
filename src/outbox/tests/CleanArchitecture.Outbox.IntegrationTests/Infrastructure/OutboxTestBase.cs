@@ -1,6 +1,5 @@
 using System.Text.Json;
 using CleanArchitecture.Core.Application.Abstractions.Events;
-using CleanArchitecture.Core.Domain.Abstractions;
 using CleanArchitecture.Outbox.Abstractions;
 using CleanArchitecture.Outbox.Persistence;
 using CleanArchitecture.Outbox.Processing;
@@ -142,72 +141,141 @@ public abstract class OutboxTestBase : IClassFixture<OutboxWebApplicationFactory
         return await DbContext.DeadLetterMessages.ToListAsync();
     }
 
-    /// <summary>
-    /// Runs test BackgroundServices that signal completion when target count is reached.
-    /// Subscribes to ProcessingCycleCompleted events and checks count after each cycle.
-    /// Uses TaskCompletionSource for signal-driven completion instead of timeouts.
-    /// </summary>
-    protected async Task RunTestProcessorsAsync(int workerCount, int expectedProcessedCount)
+    private static readonly TimeSpan DefaultProcessingTimeout = TimeSpan.FromSeconds(60);
+
+    private (ILoggerFactory LoggerFactory, IOutboxProcessor Processor) GetRequiredServices()
     {
         var loggerFactory = ServiceProvider.GetRequiredService<ILoggerFactory>();
         var processor = ServiceProvider.GetRequiredService<IOutboxProcessor>();
+        return (loggerFactory, processor);
+    }
 
-        // Completion source - signaled when target count reached
+    private EventHandler CreateCompletionHandler(TaskCompletionSource<bool> completionSource, int expectedProcessedCount)
+    {
+        return async (sender, args) =>
+        {
+            using var scope = _factory.Services.CreateScope();
+            var dbContext = scope.ServiceProvider.GetRequiredService<OutboxDbContext>();
+
+            var currentCount = await dbContext.OutboxMessages
+                .Where(m => m.ProcessedAt != null)
+                .CountAsync();
+
+            if (currentCount >= expectedProcessedCount && !completionSource.Task.IsCompleted)
+            {
+                completionSource.TrySetResult(true);
+            }
+        };
+    }
+
+    private static async Task<TestOutboxBackgroundService> CreateAndSubscribeWorker(
+        IOutboxProcessor processor,
+        ILoggerFactory loggerFactory,
+        int workerId,
+        EventHandler handler)
+    {
+        var logger = loggerFactory.CreateLogger<TestOutboxBackgroundService>();
+        var worker = new TestOutboxBackgroundService(processor, logger, workerId);
+        worker.ProcessingCycleCompleted += handler;
+        await worker.StartAsync(CancellationToken.None);
+        return worker;
+    }
+
+    private async Task WaitForCompletionOrTimeout(
+        TaskCompletionSource<bool> completionSource,
+        int expectedProcessedCount,
+        TimeSpan timeout)
+    {
+        var timeoutTask = Task.Delay(timeout);
+        var completedTask = await Task.WhenAny(completionSource.Task, timeoutTask);
+
+        if (completedTask == timeoutTask)
+        {
+            var currentProcessed = await GetProcessedCount();
+            var currentUnprocessed = await GetUnprocessedCount();
+            throw new TimeoutException(
+                $"Timeout waiting for {expectedProcessedCount} messages to be processed. " +
+                $"Current state: {currentProcessed} processed, {currentUnprocessed} unprocessed.");
+        }
+
+        await completionSource.Task;
+    }
+
+    private Task<bool> CreateCompletionTaskWithTimeout(
+        TaskCompletionSource<bool> completionSource,
+        int expectedProcessedCount,
+        TimeSpan timeout)
+    {
+        var timeoutTask = Task.Delay(timeout).ContinueWith(async _ =>
+        {
+            if (!completionSource.Task.IsCompleted)
+            {
+                var currentProcessed = await GetProcessedCount();
+                throw new TimeoutException(
+                    $"Timeout waiting for {expectedProcessedCount} messages to be processed. " +
+                    $"Current state: {currentProcessed} processed.");
+            }
+        }, TaskScheduler.Default).Unwrap();
+
+        return Task.WhenAny(completionSource.Task, timeoutTask)
+            .ContinueWith(async t =>
+            {
+                if (t.Result == timeoutTask)
+                {
+                    await timeoutTask;
+                    return false;
+                }
+                await completionSource.Task;
+                return true;
+            }, TaskScheduler.Default).Unwrap();
+    }
+
+    private static async Task StopWorkers(IEnumerable<TestOutboxBackgroundService> workers)
+    {
+        foreach (var worker in workers)
+        {
+            try
+            {
+                await worker.StopAsync(CancellationToken.None);
+            }
+            catch
+            {
+                // Ignore errors during shutdown
+            }
+        }
+
+        await Task.Delay(100);
+    }
+
+    /// <summary>
+    /// Runs test BackgroundServices that signal completion when target count is reached.
+    /// Subscribes to ProcessingCycleCompleted events and checks count after each cycle.
+    /// Uses TaskCompletionSource for signal-driven completion with configurable timeout.
+    /// </summary>
+    /// <param name="workerCount">Number of worker threads to start</param>
+    /// <param name="expectedProcessedCount">Expected number of messages to process</param>
+    /// <param name="timeout">Timeout for waiting (default: 60 seconds)</param>
+    protected async Task RunTestProcessorsAsync(int workerCount, int expectedProcessedCount, TimeSpan? timeout = null)
+    {
+        var (loggerFactory, processor) = GetRequiredServices();
         var completionSource = new TaskCompletionSource<bool>();
+        var handler = CreateCompletionHandler(completionSource, expectedProcessedCount);
 
-        // Create and start all test workers
-        var hostedServices = new List<TestOutboxBackgroundService>();
+        var workers = new List<TestOutboxBackgroundService>();
         for (int i = 1; i <= workerCount; i++)
         {
-            var logger = loggerFactory.CreateLogger<TestOutboxBackgroundService>();
-            var testWorker = new TestOutboxBackgroundService(
-                processor,
-                logger,
-                workerId: i);
-
-            // Subscribe to processing cycle events
-            testWorker.ProcessingCycleCompleted += async (sender, args) =>
-            {
-                using var scope = _factory.Services.CreateScope();
-                var dbContext = scope.ServiceProvider.GetRequiredService<OutboxDbContext>();
-
-                var currentCount = await dbContext.OutboxMessages
-                    .Where(m => m.ProcessedAt != null)
-                    .CountAsync();
-
-                // Signal completion if target reached
-                if (currentCount >= expectedProcessedCount && !completionSource.Task.IsCompleted)
-                {
-                    completionSource.TrySetResult(true);
-                }
-            };
-
-            hostedServices.Add(testWorker);
-            await testWorker.StartAsync(CancellationToken.None);
+            var worker = await CreateAndSubscribeWorker(processor, loggerFactory, i, handler);
+            workers.Add(worker);
         }
 
         try
         {
-            // Wait for completion signal (when target count reached)
-            await completionSource.Task;
+            var timeoutValue = timeout ?? DefaultProcessingTimeout;
+            await WaitForCompletionOrTimeout(completionSource, expectedProcessedCount, timeoutValue);
         }
         finally
         {
-            // Stop all workers
-            foreach (var hostedService in hostedServices)
-            {
-                try
-                {
-                    await hostedService.StopAsync(CancellationToken.None);
-                }
-                catch
-                {
-                    // Ignore errors during shutdown
-                }
-            }
-
-            // Small delay to ensure final operations complete
-            await Task.Delay(100);
+            await StopWorkers(workers);
         }
     }
 
@@ -217,50 +285,25 @@ public abstract class OutboxTestBase : IClassFixture<OutboxWebApplicationFactory
     /// Test is responsible for stopping the worker in finally block.
     /// </summary>
     /// <param name="expectedProcessedCount">The number of processed messages to wait for</param>
+    /// <param name="timeout">Timeout for waiting (default: 60 seconds)</param>
     /// <returns>Tuple containing the worker and a task that completes when target count is reached</returns>
-    protected async Task<(TestOutboxBackgroundService Worker, Task CompletionTask)> RunTestProcessorWithCompletionAsync(int expectedProcessedCount)
+    protected async Task<(TestOutboxBackgroundService Worker, Task<bool> CompletionTask)> RunTestProcessorWithCompletionAsync(int expectedProcessedCount, TimeSpan? timeout = null)
     {
-        var loggerFactory = ServiceProvider.GetRequiredService<ILoggerFactory>();
-        var processor = ServiceProvider.GetRequiredService<IOutboxProcessor>();
-
-        // Completion source - signaled when target count reached
+        var (loggerFactory, processor) = GetRequiredServices();
         var completionSource = new TaskCompletionSource<bool>();
+        var handler = CreateCompletionHandler(completionSource, expectedProcessedCount);
 
-        // Create test worker
-        var logger = loggerFactory.CreateLogger<TestOutboxBackgroundService>();
-        var testWorker = new TestOutboxBackgroundService(
-            processor,
-            logger,
-            workerId: 1);
+        var worker = await CreateAndSubscribeWorker(processor, loggerFactory, workerId: 1, handler);
 
-        // Subscribe to processing cycle events
-        testWorker.ProcessingCycleCompleted += async (sender, args) =>
-        {
-            using var scope = _factory.Services.CreateScope();
-            var dbContext = scope.ServiceProvider.GetRequiredService<OutboxDbContext>();
+        var timeoutValue = timeout ?? DefaultProcessingTimeout;
+        var completionTask = CreateCompletionTaskWithTimeout(completionSource, expectedProcessedCount, timeoutValue);
 
-            var currentCount = await dbContext.OutboxMessages
-                .Where(m => m.ProcessedAt != null)
-                .CountAsync();
-
-            // Signal completion if target reached
-            if (currentCount >= expectedProcessedCount && !completionSource.Task.IsCompleted)
-            {
-                completionSource.TrySetResult(true);
-            }
-        };
-
-        // Start the worker
-        await testWorker.StartAsync(CancellationToken.None);
-
-        // Return worker and completion task
-        return (testWorker, completionSource.Task);
+        return (worker, completionTask);
     }
 }
 
 // Test handler that does nothing - used for tests
 internal sealed class TestIntegrationEventHandler<TEvent> : IIntegrationEventHandler<TEvent>
-    where TEvent : IDomainEvent
 {
     public Task Handle(TEvent @event, CancellationToken cancellationToken = default)
     {

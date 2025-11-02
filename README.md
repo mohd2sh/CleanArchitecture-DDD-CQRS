@@ -524,6 +524,8 @@ This template implements several architectural patterns based on Domain-Driven D
 
 - **[ADR-005: Attribute-Based Error Management System](docs/architectural-decisions/ADR-005-error-management-system.md)** - **IMPLEMENTED** - Centralized error management with attribute-based discovery, export API for frontend localization, and architecture test enforcement.
 
+- **[ADR-006: Unobtrusive Mode for Integration Events](docs/architectural-decisions/ADR-006-unobtrusive-mode-integration-events.md)** - **IMPLEMENTED** - Message conventions (unobtrusive mode) for discovering integration events.
+
 These ADRs document the "why" behind architectural decisions, with implementation details visible in the codebase.
 
 
