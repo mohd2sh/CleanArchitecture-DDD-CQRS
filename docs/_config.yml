@@ -1,0 +1,33 @@
+title: "Clean Architecture DDD CQRS Template"
+description: "Production-ready Clean Architecture template demonstrating DDD and CQRS patterns in .NET 8. Includes outbox pattern, architecture tests, and comprehensive documentation."
+url: "https://mohd2sh.github.io/CleanArchitecture-DDD-CQRS"
+
+theme: jekyll-theme-minimal
+plugins:
+  - jekyll-sitemap
+  - jekyll-seo-tag
+
+# GitHub Pages settings
+github: [metadata]
+repository: mohd2sh/CleanArchitecture-DDD-CQRS
+
+# SEO settings
+author: Mohammad Shakhtour
+keywords: "clean architecture, DDD, CQRS, .NET 8, domain-driven design, outbox pattern, enterprise architecture, C#, software architecture"
+
+# Markdown settings
+markdown: kramdown
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+
+# Exclude from processing
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor/bundle/
+  - vendor/cache/
+  - vendor/gems/
+  - vendor/ruby/
+
