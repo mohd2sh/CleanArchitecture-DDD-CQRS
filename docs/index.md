@@ -1,25 +1,25 @@
 ---
 layout: default
-title: "Clean Architecture DDD CQRS Template for .NET 8"
-description: "Production-ready template demonstrating Clean Architecture, Domain-Driven Design (DDD), and CQRS principles in .NET 8. Complete with outbox pattern, architecture tests, and ADRs."
-keywords: "clean architecture, DDD, CQRS, .NET 8, domain-driven design, outbox pattern, enterprise architecture, C#, software architecture, CMMS"
+title: "Clean Architecture CMMS: DDD + CQRS with Architecture Tests and Automated Boundary Enforcement"
+description: "Complete .NET 8 application demonstrating Clean Architecture, Domain-Driven Design (DDD), and CQRS with automated architecture tests, integration tests, and event-driven cross-aggregate coordination."
+keywords: "clean architecture, DDD, CQRS, .NET 8, domain-driven design, outbox pattern, enterprise architecture, C#, software architecture, CMMS, architecture tests, automated boundary enforcement"
 author: "Mohammad Shakhtour"
 ---
 
-# Clean Architecture DDD CQRS Template
+# Clean Architecture CMMS: DDD + CQRS with Architecture Tests and Automated Boundary Enforcement
 
 ![Integration Tests](https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS/actions/workflows/integration-tests.yml/badge.svg)
 ![Outbox Integration Tests](https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS/actions/workflows/outbox-integration-tests.yml/badge.svg)
 ![Unit & Architecture Tests](https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS/actions/workflows/dotnet-test.yml/badge.svg)
 ![Docker Build](https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS/actions/workflows/docker-build.yml/badge.svg)
 
-A ready template demonstrating Clean Architecture, Domain-Driven Design (DDD), and CQRS principles in .NET 8. This template provides a solid foundation for building maintainable, testable, and scalable applications.
+A complete .NET 8 application demonstrating Clean Architecture, Domain-Driven Design (DDD), and CQRS with automated architecture tests, integration tests, and event-driven cross-aggregate coordination. This template provides a solid foundation for building maintainable, testable, and scalable applications.
 
 **Repository**: [CleanArchitecture-DDD-CQRS](https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS) on GitHub
 
 ## Introduction
 
-This template implements a **Computerized Maintenance Management System (CMMS)** - a domain that manages work orders, asset maintenance, and technician assignments. The CMMS domain is perfect for demonstrating DDD patterns because it has:
+This application implements a **Computerized Maintenance Management System (CMMS)** - a domain that manages work orders, asset maintenance, and technician assignments. The CMMS domain is perfect for demonstrating DDD patterns because it has:
 
 - **Clear business boundaries** (Work Orders, Technicians, Assets)
 - **Complex business rules** (assignment constraints, status transitions)
@@ -39,7 +39,7 @@ The system handles the complete maintenance lifecycle: from creating work orders
 
 ## Philosophy
 
-This template demonstrates that Clean Architecture doesn't have to be complex. It shows how to apply DDD and CQRS pragmatically - with enough structure to maintain boundaries and enable testing, but without over-engineering or speculative abstractions.
+This application demonstrates that implementing .NET CQRS DDD doesn't have to be complex. It shows how to apply DDD and CQRS pragmatically in .NET - with enough structure to maintain boundaries and enable testing, but without over-engineering or speculative abstractions. The unique differentiator is **automated boundary enforcement** - architecture tests that prevent violations at compile-time.
 
 ### Design Principles
 
@@ -51,7 +51,7 @@ This template demonstrates that Clean Architecture doesn't have to be complex. I
 
 ## Key Features Overview
 
-This template includes implementations of enterprise patterns:
+This application includes implementations of enterprise patterns:
 
 ### Core Architecture
 - Clean Architecture layers with dependency inversion
@@ -140,7 +140,7 @@ Open Swagger UI and try the endpoints:
 
 ## Architecture Tests
 
-The template includes many **architecture tests** that automatically enforce DDD principles and Clean Architecture boundaries. New team members can work confidently - architectural violations are caught at automated unit tests.
+The application includes many **architecture tests** that automatically enforce DDD principles and Clean Architecture boundaries. New team members can work confidently - architectural violations are caught at automated unit tests. This is the **automated boundary enforcement** that makes this implementation unique.
 
 ### Domain Layer Protection
 
@@ -168,7 +168,7 @@ The template includes many **architecture tests** that automatically enforce DDD
 
 ## Architectural Decision Records
 
-This template implements several architectural patterns based on Domain-Driven Design and Clean Architecture principles.
+This application implements several architectural patterns based on Domain-Driven Design and Clean Architecture principles.
 
 - **[ADR-001: Cross-Aggregate Coordination Pattern](https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS/blob/main/docs/architectural-decisions/ADR-001-cross-aggregate-coordination.md)** - Domain events for coordinating operations across aggregates
 - **[ADR-002: Optimistic Concurrency Control](https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS/blob/main/docs/architectural-decisions/ADR-002-optimistic-concurrency-control.md)** - RowVersion pattern to prevent race conditions
@@ -238,7 +238,7 @@ This project is licensed under the MIT License - see the [LICENSE](https://githu
 
 ## Give it a Star
 
-If this template helped you or your team, please consider giving it a star on [GitHub](https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS)! It helps others discover this project and motivates continued development.
+If this application helped you or your team, please consider giving it a star on [GitHub](https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS)! It helps others discover this project and motivates continued development.
 
 ---
 
