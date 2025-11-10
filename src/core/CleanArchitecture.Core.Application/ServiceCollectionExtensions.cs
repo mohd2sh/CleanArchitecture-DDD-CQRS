@@ -132,7 +132,7 @@ public static class ServiceCollectionExtensions
 
             foreach (var interfaceType in interfaces)
             {
-                services.TryAddScoped(interfaceType, handlerType);
+                services.AddScoped(interfaceType, handlerType);
             }
         }
     }
@@ -151,7 +151,7 @@ public static class ServiceCollectionExtensions
 
             foreach (var interfaceType in interfaces)
             {
-                services.TryAddScoped(interfaceType, handlerType);
+                services.AddScoped(interfaceType, handlerType);
             }
         }
     }
