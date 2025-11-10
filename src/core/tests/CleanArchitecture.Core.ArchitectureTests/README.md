@@ -9,7 +9,7 @@ This package provides base test classes that consumers can inherit to enforce ar
 ## Installation
 
 ```bash
-dotnet add package CleanArchitecture.Core.ArchitectureTests
+dotnet add package Mohd2sh.CleanArchitecture.Core.ArchitectureTests
 ```
 
 ## Usage

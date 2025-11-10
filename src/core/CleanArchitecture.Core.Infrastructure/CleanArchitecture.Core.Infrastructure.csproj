@@ -5,7 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     
-    <PackageId>CleanArchitecture.Core.Infrastructure</PackageId>
+    <PackageId>Mohd2sh.CleanArchitecture.Core.Infrastructure</PackageId>
     <Description>Core infrastructure implementations including custom mediator, event dispatchers, and dependency injection extensions for Clean Architecture. Provides ready-to-use implementations of IMediator, IDomainEventDispatcher, IIntegrationEventDispatcher with DI registration extensions.</Description>
     <PackageTags>$(PackageTags);infrastructure;mediator;events;dependency-injection;di</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>

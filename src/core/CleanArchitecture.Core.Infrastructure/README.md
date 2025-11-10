@@ -9,7 +9,7 @@ This package provides ready-to-use implementations of IMediator, IDomainEventDis
 ## Installation
 
 ```bash
-dotnet add package CleanArchitecture.Core.Infrastructure
+dotnet add package Mohd2sh.CleanArchitecture.Core.Infrastructure
 ```
 
 ## Usage

@@ -5,7 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     
-    <PackageId>CleanArchitecture.Core.Application</PackageId>
+    <PackageId>Mohd2sh.CleanArchitecture.Core.Application</PackageId>
     <Description>Core application layer abstractions, CQRS interfaces, and handler registration extensions for Clean Architecture. Includes ICommand, IQuery, IMediator interfaces, event handlers, and DI extensions for automatic handler discovery and registration.</Description>
     <PackageTags>$(PackageTags);application;cqrs;mediator;handlers;dependency-injection</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>

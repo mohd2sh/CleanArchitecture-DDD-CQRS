@@ -9,7 +9,7 @@ This package provides CQRS abstractions (commands, queries, mediator) and depend
 ## Installation
 
 ```bash
-dotnet add package CleanArchitecture.Core.Application
+dotnet add package Mohd2sh.CleanArchitecture.Core.Application
 ```
 
 ## Usage

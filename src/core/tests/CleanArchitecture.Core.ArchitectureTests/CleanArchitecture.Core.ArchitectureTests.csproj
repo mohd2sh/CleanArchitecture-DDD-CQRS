@@ -7,7 +7,7 @@
     
     <IsPackable>true</IsPackable>
     <IsTestProject>false</IsTestProject>
-    <PackageId>CleanArchitecture.Core.ArchitectureTests</PackageId>
+    <PackageId>Mohd2sh.CleanArchitecture.Core.ArchitectureTests</PackageId>
     <Description>Reusable architecture test base classes for Clean Architecture and DDD validation. Provides base test classes that consumers can inherit to enforce architectural rules and boundaries.</Description>
     <PackageTags>$(PackageTags);testing;architecture-tests;ddd;clean-architecture</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>

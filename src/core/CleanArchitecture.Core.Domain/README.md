@@ -9,7 +9,7 @@ This package provides base classes and interfaces for building domain models in 
 ## Installation
 
 ```bash
-dotnet add package CleanArchitecture.Core.Domain
+dotnet add package Mohd2sh.CleanArchitecture.Core.Domain
 ```
 
 ## Usage
