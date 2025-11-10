@@ -22,6 +22,7 @@
     <ProjectReference Include="..\..\src\CleanArchitecture.Cmms.Application\CleanArchitecture.Cmms.Application.csproj" />
     <ProjectReference Include="..\..\src\CleanArchitecture.Cmms.Domain\CleanArchitecture.Cmms.Domain.csproj" />
     <ProjectReference Include="..\..\src\CleanArchitecture.Cmms.Infrastructure\CleanArchitecture.Cmms.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\core\tests\CleanArchitecture.Core.ArchitectureTests\CleanArchitecture.Core.ArchitectureTests.csproj" />
   </ItemGroup>
 
   <ItemGroup>

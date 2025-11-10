@@ -1,18 +1,15 @@
 using System.Data;
 using CleanArchitecture.Cmms.Application.WorkOrders.Interfaces;
 using CleanArchitecture.Cmms.Infrastructure.Common;
-using CleanArchitecture.Cmms.Infrastructure.Messaging;
 using CleanArchitecture.Cmms.Infrastructure.Persistence.EfCore;
 using CleanArchitecture.Cmms.Infrastructure.Persistence.EfCore.Interceptors;
 using CleanArchitecture.Cmms.Infrastructure.Repositories.ReadRepositories;
 using CleanArchitecture.Cmms.Infrastructure.Repositories.ReadRepositories.WorkOrders;
 using CleanArchitecture.Cmms.Infrastructure.Repositories.WriteRepositories;
-using CleanArchitecture.Cmms.Infrastructure.Messaging.Conventions;
 using CleanArchitecture.Core.Application.Abstractions.Common;
-using CleanArchitecture.Core.Application.Abstractions.Events;
-using CleanArchitecture.Core.Application.Abstractions.Messaging;
 using CleanArchitecture.Core.Application.Abstractions.Persistence;
 using CleanArchitecture.Core.Application.Abstractions.Persistence.Repositories;
+using CleanArchitecture.Core.Infrastructure;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -29,10 +26,8 @@ public static class ServiceCollectionExtensions
 
         AddReadDbServices(services, config, environment);
 
-        services.AddScoped<IMediator, CustomMediator>();
-        services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
-        services.AddSingleton<IIntegrationEventConvention, DefaultIntegrationEventConvention>();
-        services.AddScoped<IIntegrationEventDispatcher, IntegrationEventDispatcher>();
+        // Register Core Infrastructure services (Mediator, Event Dispatchers)
+        services.AddCoreInfrastructure();
 
         services.AddSingleton<IDateTimeProvider, SystemDateTimeProvider>();
 
