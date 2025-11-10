@@ -1,15 +1,15 @@
-# .NET CQRS DDD Template - Clean Architecture with Domain-Driven Design
+# Clean Architecture CMMS: DDD + CQRS with Architecture Tests and Automated Boundary Enforcement
 
 ![Integration Tests](https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS/actions/workflows/integration-tests.yml/badge.svg)
 ![Outbox Integration Tests](https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS/actions/workflows/outbox-integration-tests.yml/badge.svg)
 ![Unit & Architecture Tests](https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS/actions/workflows/dotnet-test.yml/badge.svg)
 ![Docker Build](https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS/actions/workflows/docker-build.yml/badge.svg)
 
-A ready template demonstrating Clean Architecture, Domain-Driven Design (DDD), and CQRS principles in .NET 8. This template provides a solid foundation for building maintainable, testable, and scalable applications.
+A .NET 8 application demonstrating Clean Architecture, Domain-Driven Design (DDD), and CQRS with automated architecture tests, integration tests, and event-driven cross-aggregate coordination. This template provides a solid foundation for building maintainable, testable, and scalable applications.
 
 ## Introduction
 
-This template implements a **Computerized Maintenance Management System (CMMS)** - a domain that manages work orders, asset maintenance, and technician assignments. The CMMS domain is perfect for demonstrating .NET CQRS DDD patterns because it has:
+This application implements a **Computerized Maintenance Management System (CMMS)** - a domain that manages work orders, asset maintenance, and technician assignments. The CMMS domain is perfect for demonstrating .NET CQRS DDD patterns because it has:
 
 - **Clear business boundaries** (Work Orders, Technicians, Assets)
 - **Complex business rules** (assignment constraints, status transitions)
@@ -29,7 +29,7 @@ The system handles the complete maintenance lifecycle: from creating work orders
 
 ## Philosophy
 
-This template demonstrates that implementing .NET CQRS DDD doesn't have to be complex. It shows how to apply DDD and CQRS pragmatically in .NET - with enough structure to maintain boundaries and enable testing, but without over-engineering or speculative abstractions.
+This application demonstrates that implementing .NET CQRS DDD doesn't have to be complex. It shows how to apply DDD and CQRS pragmatically in .NET - with enough structure to maintain boundaries and enable testing, but without over-engineering or speculative abstractions.
 
 **Perfect for:**
 - Teams building enterprise .NET applications with CQRS and DDD
@@ -47,7 +47,7 @@ This template demonstrates that implementing .NET CQRS DDD doesn't have to be co
 
 ## Key Features Overview
 
-This template includes implementations of enterprise patterns:
+This application includes implementations of enterprise patterns:
 
 ### Core Architecture
 - Clean Architecture layers with dependency inversion
@@ -260,7 +260,7 @@ builder.Property(e => e.RowVersion)
 
 ### Error Management System
 
-The template implements error management system with attribute-based discovery, export capability, and architecture testing. See **[ADR-005: Attribute-Based Error Management System](docs/architectural-decisions/ADR-005-error-management-system.md)**.
+The application implements error management system with attribute-based discovery, export capability, and architecture testing. See **[ADR-005: Attribute-Based Error Management System](docs/architectural-decisions/ADR-005-error-management-system.md)**.
 
 **Domain Layer Errors:**
 ```csharp

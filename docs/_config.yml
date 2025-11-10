@@ -1,5 +1,5 @@
-title: "Clean Architecture DDD CQRS Template"
-description: "PClean Architecture template demonstrating DDD and CQRS patterns in .NET 8. Includes outbox pattern, architecture tests, and comprehensive documentation."
+title: "Clean Architecture CMMS: DDD + CQRS with Architecture Tests and Automated Boundary Enforcement"
+description: "Clean Architecture template demonstrating DDD and CQRS patterns in .NET 8. Includes outbox pattern, architecture tests, automated boundary enforcement"
 url: "https://mohd2sh.github.io/CleanArchitecture-DDD-CQRS"
 
 theme: jekyll-theme-minimal
