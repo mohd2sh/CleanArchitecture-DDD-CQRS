@@ -79,13 +79,17 @@ jobs:
 
       - name: Restore dependencies
         run: |
-          dotnet restore src/core
-          dotnet restore src/core/tests
+          dotnet restore src/core/CleanArchitecture.Core.Domain/CleanArchitecture.Core.Domain.csproj
+          dotnet restore src/core/CleanArchitecture.Core.Application/CleanArchitecture.Core.Application.csproj
+          dotnet restore src/core/CleanArchitecture.Core.Infrastructure/CleanArchitecture.Core.Infrastructure.csproj
+          dotnet restore src/core/tests/CleanArchitecture.Core.ArchitectureTests/CleanArchitecture.Core.ArchitectureTests.csproj
 
       - name: Build projects
         run: |
-          dotnet build src/core --configuration Release --no-restore
-          dotnet build src/core/tests --configuration Release --no-restore
+          dotnet build src/core/CleanArchitecture.Core.Domain/CleanArchitecture.Core.Domain.csproj --configuration Release --no-restore
+          dotnet build src/core/CleanArchitecture.Core.Application/CleanArchitecture.Core.Application.csproj --configuration Release --no-restore
+          dotnet build src/core/CleanArchitecture.Core.Infrastructure/CleanArchitecture.Core.Infrastructure.csproj --configuration Release --no-restore
+          dotnet build src/core/tests/CleanArchitecture.Core.ArchitectureTests/CleanArchitecture.Core.ArchitectureTests.csproj --configuration Release --no-restore
 
       - name: Pack Core.Domain
         run: |
