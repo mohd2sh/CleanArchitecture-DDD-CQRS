@@ -401,9 +401,12 @@ public sealed class CmmsWebApplicationFactory : WebApplicationFactory<Program>
 
 ```
 src/
-├── core/                                  # Core Framework
+├── core/                                  # Core Framework (available as NuGet packages)
 │   ├── CleanArchitecture.Core.Application
-│   └── CleanArchitecture.Core.Domain
+│   ├── CleanArchitecture.Core.Domain
+│   ├── CleanArchitecture.Core.Infrastructure
+│   └── tests/
+│       └── CleanArchitecture.Core.ArchitectureTests
 │
 ├── CleanArchitecture.Cmms.Domain/          # Domain Layer
 ├── CleanArchitecture.Cmms.Application/   # Application Layer
@@ -443,6 +446,8 @@ dotnet test --filter "Category=Application"
 ## Architecture Tests
 
 The template includes many **architecture tests** that automatically enforce DDD principles and Clean Architecture boundaries. New team members can work confidently - architectural violations are caught at automated unit tests.
+
+Architecture tests are available as a reusable NuGet package (`CleanArchitecture.Core.ArchitectureTests`) with base test classes that can be inherited in your projects.
 
 ### Domain Layer Protection
 

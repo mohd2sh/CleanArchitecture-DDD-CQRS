@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    
+    <PackageId>CleanArchitecture.Core.Infrastructure</PackageId>
+    <Description>Core infrastructure implementations including custom mediator, event dispatchers, and dependency injection extensions for Clean Architecture. Provides ready-to-use implementations of IMediator, IDomainEventDispatcher, IIntegrationEventDispatcher with DI registration extensions.</Description>
+    <PackageTags>$(PackageTags);infrastructure;mediator;events;dependency-injection;di</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CleanArchitecture.Core.Application\CleanArchitecture.Core.Application.csproj" />
+    <ProjectReference Include="..\CleanArchitecture.Core.Domain\CleanArchitecture.Core.Domain.csproj" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
+  </ItemGroup>
+
+</Project>

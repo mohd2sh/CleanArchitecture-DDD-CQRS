@@ -1,0 +1,21 @@
+<Project>
+  <PropertyGroup>
+    <IsPackable>true</IsPackable>
+    <VersionPrefix>1.0.0</VersionPrefix>
+    <Authors>Mohammad Shakhtour</Authors>
+    <Company>Mohammad Shakhtour</Company>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
+    
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    
+    <PackageTags>clean-architecture;ddd;domain-driven-design;cqrs</PackageTags>
+  </PropertyGroup>
+</Project>
+

@@ -4,6 +4,10 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    
+    <PackageId>CleanArchitecture.Core.Domain</PackageId>
+    <Description>Core domain abstractions and base types for Clean Architecture applications. Provides base classes for entities, value objects, aggregate roots, and domain events following Domain-Driven Design principles.</Description>
+    <PackageTags>$(PackageTags);domain;entities;value-objects;aggregate-root</PackageTags>
   </PropertyGroup>
 
 </Project>

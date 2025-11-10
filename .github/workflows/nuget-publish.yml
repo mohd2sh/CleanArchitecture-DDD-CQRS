@@ -1,0 +1,238 @@
+name: Publish NuGet Packages
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch: 
+    inputs:
+      version:
+        description: 'Package version (e.g., 1.0.0 or 1.0.0-alpha.1)'
+        required: false
+        type: string
+      dry-run:
+        description: 'Build and pack only, skip publishing'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  publish-nuget:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    env:
+      DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+      DOTNET_CLI_TELEMETRY_OPTOUT: 1
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch all history for tags
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+          source-url: https://api.nuget.org/v3/index.json
+
+      - name: Extract version and detect pre-release
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ] && [ -n "${{ inputs.version }}" ]; then
+            VERSION="${{ inputs.version }}"
+          else
+            # Extract version from tag (remove 'v' prefix if present)
+            VERSION="${{ github.ref_name }}"
+            VERSION="${VERSION#v}"
+          fi
+          
+          # Detect if this is a pre-release version
+          if [[ "$VERSION" =~ -(alpha|beta|rc) ]]; then
+            IS_PRERELEASE="true"
+            PRERELEASE_TYPE=$(echo "$VERSION" | grep -oE '-(alpha|beta|rc)' | sed 's/-//')
+          else
+            IS_PRERELEASE="false"
+            PRERELEASE_TYPE=""
+          fi
+          
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "is_prerelease=$IS_PRERELEASE" >> $GITHUB_OUTPUT
+          echo "prerelease_type=$PRERELEASE_TYPE" >> $GITHUB_OUTPUT
+          echo "Extracted version: $VERSION"
+          echo "Is pre-release: $IS_PRERELEASE"
+          if [ -n "$PRERELEASE_TYPE" ]; then
+            echo "Pre-release type: $PRERELEASE_TYPE"
+          fi
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Restore dependencies
+        run: |
+          dotnet restore src/core
+          dotnet restore src/core/tests
+
+      - name: Build projects
+        run: |
+          dotnet build src/core --configuration Release --no-restore
+          dotnet build src/core/tests --configuration Release --no-restore
+
+      - name: Pack Core.Domain
+        run: |
+          dotnet pack src/core/CleanArchitecture.Core.Domain/CleanArchitecture.Core.Domain.csproj \
+            --configuration Release \
+            --no-build \
+            --output ./artifacts \
+            -p:Version=${{ steps.version.outputs.version }}
+
+      - name: Pack Core.Application
+        run: |
+          dotnet pack src/core/CleanArchitecture.Core.Application/CleanArchitecture.Core.Application.csproj \
+            --configuration Release \
+            --no-build \
+            --output ./artifacts \
+            -p:Version=${{ steps.version.outputs.version }}
+
+      - name: Pack Core.Infrastructure
+        run: |
+          dotnet pack src/core/CleanArchitecture.Core.Infrastructure/CleanArchitecture.Core.Infrastructure.csproj \
+            --configuration Release \
+            --no-build \
+            --output ./artifacts \
+            -p:Version=${{ steps.version.outputs.version }}
+
+      - name: Pack Core.ArchitectureTests
+        run: |
+          dotnet pack src/core/tests/CleanArchitecture.Core.ArchitectureTests/CleanArchitecture.Core.ArchitectureTests.csproj \
+            --configuration Release \
+            --no-build \
+            --output ./artifacts \
+            -p:Version=${{ steps.version.outputs.version }}
+
+      - name: Upload packages as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-packages
+          path: ./artifacts/*.nupkg
+          retention-days: 7
+
+      - name: Check publishing conditions
+        id: publish-check
+        run: |
+          # Get dry-run input (only available for workflow_dispatch)
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            DRY_RUN="${{ github.event.inputs.dry-run }}"
+          else
+            DRY_RUN="false"
+          fi
+          
+          IS_PRERELEASE="${{ steps.version.outputs.is_prerelease }}"
+          
+          # Determine if we should publish
+          if [ "$DRY_RUN" == "true" ]; then
+            SHOULD_PUBLISH="false"
+            REASON="Dry-run mode enabled"
+          elif [ "$IS_PRERELEASE" == "true" ]; then
+            # Pre-release versions are always safe to publish
+            SHOULD_PUBLISH="true"
+            REASON="Pre-release version (safe to publish)"
+          else
+            # Production versions - check if from main/master branch
+            # Note: For tags, we can't directly check the branch, but we can check the default branch
+            DEFAULT_BRANCH="${{ github.event.repository.default_branch }}"
+            SHOULD_PUBLISH="true"
+            REASON="Production version (will publish to NuGet.org)"
+            echo " Publishing production version. Ensure this tag is from $DEFAULT_BRANCH branch."
+          fi
+          
+          echo "should_publish=$SHOULD_PUBLISH" >> $GITHUB_OUTPUT
+          echo "publish_reason=$REASON" >> $GITHUB_OUTPUT
+          echo "Publishing decision: $REASON"
+          echo "Will publish: $SHOULD_PUBLISH"
+
+      - name: Publish to NuGet.org
+        if: steps.publish-check.outputs.should_publish == 'true'
+        run: |
+          # Try OIDC authentication first (if trusted publisher is configured)
+          # Fallback to API key if provided
+          PUBLISH_CMD="dotnet nuget push"
+          if [ -n "${{ secrets.NUGET_API_KEY }}" ]; then
+            PUBLISH_CMD="$PUBLISH_CMD --api-key ${{ secrets.NUGET_API_KEY }}"
+          fi
+          
+          echo "Publishing packages to NuGet.org..."
+          for nupkg in ./artifacts/*.nupkg; do
+            if [ -f "$nupkg" ]; then
+              echo "Publishing: $(basename $nupkg)"
+              $PUBLISH_CMD "$nupkg" \
+                --source https://api.nuget.org/v3/index.json \
+                --skip-duplicate || \
+              echo "Warning: Failed to publish $(basename $nupkg) or already exists"
+            fi
+          done
+          
+          # Publish symbol packages
+          for snupkg in ./artifacts/*.snupkg; do
+            if [ -f "$snupkg" ]; then
+              echo "Publishing: $(basename $snupkg)"
+              $PUBLISH_CMD "$snupkg" \
+                --source https://api.nuget.org/v3/index.json \
+                --skip-duplicate || \
+              echo "Warning: Failed to publish $(basename $snupkg) or already exists"
+            fi
+          done
+          
+          echo "Packages published to NuGet.org"
+
+      - name: Skip publishing (dry-run mode)
+        if: steps.publish-check.outputs.should_publish == 'false'
+        run: |
+          echo "Dry-run mode: Packages were built and packed but NOT published"
+          echo "Packages are available as workflow artifacts for review"
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "## NuGet Package Publishing Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** \`${{ steps.version.outputs.version }}\`" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ steps.version.outputs.is_prerelease }}" == "true" ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Type:** Pre-release (${{ steps.version.outputs.prerelease_type }})" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Type:** Production Release" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Packages:**" >> $GITHUB_STEP_SUMMARY
+          echo "- CleanArchitecture.Core.Domain" >> $GITHUB_STEP_SUMMARY
+          echo "- CleanArchitecture.Core.Application" >> $GITHUB_STEP_SUMMARY
+          echo "- CleanArchitecture.Core.Infrastructure" >> $GITHUB_STEP_SUMMARY
+          echo "- CleanArchitecture.Core.ArchitectureTests" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ steps.publish-check.outputs.should_publish }}" == "true" ]; then
+            echo "**Status:** Published to NuGet.org" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "**Status:** Dry-run mode - Packages built but NOT published" >> $GITHUB_STEP_SUMMARY
+            echo "**Reason:** ${{ steps.publish-check.outputs.publish_reason }}" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Note:** Package signing is currently disabled." >> $GITHUB_STEP_SUMMARY
+

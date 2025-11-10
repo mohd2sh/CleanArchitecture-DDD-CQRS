@@ -4,10 +4,18 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    
+    <PackageId>CleanArchitecture.Core.Application</PackageId>
+    <Description>Core application layer abstractions, CQRS interfaces, and handler registration extensions for Clean Architecture. Includes ICommand, IQuery, IMediator interfaces, event handlers, and DI extensions for automatic handler discovery and registration.</Description>
+    <PackageTags>$(PackageTags);application;cqrs;mediator;handlers;dependency-injection</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\CleanArchitecture.Core.Domain\CleanArchitecture.Core.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
   </ItemGroup>
 
 </Project>
