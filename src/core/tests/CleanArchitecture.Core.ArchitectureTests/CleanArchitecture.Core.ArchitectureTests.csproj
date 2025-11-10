@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    
+    <IsPackable>true</IsPackable>
+    <IsTestProject>false</IsTestProject>
+    <PackageId>Mohd2sh.CleanArchitecture.Core.ArchitectureTests</PackageId>
+    <Description>Reusable architecture test base classes for Clean Architecture and DDD validation. Provides base test classes that consumers can inherit to enforce architectural rules and boundaries.</Description>
+    <PackageTags>$(PackageTags);testing;architecture-tests;ddd;clean-architecture</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\CleanArchitecture.Core.Domain\CleanArchitecture.Core.Domain.csproj" />
+    <ProjectReference Include="..\..\CleanArchitecture.Core.Application\CleanArchitecture.Core.Application.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NetArchTest.Rules" Version="1.3.2" />
+    <PackageReference Include="xunit" Version="2.5.3" />
+  </ItemGroup>
+
+</Project>
+
