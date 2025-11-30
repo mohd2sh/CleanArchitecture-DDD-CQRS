@@ -1,4 +1,5 @@
 using CleanArchitecture.Core.Application.Abstractions.Events;
+using CleanArchitecture.Core.Application.Abstractions.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CleanArchitecture.Core.Infrastructure.Messaging.Wrappers;
@@ -17,9 +18,21 @@ internal sealed class IntegrationEventHandlerWrapper<TEvent> : IntegrationEventH
 
         var handlers = serviceProvider.GetServices<IIntegrationEventHandler<TEvent>>();
 
+        var pipelines = serviceProvider
+            .GetServices<IIntegrationEventPipeline<TEvent>>()
+            .ToList();
+
         foreach (var handler in handlers)
         {
-            await handler.Handle(typedEvent, cancellationToken);
+            PipelineDelegate pipeline = () => handler.Handle(typedEvent, cancellationToken);
+
+            foreach (var pipelineBehavior in pipelines)
+            {
+                var currentPipeline = pipeline;
+                pipeline = () => pipelineBehavior.Handle(typedEvent, currentPipeline, cancellationToken);
+            }
+
+            await pipeline();
         }
     }
 }

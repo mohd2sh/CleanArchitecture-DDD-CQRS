@@ -3,6 +3,7 @@ using CleanArchitecture.Core.Application.Abstractions.Persistence;
 using CleanArchitecture.Core.Application.Abstractions.Persistence.Repositories;
 using CleanArchitecture.Core.Application.Abstractions.Query;
 using CleanArchitecture.Core.Domain.Abstractions;
+using CleanArchitecture.Core.Infrastructure.Persistence.EfCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace CleanArchitecture.Cmms.Infrastructure.Repositories.ReadRepositories;

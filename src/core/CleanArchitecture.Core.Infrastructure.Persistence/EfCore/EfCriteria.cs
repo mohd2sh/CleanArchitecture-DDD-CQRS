@@ -1,9 +1,9 @@
 using CleanArchitecture.Core.Application.Abstractions.Persistence;
 using Microsoft.EntityFrameworkCore;
 
-namespace CleanArchitecture.Cmms.Infrastructure.Persistence.EfCore;
+namespace CleanArchitecture.Core.Infrastructure.Persistence.EfCore;
 
-internal static class EfCriteria
+public static class EfCriteria
 {
     public static IQueryable<T> Apply<T>(this IQueryable<T> query, Criteria<T> criteria) where T : class
     {

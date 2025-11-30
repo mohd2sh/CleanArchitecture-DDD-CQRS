@@ -2,6 +2,7 @@ using CleanArchitecture.Cmms.Infrastructure.Persistence.EfCore;
 using CleanArchitecture.Core.Application.Abstractions.Persistence;
 using CleanArchitecture.Core.Application.Abstractions.Persistence.Repositories;
 using CleanArchitecture.Core.Domain.Abstractions;
+using CleanArchitecture.Core.Infrastructure.Persistence.EfCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace CleanArchitecture.Cmms.Infrastructure.Repositories.WriteRepositories;
