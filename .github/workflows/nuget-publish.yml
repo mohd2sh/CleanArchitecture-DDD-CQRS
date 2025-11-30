@@ -82,6 +82,8 @@ jobs:
           dotnet restore src/core/CleanArchitecture.Core.Domain/CleanArchitecture.Core.Domain.csproj
           dotnet restore src/core/CleanArchitecture.Core.Application/CleanArchitecture.Core.Application.csproj
           dotnet restore src/core/CleanArchitecture.Core.Infrastructure/CleanArchitecture.Core.Infrastructure.csproj
+          dotnet restore src/core/CleanArchitecture.Core.Infrastructure.Persistence/CleanArchitecture.Core.Infrastructure.Persistence.csproj
+          dotnet restore src/outbox/CleanArchitecture.Outbox.Abstractions/CleanArchitecture.Outbox.Abstractions.csproj
           dotnet restore src/core/tests/CleanArchitecture.Core.ArchitectureTests/CleanArchitecture.Core.ArchitectureTests.csproj
 
       - name: Build projects
@@ -89,6 +91,8 @@ jobs:
           dotnet build src/core/CleanArchitecture.Core.Domain/CleanArchitecture.Core.Domain.csproj --configuration Release --no-restore
           dotnet build src/core/CleanArchitecture.Core.Application/CleanArchitecture.Core.Application.csproj --configuration Release --no-restore
           dotnet build src/core/CleanArchitecture.Core.Infrastructure/CleanArchitecture.Core.Infrastructure.csproj --configuration Release --no-restore
+          dotnet build src/core/CleanArchitecture.Core.Infrastructure.Persistence/CleanArchitecture.Core.Infrastructure.Persistence.csproj --configuration Release --no-restore
+          dotnet build src/outbox/CleanArchitecture.Outbox.Abstractions/CleanArchitecture.Outbox.Abstractions.csproj --configuration Release --no-restore
           dotnet build src/core/tests/CleanArchitecture.Core.ArchitectureTests/CleanArchitecture.Core.ArchitectureTests.csproj --configuration Release --no-restore
 
       - name: Pack Core.Domain
@@ -110,6 +114,22 @@ jobs:
       - name: Pack Core.Infrastructure
         run: |
           dotnet pack src/core/CleanArchitecture.Core.Infrastructure/CleanArchitecture.Core.Infrastructure.csproj \
+            --configuration Release \
+            --no-build \
+            --output ./artifacts \
+            -p:Version=${{ steps.version.outputs.version }}
+
+      - name: Pack Core.Infrastructure.Persistence
+        run: |
+          dotnet pack src/core/CleanArchitecture.Core.Infrastructure.Persistence/CleanArchitecture.Core.Infrastructure.Persistence.csproj \
+            --configuration Release \
+            --no-build \
+            --output ./artifacts \
+            -p:Version=${{ steps.version.outputs.version }}
+
+      - name: Pack Outbox.Abstractions
+        run: |
+          dotnet pack src/outbox/CleanArchitecture.Outbox.Abstractions/CleanArchitecture.Outbox.Abstractions.csproj \
             --configuration Release \
             --no-build \
             --output ./artifacts \
@@ -224,6 +244,8 @@ jobs:
           echo "- CleanArchitecture.Core.Domain" >> $GITHUB_STEP_SUMMARY
           echo "- CleanArchitecture.Core.Application" >> $GITHUB_STEP_SUMMARY
           echo "- CleanArchitecture.Core.Infrastructure" >> $GITHUB_STEP_SUMMARY
+          echo "- CleanArchitecture.Core.Infrastructure.Persistence" >> $GITHUB_STEP_SUMMARY
+          echo "- CleanArchitecture.Outbox.Abstractions" >> $GITHUB_STEP_SUMMARY
           echo "- CleanArchitecture.Core.ArchitectureTests" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           

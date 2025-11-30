@@ -2,7 +2,6 @@ using System.Data;
 using CleanArchitecture.Cmms.Application.WorkOrders.Interfaces;
 using CleanArchitecture.Cmms.Infrastructure.Common;
 using CleanArchitecture.Cmms.Infrastructure.Persistence.EfCore;
-using CleanArchitecture.Cmms.Infrastructure.Persistence.EfCore.Interceptors;
 using CleanArchitecture.Cmms.Infrastructure.Repositories.ReadRepositories;
 using CleanArchitecture.Cmms.Infrastructure.Repositories.ReadRepositories.WorkOrders;
 using CleanArchitecture.Cmms.Infrastructure.Repositories.WriteRepositories;
@@ -10,6 +9,8 @@ using CleanArchitecture.Core.Application.Abstractions.Common;
 using CleanArchitecture.Core.Application.Abstractions.Persistence;
 using CleanArchitecture.Core.Application.Abstractions.Persistence.Repositories;
 using CleanArchitecture.Core.Infrastructure;
+using CleanArchitecture.Core.Infrastructure.Persistence.EfCore;
+using CleanArchitecture.Core.Infrastructure.Persistence.EfCore.Interceptors;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -36,7 +37,15 @@ public static class ServiceCollectionExtensions
 
     private static void AddWriteDbServices(IServiceCollection services, IConfiguration config)
     {
-        services.AddScoped<AuditableEntityInterceptor>();
+        services.AddScoped<AuditableEntityInterceptor>(sp =>
+        {
+            var dateTimeProvider = sp.GetRequiredService<IDateTimeProvider>();
+
+            // Replace with actual user resolution logic as needed (e.g., from the current HTTP context)
+            var resolveCurrentUserFunc = () => { return "System"; };
+
+            return new AuditableEntityInterceptor(dateTimeProvider, resolveCurrentUserFunc);
+        });
 
         services.AddDbContext<WriteDbContext>((sp, opt) =>
         {
@@ -52,7 +61,10 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped(typeof(IRepository<,>), typeof(EfRepository<,>));
 
-        services.AddScoped<IUnitOfWork, EfUnitOfWork>();
+        services.AddScoped<IUnitOfWork>(sp =>
+        {
+            return new EfUnitOfWork(sp.GetRequiredService<WriteDbContext>());
+        });
     }
 
     private static void AddReadDbServices(IServiceCollection services, IConfiguration config, string environment)

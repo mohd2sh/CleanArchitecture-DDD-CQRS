@@ -1,9 +1,9 @@
 using CleanArchitecture.Core.Application.Abstractions.Persistence;
 using Microsoft.EntityFrameworkCore.Storage;
 
-namespace CleanArchitecture.Cmms.Infrastructure.Persistence.EfCore;
+namespace CleanArchitecture.Core.Infrastructure.Persistence.EfCore;
 
-internal sealed class EfTransaction : ITransaction
+public class EfTransaction : ITransaction
 {
     private readonly IDbContextTransaction _tx;
     public EfTransaction(IDbContextTransaction tx) => _tx = tx;
