@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <PackageId>Mohd2sh.CleanArchitecture.Core.Infrastructure.Persistence</PackageId>
+    <Description>Core infrastructure Persistence including ef core base, ef transaction, unit of work, and ef criteria.</Description>
+    <PackageTags>$(PackageTags);infrastructure;entity-framework;transaction;unit-of-work;dependency-injection</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.8" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CleanArchitecture.Core.Application\CleanArchitecture.Core.Application.csproj" />
+  </ItemGroup>
+</Project>

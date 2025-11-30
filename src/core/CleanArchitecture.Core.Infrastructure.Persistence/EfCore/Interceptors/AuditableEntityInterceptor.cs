@@ -3,22 +3,20 @@ using CleanArchitecture.Core.Domain.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
-namespace CleanArchitecture.Cmms.Infrastructure.Persistence.EfCore.Interceptors;
+namespace CleanArchitecture.Core.Infrastructure.Persistence.EfCore.Interceptors;
 
 public class AuditableEntityInterceptor : SaveChangesInterceptor
 {
     private readonly IDateTimeProvider _dateTimeProvider;
+    private readonly Func<string?>? _getCurrentUserDelegate;
 
-    public AuditableEntityInterceptor(IDateTimeProvider dateTimeProvider)
+    public AuditableEntityInterceptor(
+        IDateTimeProvider dateTimeProvider,
+        Func<string?>? getCurrentUserDelegate = null)
     {
         _dateTimeProvider = dateTimeProvider;
+        _getCurrentUserDelegate = getCurrentUserDelegate;
     }
-
-    /// <summary>
-    ///  Out of current scope but this would be dynamically set based on the current user context.
-    ///  Like: IUserContext  IAuthService etc..
-    /// </summary>
-    private const string CurrentUser = "Default User";
 
     public override InterceptionResult<int> SavingChanges(
         DbContextEventData eventData,
@@ -41,6 +39,8 @@ public class AuditableEntityInterceptor : SaveChangesInterceptor
     {
         if (context == null) return;
 
+        var currentUser = _getCurrentUserDelegate?.Invoke() ?? "Default User";
+
         var entries = context.ChangeTracker.Entries();
 
         foreach (var entry in entries)
@@ -49,10 +49,10 @@ public class AuditableEntityInterceptor : SaveChangesInterceptor
                 continue;
 
             if (entry.State == EntityState.Added)
-                auditable.SetCreated(_dateTimeProvider.UtcNow, CurrentUser);
+                auditable.SetCreated(_dateTimeProvider.UtcNow, currentUser);
 
             if (entry.State == EntityState.Modified)
-                auditable.SetLastModified(_dateTimeProvider.UtcNow, CurrentUser);
+                auditable.SetLastModified(_dateTimeProvider.UtcNow, currentUser);
         }
     }
 }

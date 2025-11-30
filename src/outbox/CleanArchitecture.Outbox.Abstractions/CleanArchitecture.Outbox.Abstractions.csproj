@@ -1,6 +1,28 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    
+    <Authors>Mohammad Shakhtour</Authors>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
+    
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    
+    <PackageId>Mohd2sh.CleanArchitecture.Outbox.Abstractions</PackageId>
+    <Description>Abstractions for the outbox pattern implementation. Provides interfaces for storing and publishing integration events with guaranteed delivery, supporting transactional outbox pattern for reliable event-driven architectures.</Description>
+    <PackageTags>clean-architecture;ddd;domain-driven-design;cqrs;outbox;outbox-pattern;integration-events;event-driven</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
 </Project>

@@ -1,7 +1,7 @@
 using CleanArchitecture.Core.Domain.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
-namespace CleanArchitecture.Cmms.Infrastructure.Persistence.EfCore;
+namespace CleanArchitecture.Core.Infrastructure.Persistence.EfCore;
 
 public static class DomainEventCollector
 {
