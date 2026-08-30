@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADR-003: Domain vs Integration Events</title>
+    <meta name="description" content="Separating transactional domain events from asynchronous integration events.">
+    <meta name="robots" content="index, follow">
+    <meta name="google-site-verification" content="A6tHTS5FsuxXuWy3LSg5yzVrA7j2R3S2R9he25A0aWs" />
+    <link rel="canonical" href="https://mohd2sh.github.io/CleanArchitecture-DDD-CQRS/adrs/adr-003.html">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="ADR-003: Domain vs Integration Events">
+    <meta property="og:description" content="Separating transactional domain events from asynchronous integration events.">
+    <meta property="og:url" content="https://mohd2sh.github.io/CleanArchitecture-DDD-CQRS/adrs/adr-003.html">
+    <meta property="og:image" content="https://mohd2sh.github.io/CleanArchitecture-DDD-CQRS/assets/images/social-preview.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "TechArticle",
+        "headline": "ADR-003: Domain vs Integration Events",
+        "description": "Separating transactional domain events from asynchronous integration events.",
+        "author": {"@type": "Person", "name": "Mohammad Shakhtour"},
+        "url": "https://mohd2sh.github.io/CleanArchitecture-DDD-CQRS/adrs/adr-003.html"
+    }
+    </script>
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-inner">
+            <a href="../index.html" class="logo"><span class="logo-dotnet">.NET</span> Clean Architecture</a>
+            <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">&#9776;</button>
+            <ul class="nav-links">
+                <li><a href="../index.html#features">Features</a></li>
+                <li><a href="../index.html#architecture">Architecture</a></li>
+                <li><a href="../patterns.html">Patterns</a></li>
+                <li><a href="index.html">ADRs</a></li>
+            </ul>
+            <div class="nav-actions">
+                <a href="https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS" class="btn btn-primary btn-sm" target="_blank" rel="noopener">Star on GitHub</a>
+            </div>
+        </div>
+    </header>
+    <main class="container-narrow">
+        <div class="page-header">
+            <h1>ADR-003: Domain vs Integration Events</h1>
+            <div class="page-meta">
+                <span>Author: Mohammad Shakhtour</span>
+                <span class="status-badge status-accepted">Accepted</span>
+            </div>
+        </div>
+        <article class="article-content">
+<p><strong>Author:</strong> Mohammad Shakhtour  </p>
+<p><strong>Status:</strong> Accepted  </p>
+<h2>Context</h2>
+<h3>The Problem</h3>
+<p>In ADR-001, we established Domain Events as the primary pattern for cross-aggregate coordination. However, not all events have the same consistency and delivery requirements. Consider two scenarios in our CMMS system:</p>
+<p><strong>Scenario 1: Work Order Creation</strong></p>
+<ol>
+<li>User creates a work order for an asset</li>
+<li>Asset status must immediately change to &quot;Under Maintenance&quot;</li>
+<li>This status change must happen in the same transaction</li>
+<li>If the work order creation fails, the asset status must not change</li>
+</ol>
+<p><strong>Scenario 2: Work Order Completion Email</strong></p>
+<ol>
+<li>Work order is completed successfully</li>
+<li>System sends notification email to stakeholders</li>
+<li>Email delivery can happen asynchronously</li>
+<li>Email failure should not rollback the work order completion</li>
+</ol>
+<p><strong>The Challenge/Need:</strong> How do we handle these fundamentally different event processing requirements while maintaining clean architecture and preparing for future distributed system evolution?</p>
+<h3>Why This Matters</h3>
+<p>The pattern extends to event processing strategies:</p>
+<ul>
+<li><strong>Transactional Events:</strong> Must execute immediately within the same transaction (strong consistency)</li>
+<li><strong>Integration Events:</strong> Can execute asynchronously outside the transaction (eventual consistency or no need for transactions)</li>
+</ul>
+<p>---</p>
+<h2>Decision Drivers</h2>
+<ol>
+<li><strong>Transaction Boundaries</strong> - Some operations require ACID guarantees, others don&#x27;t</li>
+<li><strong>Consistency Requirements</strong> - Critical state changes need strong consistency, notifications can be eventual</li>
+<li><strong>System Resilience</strong> - Non-critical operations shouldn&#x27;t block or fail critical transactions</li>
+<li><strong>Performance</strong> - Asynchronous processing for long-running operations (emails, external APIs)</li>
+<li><strong>Microservices Readiness</strong> - Clear separation enables future distributed architecture</li>
+<li><strong>Failure Isolation</strong> - External system failures shouldn&#x27;t affect core business operations</li>
+</ol>
+<p>---</p>
+<h2>Options Considered</h2>
+<h3>Option 1: Single Event Type (All Synchronous)</h3>
+<p><strong>Pattern:</strong></p>
+<p>All events execute synchronously within the transaction. Handlers modify state, send emails, call external APIs - all in one transaction.</p>
+<p><strong>Pros:</strong></p>
+<ul>
+<li>Simple mental model</li>
+<li>Immediate consistency for everything</li>
+<li>Single event handling mechanism</li>
+</ul>
+<p><strong>Cons:</strong></p>
+<ul>
+<li>Long-running operations block transactions</li>
+<li>External service failures rollback business transactions</li>
+<li>Poor scalability (transaction holds locks during I/O)</li>
+<li>Cannot evolve to microservices easily</li>
+<li>Tight coupling to external systems</li>
+</ul>
+<p><strong>Verdict:</strong> Rejected - External failures affect core business operations</p>
+<p>---</p>
+<h3>Option 2: Single Event Type (All Asynchronous)</h3>
+<p><strong>Pattern:</strong></p>
+<p>All events execute asynchronously outside the transaction. Even critical state changes happen via eventual consistency.</p>
+<p><strong>Pros:</strong></p>
+<ul>
+<li>No transaction blocking</li>
+<li>Good scalability</li>
+<li>Loose coupling</li>
+</ul>
+<p><strong>Cons:</strong></p>
+<ul>
+<li>Critical state changes not atomic with command</li>
+<li>Complex error handling for state modifications</li>
+<li>Race conditions between aggregates</li>
+<li>Violates business invariants temporarily</li>
+<li>Not suitable for operations requiring immediate consistency</li>
+</ul>
+<p><strong>Verdict:</strong> Rejected - Cannot guarantee critical business invariants</p>
+<p>---</p>
+<h3>Option 3: Two Distinct Event Handler Types (Chosen)</h3>
+<p><strong>Pattern:</strong></p>
+<p>Separate interfaces for different consistency requirements:</p>
+<ul>
+<li><strong>IDomainEventHandler:</strong> Synchronous execution within transaction</li>
+<li><strong>IIntegrationEventHandler:</strong> Asynchronous execution via outbox pattern</li>
+</ul>
+<p><strong>Decision Criteria:</strong></p>
+<ul>
+<li>Modifies aggregate state → Domain Event Handler</li>
+<li>Sends notifications, calls external systems → Integration Event Handler</li>
+<li>Requires immediate consistency → Domain Event Handler</li>
+<li>Can tolerate eventual consistency → Integration Event Handler</li>
+</ul>
+<p><strong>Pros:</strong></p>
+<ul>
+<li>Clear separation of concerns at compile-time</li>
+<li>Strong consistency where needed, eventual consistency where acceptable</li>
+<li>Failure isolation (external failures don&#x27;t affect core operations)</li>
+<li>Natural evolution to microservices</li>
+<li>Type-safe distinction</li>
+</ul>
+<p><strong>Cons:</strong></p>
+<ul>
+<li>Developers must understand two handler types (Arch unit test and the project structure can help with this)</li>
+<li>Need to choose correct handler type for each event</li>
+</ul>
+<p><strong>Verdict:</strong> Accepted - Balances consistency, performance, and future evolution</p>
+<p>---</p>
+<h3>Option 4: Attribute-Based Distinction</h3>
+<p><strong>Pattern:</strong></p>
+<p>Single handler interface with attributes marking execution strategy:</p>
+<pre><code class="language-csharp">[Transactional]
+public class AssetStatusEventHandler : IEventHandler&lt;WorkOrderCreated&gt; { }
+
+[Asynchronous]
+public class EmailEventHandler : IEventHandler&lt;WorkOrderCompleted&gt; { }</code></pre>
+<p><strong>Pros:</strong></p>
+<ul>
+<li>Single handler interface</li>
+<li>Metadata-driven behavior</li>
+</ul>
+<p><strong>Cons:</strong></p>
+<ul>
+<li>Reflection overhead</li>
+<li>Easy to forget attribute (runtime error)</li>
+<li>No compile-time safety</li>
+<li>Less explicit in code</li>
+</ul>
+<p><strong>Verdict:</strong> Rejected </p>
+<p>---</p>
+<h2>Decision</h2>
+<p><strong>Implement two distinct event handler interfaces:</strong></p>
+<h3>IDomainEventHandler&lt;TEvent&gt;</h3>
+<p><strong>Purpose:</strong> Handle events that require strong consistency and immediate state changes within the same transaction.</p>
+<p><strong>Characteristics:</strong></p>
+<ul>
+<li>Runs within the same database transaction</li>
+<li>Can modify aggregate state via repositories</li>
+<li>Changes committed atomically with the command</li>
+<li>Failure causes transaction rollback</li>
+</ul>
+<p><strong>Use Cases:</strong></p>
+<ul>
+<li>Cross-aggregate state synchronization</li>
+<li>Business rule enforcement across aggregates</li>
+<li>Critical operations requiring ACID guarantees</li>
+</ul>
+<p><strong>Example:</strong></p>
+<pre><code class="language-csharp">// WorkOrder created → Asset must be set to &quot;Under Maintenance&quot;
+public class WorkOrderCreatedEventHandler : IDomainEventHandler&lt;WorkOrderCreatedEvent&gt;
+{
+    public async Task Handle(WorkOrderCreatedEvent @event, CancellationToken ct)
+    {
+        var asset = await _assetRepository.GetByIdAsync(@event.AssetId, ct);
+        asset.SetUnderMaintenance();
+        // Saved in same transaction
+        //if any domain exceptions , it will be auto rollback
+    }
+}</code></pre>
+<h3>IIntegrationEventHandler&lt;TEvent&gt;</h3>
+<p><strong>Purpose:</strong> Handle events that can execute asynchronously with eventual consistency, typically for cross-boundary communication.</p>
+<p><strong>Characteristics:</strong></p>
+<ul>
+<li>Executes asynchronously (outside transaction)</li>
+<li>Guaranteed delivery via outbox pattern</li>
+<li>Automatic retry on failure</li>
+<li>Survives application restarts</li>
+<li>Does not modify core aggregate state</li>
+</ul>
+<p><strong>Use Cases:</strong></p>
+<ul>
+<li>Sending notifications (email, SMS, push)</li>
+<li>Publishing to message bus for external systems</li>
+<li>Logging and auditing</li>
+<li>Analytics and reporting</li>
+<li>Cross-service communication (future microservices)</li>
+</ul>
+<p><strong>Example:</strong></p>
+<pre><code class="language-csharp">// WorkOrder completed → Send notification email
+public class EmailWorkOrderCompletedHandler : IIntegrationEventHandler&lt;WorkOrderCompletedEvent&gt;
+{
+    public async Task Handle(WorkOrderCompletedEvent @event, CancellationToken ct)
+    {
+        await _emailService.SendCompletionNotification(@event.WorkOrderId);
+        // Email failure won&#x27;t rollback work order completion
+    }
+}</code></pre>
+<p>---</p>
+<h3>Key Design Points</h3>
+<p><strong>Transactional Consistency:</strong></p>
+<ul>
+<li>Domain event handlers share the transaction</li>
+<li>All state changes atomic</li>
+<li>Rollback affects everything</li>
+</ul>
+<p><strong>Guaranteed Delivery:</strong></p>
+<ul>
+<li>Integration events written to outbox in same transaction</li>
+<li>If transaction commits, events will eventually be processed</li>
+<li>Survives application crashes and restarts</li>
+</ul>
+<p><strong>Failure Isolation:</strong></p>
+<ul>
+<li>Integration event handler failures don&#x27;t affect core operations</li>
+<li>Automatic retry with configurable attempts</li>
+<li>Dead letter queue for persistent failures (future)</li>
+</ul>
+<p>---</p>
+<h2>Future Evolution</h2>
+<h3>Default Implementation (Single-Process Setup)</h3>
+<p><strong>Domain Events:</strong></p>
+<ul>
+<li>Synchronous execution within process</li>
+<li>Shared database transaction</li>
+<li>Direct repository access</li>
+</ul>
+<p><strong>Integration Events:</strong></p>
+<ul>
+<li>Outbox table in same database</li>
+<li>Background processor in same process</li>
+<li>In-process handler invocation</li>
+</ul>
+<h3>Microservices Deployment</h3>
+<p><strong>Domain Events:</strong></p>
+<ul>
+<li>Remain internal to each service</li>
+<li>Service-specific database transactions</li>
+<li>No cross-service synchronous events</li>
+</ul>
+<p><strong>Integration Events:</strong></p>
+<ul>
+<li>Outbox processor publishes to message bus (RabbitMQ, Azure Service Bus)</li>
+<li>Cross-service communication via async messaging</li>
+<li>Consumer services subscribe to relevant events</li>
+<li>Schema registry for event contracts</li>
+<li>Introduce Saga and Compensation messages</li>
+</ul>
+<p><strong>No Business Code Changes Required:</strong> Handler interfaces remain identical—only infrastructure configuration changes. When migrating to fully distributed async architectures, compensation events or Saga may be required for distributed transaction handling.</p>
+<p>---</p>
+<h2>Guidelines</h2>
+<h3>When to Use IDomainEventHandler</h3>
+<p>Use when the event handler:</p>
+<ul>
+<li>Modifies aggregate state in another bounded context</li>
+<li>Enforces business rules across aggregates</li>
+<li>Requires immediate consistency</li>
+<li>Must participate in the same transaction</li>
+<li>Failure should rollback the entire operation</li>
+</ul>
+<h3>When to Use IIntegrationEventHandler</h3>
+<p>Use when the event handler:</p>
+<ul>
+<li>Sends notifications (email, SMS, push)</li>
+<li>Calls external APIs or services</li>
+<li>Performs logging or auditing</li>
+<li>Updates read models or caches</li>
+<li>Publishes to message bus</li>
+<li>Can tolerate eventual consistency</li>
+<li>Failure should not affect core operation</li>
+</ul>
+<h3>Decision Flowchart</h3>
+<pre><code>Does the handler modify aggregate state?
+├─ Yes → Does it require immediate consistency?
+│         ├─ Yes → IDomainEventHandler
+│         └─ No  → IIntegrationEventHandler
+│
+└─ No  → Is it a notification or external call?
+          └─ Yes → IIntegrationEventHandler</code></pre>
+<p>---</p>
+<h2>Notes</h2>
+<p>This decision reflects the reality that different operations have different consistency requirements. By making this explicit at the type system level, we provide clear guidance to developers and enable the system to evolve naturally toward a distributed architecture.</p>
+<p>---</p>
+        </article>
+    </main>
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <ul class="footer-links">
+                <li><a href="https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS">GitHub</a></li>
+                <li><a href="index.html">ADRs</a></li>
+                <li><a href="../patterns.html">Patterns</a></li>
+                <li><a href="https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS/blob/main/LICENSE">License</a></li>
+            </ul>
+            <p class="footer-copy">MIT License &mdash; Built for the .NET community</p>
+        </div>
+    </footer>
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>

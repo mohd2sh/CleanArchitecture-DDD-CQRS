@@ -1,0 +1,49 @@
+# CleanArchitecture-DDD-CQRS
+
+> .NET 8 Clean Architecture template with DDD, CQRS, outbox pattern, and automated architecture tests.
+
+## Summary
+
+Open-source CMMS (Computerized Maintenance Management System) template demonstrating Clean Architecture, Domain-Driven Design, and CQRS in a single .NET application. Includes dual event handlers, outbox pattern, optimistic concurrency, and compile-time architecture tests.
+
+## Key URLs
+
+- Home: https://mohd2sh.github.io/CleanArchitecture-DDD-CQRS/
+- GitHub: https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS
+- Patterns: https://mohd2sh.github.io/CleanArchitecture-DDD-CQRS/patterns.html
+- ADRs: https://mohd2sh.github.io/CleanArchitecture-DDD-CQRS/adrs/
+
+## Patterns Demonstrated
+
+- Clean Architecture (Domain, Application, Infrastructure, API)
+- Domain-Driven Design (Aggregates, Value Objects, Domain Events)
+- CQRS (EF Core writes, Dapper reads, flexible read sources)
+- Outbox Pattern with IOutboxPublisher abstraction
+- Dual Event Handlers (Domain + Integration)
+- Cross-Aggregate Coordination via Domain Events
+- Optimistic Concurrency (SQL Server ROWVERSION)
+- Automated Architecture Tests
+
+## Architectural Decision Records
+
+- ADR-001: Cross-Aggregate Coordination — /adrs/adr-001.html
+- ADR-002: Optimistic Concurrency Control — /adrs/adr-002.html
+- ADR-003: Domain vs Integration Events — /adrs/adr-003.html
+- ADR-004: Outbox Pattern — /adrs/adr-004.html
+- ADR-005: Error Management System — /adrs/adr-005.html
+- ADR-006: Unobtrusive Mode Integration Events — /adrs/adr-006.html
+
+## Related Repositories
+
+- Microservices evolution: https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS-Microservices
+- CDC demo: https://github.com/mohd2sh/cqrs-beyond-database
+
+## Quick Start
+
+git clone https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS.git
+cd CleanArchitecture-DDD-CQRS
+docker-compose up
+
+## License
+
+MIT

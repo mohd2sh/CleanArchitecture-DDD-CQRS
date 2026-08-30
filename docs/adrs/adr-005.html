@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADR-005: Error Management System</title>
+    <meta name="description" content="Structured error handling with Result pattern and exportable error codes.">
+    <meta name="robots" content="index, follow">
+    <meta name="google-site-verification" content="A6tHTS5FsuxXuWy3LSg5yzVrA7j2R3S2R9he25A0aWs" />
+    <link rel="canonical" href="https://mohd2sh.github.io/CleanArchitecture-DDD-CQRS/adrs/adr-005.html">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="ADR-005: Error Management System">
+    <meta property="og:description" content="Structured error handling with Result pattern and exportable error codes.">
+    <meta property="og:url" content="https://mohd2sh.github.io/CleanArchitecture-DDD-CQRS/adrs/adr-005.html">
+    <meta property="og:image" content="https://mohd2sh.github.io/CleanArchitecture-DDD-CQRS/assets/images/social-preview.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "TechArticle",
+        "headline": "ADR-005: Error Management System",
+        "description": "Structured error handling with Result pattern and exportable error codes.",
+        "author": {"@type": "Person", "name": "Mohammad Shakhtour"},
+        "url": "https://mohd2sh.github.io/CleanArchitecture-DDD-CQRS/adrs/adr-005.html"
+    }
+    </script>
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-inner">
+            <a href="../index.html" class="logo"><span class="logo-dotnet">.NET</span> Clean Architecture</a>
+            <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">&#9776;</button>
+            <ul class="nav-links">
+                <li><a href="../index.html#features">Features</a></li>
+                <li><a href="../index.html#architecture">Architecture</a></li>
+                <li><a href="../patterns.html">Patterns</a></li>
+                <li><a href="index.html">ADRs</a></li>
+            </ul>
+            <div class="nav-actions">
+                <a href="https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS" class="btn btn-primary btn-sm" target="_blank" rel="noopener">Star on GitHub</a>
+            </div>
+        </div>
+    </header>
+    <main class="container-narrow">
+        <div class="page-header">
+            <h1>ADR-005: Error Management System</h1>
+            <div class="page-meta">
+                <span>Author: Mohammad Shakhtour</span>
+                <span class="status-badge status-accepted">Accepted</span>
+            </div>
+        </div>
+        <article class="article-content">
+<p><strong>Author:</strong> Mohammad Shakhtour  </p>
+<p><strong>Status:</strong> Accepted  </p>
+<h2>Context</h2>
+<h3>The Problem</h3>
+<p>In enterprise applications with Clean Architecture and DDD, error handling presents significant challenges that impact both development velocity and user experience:</p>
+<p><strong>Challenge 1: Error Code Fragmentation</strong></p>
+<pre><code class="language-csharp">// Scattered across the codebase - no single source of truth
+return Error.NotFound(&quot;ASSET_NOT_FOUND&quot;, &quot;Asset not found&quot;);
+return Error.NotFound(&quot;AssetNotFound&quot;, &quot;Asset not found&quot;);
+return Error.NotFound(&quot;Asset.NotFound&quot;, &quot;Asset not found&quot;);
+
+//OR
+
+public const string AssetNotFoundErrorMessage = &quot;Asset not found&quot;;
+//etc..</code></pre>
+<p>Which format is correct? How does the frontend know what error codes exist?</p>
+<p><strong>Challenge 2: Frontend Localization</strong></p>
+<p>Modern applications require internationalization (i18n). The frontend needs:</p>
+<ul>
+<li>Stable error codes that won&#x27;t change</li>
+<li>Complete list of all possible errors</li>
+<li>Ability to map error codes to localized messages</li>
+</ul>
+<p>Without a centralized error management system, this becomes manual and error-prone.</p>
+<p><strong>Challenge 3: Consistency Enforcement</strong></p>
+<p>How do we ensure:</p>
+<ul>
+<li>Error codes are unique across the system?</li>
+<li>Every error has proper structure (code + message)?</li>
+<li>Domain errors stay in domain, application errors in application?</li>
+<li>Developers follow the pattern consistently?</li>
+</ul>
+<p><strong>Challenge 4: Discoverability</strong></p>
+<ul>
+<li>How does a new developer discover what errors exist?</li>
+<li>How do we generate API documentation with error codes?</li>
+<li>How do we prevent duplicate error codes?</li>
+</ul>
+<h3>Why This Matters</h3>
+<p><strong>For Frontend Teams:</strong></p>
+<p>&gt; &quot;We need a stable contract for error codes so we can implement proper localization and user-friendly error messages.&quot;</p>
+<p><strong>For Backend Developers:</strong></p>
+<p>&gt; &quot;We need clear guidance on where to define errors and confidence that our error codes won&#x27;t conflict with others.&quot;</p>
+<p><strong>For System Reliability:</strong></p>
+<p>&gt; &quot;We need compile-time or test-time guarantees that our error handling is consistent and complete.&quot;</p>
+<p>---</p>
+<h2>Decision Drivers</h2>
+<ol>
+<li><strong>Centralized Management</strong> - Single source of truth per aggregate/bounded context</li>
+<li><strong>Frontend Integration</strong> - Export API for client-side localization (i18n/l10n)</li>
+<li><strong>Discoverability</strong> - Easy to find all error codes via reflection</li>
+<li><strong>Type Safety</strong> - Strongly-typed errors, not magic strings</li>
+<li><strong>Architecture Governance</strong> - Automated test enforcement of patterns</li>
+<li><strong>Layer Separation</strong> - Domain errors vs Application errors clearly distinguished</li>
+<li><strong>Uniqueness Guarantee</strong> - Error codes must be unique, enforced by tests</li>
+<li><strong>Developer Experience</strong> - Clear, consistent pattern that&#x27;s hard to misuse</li>
+</ol>
+<p>---</p>
+<h2>Decision</h2>
+<p>Implement an <strong>Attribute-Based Error Discovery System</strong> with centralized error definitions, with export, and architecture test enforcement.</p>
+<h3>Core Components</h3>
+<h4>1. Attributes for Discovery</h4>
+<p><strong><code>[ErrorCodeDefinition(&quot;Domain&quot;)]</code></strong> - Class-level attribute</p>
+<ul>
+<li>Marks a static class as an error container</li>
+<li>Specifies the domain/aggregate (e.g., &quot;Asset&quot;, &quot;WorkOrder&quot;)</li>
+<li>Used by reflection to discover error classes</li>
+</ul>
+<p><strong><code>[DomainError]</code></strong> - Field-level attribute</p>
+<ul>
+<li>Marks a <code>static readonly DomainError</code> field for export</li>
+<li>Indicates a domain-level business rule violation</li>
+<li>Enforced by architecture tests</li>
+</ul>
+<p><strong><code>[ApplicationError]</code></strong> - Field-level attribute</p>
+<ul>
+<li>Marks a <code>static readonly Error</code> field for export</li>
+<li>Indicates an application-level failure (NotFound, Validation, etc.)</li>
+<li>Enforced by architecture tests</li>
+</ul>
+<h4>2. Error Types by Layer</h4>
+<p><strong>Domain Layer - <code>DomainError</code></strong></p>
+<pre><code class="language-csharp">public sealed class DomainError
+{
+    public string Code { get; }
+    public string Message { get; }
+    
+    public static DomainError Create(string code, string message)
+        =&gt; new(code, message);
+}</code></pre>
+<ul>
+<li>Immutable, simple structure</li>
+<li>Represents business rule violations</li>
+<li>No error type categorization (all domain rules are equal)</li>
+</ul>
+<p><strong>Application Layer - <code>Error</code></strong></p>
+<pre><code class="language-csharp">public sealed class Error
+{
+    public string Code { get; }
+    public string Message { get; }
+    public ErrorType Type { get; }  // Validation, NotFound, Conflict, etc.
+    
+    public static Error NotFound(string code, string message) =&gt; ...;
+    public static Error Validation(string code, string message) =&gt; ...;
+    public static Error Conflict(string code, string message) =&gt; ...;
+}</code></pre>
+<ul>
+<li>Includes error type for HTTP status code mapping</li>
+<li>Represents application-level failures</li>
+<li>Factory methods for type safety</li>
+</ul>
+<h4>3. Exception Types</h4>
+<p><strong><code>DomainException</code></strong> - Thrown from Domain Layer</p>
+<pre><code class="language-csharp">public class DomainException : Exception
+{
+    public DomainError Error { get; }
+    
+    public DomainException(DomainError error) : base(error.Message)
+    {
+        Error = error;
+    }
+}</code></pre>
+<p><strong><code>ApplicationException</code></strong> - Thrown from Application Layer</p>
+<pre><code class="language-csharp">public class ApplicationException : Exception
+{
+    public Error Error { get; }
+    
+    public ApplicationException(Error error) : base(error.Message)
+    {
+        Error = error;
+    }
+}</code></pre>
+<p><strong>Usage Philosophy:</strong></p>
+<ul>
+<li>Application layer prefers Result pattern over exceptions</li>
+<li>Exceptions caught and converted to Results/ProblemDetails in middleware</li>
+</ul>
+<h4>4. Export System</h4>
+<p><strong><code>ErrorExporter</code></strong> </p>
+<pre><code class="language-csharp">public static class ErrorExporter
+{
+    public static ErrorExportResult ExportAll()
+    {
+        return new ErrorExportResult
+        {
+            DomainErrors = ExportDomainErrors(),
+            ApplicationErrors = ExportApplicationErrors(),
+            Timestamp = DateTime.UtcNow
+        };
+    }
+}</code></pre>
+<p><strong>Process:</strong></p>
+<ol>
+<li>Scan domain assembly for classes with <code>[ErrorCodeDefinition]</code></li>
+<li>Find fields with <code>[DomainError]</code> or <code>[ApplicationError]</code></li>
+<li>Extract error code, message, type, domain, class name</li>
+<li>Return structured JSON for frontend consumption</li>
+<li>can be cached if needed</li>
+</ol>
+<p><strong>Export API Endpoints:</strong></p>
+<pre><code>GET /api/v1/errors/export          # All errors
+GET /api/v1/errors/application     # Application errors only
+GET /api/v1/errors/domain          # Domain errors only</code></pre>
+<h4>5. Architecture Test Enforcement</h4>
+<p><strong>Tests Automatically Enforce:</strong></p>
+<pre><code class="language-csharp">[Fact]
+public void DomainErrorClasses_ShouldHaveErrorCodeDefinitionAttribute()
+{
+    // All classes ending with &quot;Errors&quot; must have [ErrorCodeDefinition]
+}
+
+[Fact]
+public void DomainErrorFields_ShouldHaveDomainErrorAttribute()
+{
+    // All DomainError fields must have [DomainError]
+}
+
+[Fact]
+public void ApplicationErrorFields_ShouldHaveApplicationErrorAttribute()
+{
+    // All Error fields must have [ApplicationError]
+}
+
+[Fact]
+public void AllErrorCodes_ShouldBeUnique()
+{
+    // Error codes must be unique within each layer
+}</code></pre>
+<p>---</p>
+<h2>Implementation Patterns</h2>
+<h3>Domain Layer Pattern</h3>
+<p><strong>Domain Error Definition:</strong></p>
+<pre><code class="language-csharp">using CleanArchitecture.Cmms.Domain.Abstractions;
+using CleanArchitecture.Cmms.Domain.Abstractions.Attributes;
+
+namespace CleanArchitecture.Cmms.Domain.Assets;
+
+[ErrorCodeDefinition(&quot;Asset&quot;)]
+internal static class AssetErrors
+{
+    [DomainError]
+    public static readonly DomainError AlreadyUnderMaintenance = DomainError.Create(
+        &quot;Asset.AlreadyUnderMaintenance&quot;,
+        &quot;Asset already under maintenance.&quot;);
+
+    [DomainError]
+    public static readonly DomainError NotUnderMaintenance = DomainError.Create(
+        &quot;Asset.NotUnderMaintenance&quot;,
+        &quot;Asset is not under maintenance.&quot;);
+
+    [DomainError]
+    public static readonly DomainError TagRequired = DomainError.Create(
+        &quot;AssetTag.TagRequired&quot;,
+        &quot;Asset tag cannot be empty.&quot;);
+}</code></pre>
+<p><strong>Usage in Domain:</strong></p>
+<pre><code class="language-csharp">public sealed class Asset : AggregateRoot&lt;Guid&gt;
+{
+    public Result SetUnderMaintenance()
+    {
+        if (_status == AssetStatus.UnderMaintenance)
+        {
+            // Invariant violation - throw exception
+            throw new DomainException(AssetErrors.AlreadyUnderMaintenance);
+        }
+        
+        _status = AssetStatus.UnderMaintenance;
+        return Result.Success();
+    }
+}</code></pre>
+<h2>Alternatives Considered</h2>
+<h3>Option 1: Magic Strings Everywhere</h3>
+<p><strong>Pattern:</strong></p>
+<pre><code class="language-csharp">return Error.NotFound(&quot;ASSET_NOT_FOUND&quot;, &quot;Asset not found&quot;);
+return Error.NotFound(&quot;AssetNotFound&quot;, &quot;Asset not found&quot;);
+return Error.NotFound(&quot;Asset.NotFound&quot;, &quot;Asset not found&quot;);</code></pre>
+<p><strong>Analysis:</strong></p>
+<p><strong>Problems:</strong></p>
+<ul>
+<li>No central source of truth</li>
+<li>Prone to typos and inconsistencies</li>
+<li>Impossible to discover all error codes</li>
+<li>No uniqueness guarantees</li>
+<li>Difficult for frontend integration</li>
+</ul>
+<p><strong>Verdict:</strong> Rejected - No discoverability, no consistency</p>
+<p>---</p>
+<h3>Option 2: Enum-Based Error Codes</h3>
+<p><strong>Pattern:</strong></p>
+<pre><code class="language-csharp">public enum ErrorCode
+{
+    AssetNotFound,
+    AssetNotAvailable,
+    WorkOrderNotFound,
+    TechnicianNotAvailable
+}
+
+return Error.NotFound(ErrorCode.AssetNotFound, &quot;Asset not found&quot;);</code></pre>
+<p><strong>Pros:</strong></p>
+<ul>
+<li>Type-safe</li>
+<li>Compile-time validation</li>
+<li>Easy to discover in IDE</li>
+</ul>
+<p><strong>Cons:</strong></p>
+<ul>
+<li>No error messages attached to codes</li>
+<li>All error codes in single enum (violates bounded contexts)</li>
+<li>Difficult to export with metadata</li>
+<li>No layer separation (domain vs application)</li>
+<li>Enum serialization issues across versions</li>
+</ul>
+<p><strong>Verdict:</strong> Rejected - Violates bounded contexts, no message coupling</p>
+<p>---</p>
+<h3>Option 3: Exception-Based Control Flow</h3>
+<p><strong>Pattern:</strong></p>
+<pre><code class="language-csharp">public class AssetNotFoundException : DomainException { }
+public class AssetNotAvailableException : DomainException { }</code></pre>
+<p><strong>Analysis:</strong></p>
+<p>That&#x27;s consider accepted and to have specific domain exception but still you need to define error code and message and also will require too many exceptions classes</p>
+<p><strong>Problems:</strong></p>
+<ul>
+<li>Difficult to discover what exceptions a method might throw</li>
+<li>Breaking changes when adding new exceptions</li>
+<li>Result pattern is superior for expected failures</li>
+<li>Too many exceptions</li>
+<li>Aggregate exceptions is not straight forward to implement</li>
+</ul>
+<p><strong>Verdict:</strong> Rejected </p>
+<p>---</p>
+<h2>Implementation Guidelines</h2>
+<h3>When to Use Domain vs Application Errors</h3>
+<p><strong>Use DomainError when:</strong></p>
+<ul>
+<li>Business rule violation (invariant)</li>
+<li>Thrown from aggregate roots or entities</li>
+<li>Should cause transaction rollback</li>
+<li>Example: <code>Asset.AlreadyUnderMaintenance</code></li>
+</ul>
+<p><strong>Use Application Error when:</strong></p>
+<ul>
+<li>Expected failure case (not exceptional)</li>
+<li>Not found, validation failure, concurrency conflict</li>
+<li>Returned in Result pattern</li>
+<li>Example: <code>Asset.NotFound</code></li>
+</ul>
+<h3>Error Code Naming Convention</h3>
+<p><strong>Format:</strong> <code>{Aggregate}.{ErrorName}</code></p>
+<p>Examples:</p>
+<ul>
+<li><code>Asset.NotFound</code></li>
+<li><code>WorkOrder.AlreadyCompleted</code></li>
+<li><code>Technician.NotAvailable</code></li>
+</ul>
+<p><strong>For nested types:</strong> <code>{Aggregate}{Type}.{ErrorName}</code></p>
+<ul>
+<li><code>AssetTag.TagRequired</code></li>
+<li><code>TechnicianSkill.InvalidLevel</code></li>
+</ul>
+<p>---</p>
+<h2>Future Considerations</h2>
+<h3>Potential Enhancements</h3>
+<p><strong>1. Parametrized error</strong></p>
+<p>Pass values at runtime for the error template</p>
+        </article>
+    </main>
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <ul class="footer-links">
+                <li><a href="https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS">GitHub</a></li>
+                <li><a href="index.html">ADRs</a></li>
+                <li><a href="../patterns.html">Patterns</a></li>
+                <li><a href="https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS/blob/main/LICENSE">License</a></li>
+            </ul>
+            <p class="footer-copy">MIT License &mdash; Built for the .NET community</p>
+        </div>
+    </footer>
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>

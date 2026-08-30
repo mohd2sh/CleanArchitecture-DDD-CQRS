@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patterns — CQRS, Outbox, Events | Clean Architecture .NET Template</title>
+    <meta name="description" content="Deep dive into CQRS, dual event handlers, outbox pattern, cross-aggregate coordination, and architecture tests in this .NET 8 Clean Architecture template.">
+    <meta name="robots" content="index, follow">
+    <meta name="google-site-verification" content="A6tHTS5FsuxXuWy3LSg5yzVrA7j2R3S2R9he25A0aWs">
+    <link rel="canonical" href="https://mohd2sh.github.io/CleanArchitecture-DDD-CQRS/patterns.html">
+    <meta property="og:title" content="Patterns — CQRS, Outbox, Events">
+    <meta property="og:description" content="Enterprise patterns implemented in this .NET 8 Clean Architecture template.">
+    <meta property="og:url" content="https://mohd2sh.github.io/CleanArchitecture-DDD-CQRS/patterns.html">
+    <meta property="og:image" content="https://mohd2sh.github.io/CleanArchitecture-DDD-CQRS/assets/images/social-preview.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-inner">
+            <a href="index.html" class="logo"><span class="logo-dotnet">.NET</span> Clean Architecture</a>
+            <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">&#9776;</button>
+            <ul class="nav-links">
+                <li><a href="index.html#features">Features</a></li>
+                <li><a href="index.html#architecture">Architecture</a></li>
+                <li><a href="patterns.html">Patterns</a></li>
+                <li><a href="adrs/index.html">ADRs</a></li>
+            </ul>
+            <div class="nav-actions">
+                <a href="https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS" class="btn btn-primary btn-sm" target="_blank" rel="noopener">Star on GitHub</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container-narrow">
+        <div class="page-header">
+            <h1>Core Patterns</h1>
+            <p class="page-meta">Enterprise patterns in this Clean Architecture template</p>
+        </div>
+
+        <article class="article-content">
+            <h2>CQRS Implementation</h2>
+            <p>This template separates read and write operations for optimal performance and scalability.</p>
+            <p><strong>Write side:</strong> EF Core with change tracking, <code>IRepository</code>, Unit of Work, ACID transactions, RowVersion optimistic concurrency.</p>
+            <p><strong>Read side:</strong> Dapper for fast SQL queries. Flexible data sources — read replicas, Redis, Elasticsearch. Eventually consistent.</p>
+            <p>Architecture tests enforce separation: query handlers cannot use <code>IRepository</code>; command handlers cannot use <code>IReadRepository</code>.</p>
+
+            <h2>Dual Event Handlers</h2>
+            <h3>IDomainEventHandler (Transactional)</h3>
+            <p>Executes within the same transaction. Modifies aggregate state via repositories. Failure causes rollback. Used for cross-aggregate coordination requiring ACID guarantees.</p>
+            <h3>IIntegrationEventHandler (Asynchronous)</h3>
+            <p>Executes via outbox pattern outside the command scope. Used for notifications, message bus publishing, logging, and analytics. Failures do not rollback the command.</p>
+            <p>See <a href="adrs/adr-003.html">ADR-003</a> for the full decision rationale.</p>
+
+            <h2>Outbox Pattern</h2>
+            <p>Integration events are written to an outbox table within the command's database transaction. A background processor polls, deserializes, and invokes handlers with automatic retry.</p>
+            <p>The <code>IOutboxStore</code> and <code>IOutboxPublisher</code> abstractions allow swapping from in-process delivery to a message bus (RabbitMQ, Azure Service Bus) without changing business logic.</p>
+            <p>See <a href="adrs/adr-004.html">ADR-004</a> for details.</p>
+
+            <h2>Cross-Aggregate Coordination</h2>
+            <p>When operations span multiple aggregates (e.g., completing a work order updates Asset and Technician state), domain event handlers coordinate changes within a single transaction.</p>
+            <p>See <a href="adrs/adr-001.html">ADR-001</a>.</p>
+
+            <h2>Optimistic Concurrency</h2>
+            <p>SQL Server <code>ROWVERSION</code> columns detect concurrent modifications. Conflicts return structured errors for the client to retry.</p>
+            <p>See <a href="adrs/adr-002.html">ADR-002</a>.</p>
+
+            <h2>Architecture Tests</h2>
+            <p>Automated tests in <code>CleanArchitecture.Core.ArchitectureTests</code> enforce:</p>
+            <ul>
+                <li>Value objects are immutable and sealed</li>
+                <li>Domain types do not depend on outer layers</li>
+                <li>Handlers return DTOs, not domain entities</li>
+                <li>CQRS read/write separation</li>
+                <li>Bounded context isolation between features</li>
+            </ul>
+
+            <h2>All Architectural Decision Records</h2>
+            <ul>
+                <li><a href="adrs/adr-001.html">ADR-001: Cross-Aggregate Coordination</a></li>
+                <li><a href="adrs/adr-002.html">ADR-002: Optimistic Concurrency Control</a></li>
+                <li><a href="adrs/adr-003.html">ADR-003: Domain vs Integration Events</a></li>
+                <li><a href="adrs/adr-004.html">ADR-004: Outbox Pattern</a></li>
+                <li><a href="adrs/adr-005.html">ADR-005: Error Management System</a></li>
+                <li><a href="adrs/adr-006.html">ADR-006: Unobtrusive Mode Integration Events</a></li>
+            </ul>
+        </article>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <ul class="footer-links">
+                <li><a href="https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS">GitHub</a></li>
+                <li><a href="adrs/index.html">ADRs</a></li>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS/blob/main/LICENSE">License</a></li>
+            </ul>
+            <p class="footer-copy">MIT License &mdash; Built for the .NET community</p>
+        </div>
+    </footer>
+    <script src="assets/js/main.js"></script>
+</body>
+</html>

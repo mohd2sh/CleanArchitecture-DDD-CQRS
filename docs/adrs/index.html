@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Architectural Decision Records | Clean Architecture .NET Template</title>
+    <meta name="description" content="Six documented architectural decisions for this .NET Clean Architecture template — cross-aggregate coordination, CQRS, outbox, concurrency, and more.">
+    <meta name="robots" content="index, follow">
+    <meta name="google-site-verification" content="A6tHTS5FsuxXuWy3LSg5yzVrA7j2R3S2R9he25A0aWs">
+    <link rel="canonical" href="https://mohd2sh.github.io/CleanArchitecture-DDD-CQRS/adrs/">
+    <meta property="og:title" content="Architectural Decision Records">
+    <meta property="og:description" content="ADRs documenting key architecture decisions in this .NET Clean Architecture template.">
+    <meta property="og:url" content="https://mohd2sh.github.io/CleanArchitecture-DDD-CQRS/adrs/">
+    <meta property="og:image" content="https://mohd2sh.github.io/CleanArchitecture-DDD-CQRS/assets/images/social-preview.png">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-inner">
+            <a href="../index.html" class="logo"><span class="logo-dotnet">.NET</span> Clean Architecture</a>
+            <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">&#9776;</button>
+            <ul class="nav-links">
+                <li><a href="../index.html#features">Features</a></li>
+                <li><a href="../index.html#architecture">Architecture</a></li>
+                <li><a href="../patterns.html">Patterns</a></li>
+                <li><a href="index.html">ADRs</a></li>
+            </ul>
+            <div class="nav-actions">
+                <a href="https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS" class="btn btn-primary btn-sm" target="_blank" rel="noopener">Star on GitHub</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="page-header">
+            <h1>Architectural Decision Records</h1>
+            <p class="page-meta">Foundational decisions that shape this Clean Architecture template.</p>
+        </div>
+
+        <div class="adr-grid">
+            <article class="adr-card">
+                <span class="status-badge status-accepted">Accepted</span>
+                <h2><a href="adr-001.html">ADR-001: Cross-Aggregate Coordination Pattern</a></h2>
+                <p>How to coordinate operations across multiple aggregate roots while maintaining DDD boundaries and ACID guarantees.</p>
+                <a href="adr-001.html">Read ADR-001 &rarr;</a>
+            </article>
+
+            <article class="adr-card">
+                <span class="status-badge status-accepted">Accepted</span>
+                <h2><a href="adr-002.html">ADR-002: Optimistic Concurrency Control</a></h2>
+                <p>Using SQL Server ROWVERSION to prevent lost updates and handle concurrent modifications.</p>
+                <a href="adr-002.html">Read ADR-002 &rarr;</a>
+            </article>
+
+            <article class="adr-card">
+                <span class="status-badge status-accepted">Accepted</span>
+                <h2><a href="adr-003.html">ADR-003: Domain vs Integration Events</a></h2>
+                <p>Separating transactional domain events from asynchronous integration events with distinct handler types.</p>
+                <a href="adr-003.html">Read ADR-003 &rarr;</a>
+            </article>
+
+            <article class="adr-card">
+                <span class="status-badge status-accepted">Accepted</span>
+                <h2><a href="adr-004.html">ADR-004: Outbox Pattern</a></h2>
+                <p>Guaranteed integration event delivery with transactional consistency and migration path to message bus.</p>
+                <a href="adr-004.html">Read ADR-004 &rarr;</a>
+            </article>
+
+            <article class="adr-card">
+                <span class="status-badge status-accepted">Accepted</span>
+                <h2><a href="adr-005.html">ADR-005: Error Management System</a></h2>
+                <p>Structured error handling with Result pattern and exportable error codes for frontend localization.</p>
+                <a href="adr-005.html">Read ADR-005 &rarr;</a>
+            </article>
+
+            <article class="adr-card">
+                <span class="status-badge status-accepted">Accepted</span>
+                <h2><a href="adr-006.html">ADR-006: Unobtrusive Mode Integration Events</a></h2>
+                <p>Publishing integration events without coupling domain logic to infrastructure concerns.</p>
+                <a href="adr-006.html">Read ADR-006 &rarr;</a>
+            </article>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <ul class="footer-links">
+                <li><a href="https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS">GitHub</a></li>
+                <li><a href="../patterns.html">Patterns</a></li>
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS/blob/main/LICENSE">License</a></li>
+            </ul>
+            <p class="footer-copy">MIT License &mdash; Built for the .NET community</p>
+        </div>
+    </footer>
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>

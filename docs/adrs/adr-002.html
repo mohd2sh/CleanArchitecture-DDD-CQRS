@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADR-002: Optimistic Concurrency Control</title>
+    <meta name="description" content="SQL Server ROWVERSION for preventing lost updates in concurrent .NET applications.">
+    <meta name="robots" content="index, follow">
+    <meta name="google-site-verification" content="A6tHTS5FsuxXuWy3LSg5yzVrA7j2R3S2R9he25A0aWs" />
+    <link rel="canonical" href="https://mohd2sh.github.io/CleanArchitecture-DDD-CQRS/adrs/adr-002.html">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="ADR-002: Optimistic Concurrency Control">
+    <meta property="og:description" content="SQL Server ROWVERSION for preventing lost updates in concurrent .NET applications.">
+    <meta property="og:url" content="https://mohd2sh.github.io/CleanArchitecture-DDD-CQRS/adrs/adr-002.html">
+    <meta property="og:image" content="https://mohd2sh.github.io/CleanArchitecture-DDD-CQRS/assets/images/social-preview.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "TechArticle",
+        "headline": "ADR-002: Optimistic Concurrency Control",
+        "description": "SQL Server ROWVERSION for preventing lost updates in concurrent .NET applications.",
+        "author": {"@type": "Person", "name": "Mohammad Shakhtour"},
+        "url": "https://mohd2sh.github.io/CleanArchitecture-DDD-CQRS/adrs/adr-002.html"
+    }
+    </script>
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-inner">
+            <a href="../index.html" class="logo"><span class="logo-dotnet">.NET</span> Clean Architecture</a>
+            <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">&#9776;</button>
+            <ul class="nav-links">
+                <li><a href="../index.html#features">Features</a></li>
+                <li><a href="../index.html#architecture">Architecture</a></li>
+                <li><a href="../patterns.html">Patterns</a></li>
+                <li><a href="index.html">ADRs</a></li>
+            </ul>
+            <div class="nav-actions">
+                <a href="https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS" class="btn btn-primary btn-sm" target="_blank" rel="noopener">Star on GitHub</a>
+            </div>
+        </div>
+    </header>
+    <main class="container-narrow">
+        <div class="page-header">
+            <h1>ADR-002: Optimistic Concurrency Control</h1>
+            <div class="page-meta">
+                <span>Author: Mohammad Shakhtour</span>
+                <span class="status-badge status-accepted">Accepted</span>
+            </div>
+        </div>
+        <article class="article-content">
+<p> <strong>Author:</strong> Mohammad Shakhtour  </p>
+<p><strong>Status:</strong> Accepted  </p>
+<h2>Summary</h2>
+<p>This ADR documents the decision to implement optimistic concurrency control using SQL Server&#x27;s <code>ROWVERSION</code> (timestamp) pattern to prevent race conditions and ensure data consistency in concurrent scenarios.</p>
+<h2>Context</h2>
+<p>In a CMMS (Computerized Maintenance Management System), multiple users may simultaneously attempt to modify the same assets, work orders, or technicians. Without proper concurrency control, race conditions can lead to data inconsistency, lost updates, and business rule violations.</p>
+<h3>Problem Scenario</h3>
+<p>Consider a critical race condition in work order creation:</p>
+<ol>
+<li><strong>Process A</strong> reads Asset X (Status: Active, RowVersion: 0x0000000000000123)</li>
+<li><strong>Process B</strong> reads Asset X (Status: Active, RowVersion: 0x0000000000000123)</li>
+<li><strong>Process A</strong> creates WorkOrder for Asset X, changes status to UnderMaintenance</li>
+<li><strong>Process B</strong> creates WorkOrder for Asset X, changes status to UnderMaintenance</li>
+<li><strong>Process A</strong> commits successfully (RowVersion: 0x0000000000000124)</li>
+<li><strong>Process B</strong> commits successfully (RowVersion: 0x0000000000000125)</li>
+</ol>
+<p><strong>Result:</strong> Two work orders exist for the same segment of time, violating the business rule that an asset can only be under maintenance once.</p>
+<h2>Decision Drivers</h2>
+<ul>
+<li><strong>Data Consistency:</strong> Prevent race conditions that violate business rules</li>
+<li><strong>Performance:</strong> Avoid blocking operations with pessimistic locking</li>
+<li><strong>Scalability:</strong> Support concurrent user operations without deadlocks</li>
+<li><strong>User Experience:</strong> Provide clear error messages for concurrency conflicts</li>
+<li><strong>Industry Standards:</strong> Follow established patterns in .NET ecosystem</li>
+</ul>
+<h2>Options Considered</h2>
+<h3>Option 1: No Concurrency Control</h3>
+<p><strong>Description:</strong> Rely on application logic without database-level concurrency protection.</p>
+<p><strong>Pros:</strong></p>
+<ul>
+<li>Simple implementation</li>
+<li>No additional database overhead</li>
+</ul>
+<p><strong>Cons:</strong></p>
+<ul>
+<li>Race conditions and data inconsistency</li>
+<li>Lost updates in concurrent scenarios</li>
+<li>Business rule violations</li>
+<li>Unreliable system behavior</li>
+</ul>
+<p><strong>Verdict:</strong> <strong>Rejected</strong> - Fundamental data integrity issues</p>
+<h3>Option 2: Pessimistic Locking</h3>
+<p><strong>Description:</strong> Lock database rows during read operations until transaction completion.</p>
+<p><strong>Implementation:</strong></p>
+<pre><code class="language-csharp">// Using SELECT ... FOR UPDATE (SQL Server: WITH (UPDLOCK, HOLDLOCK))
+var asset = await _repository.GetByIdAsync(assetId, cancellationToken);
+// Lock held until transaction commits</code></pre>
+<p><strong>Pros:</strong></p>
+<ul>
+<li>Guaranteed consistency</li>
+<li>No lost updates</li>
+<li>Simple conflict resolution</li>
+</ul>
+<p><strong>Cons:</strong></p>
+<ul>
+<li>Poor performance under load</li>
+<li>Deadlock potential</li>
+<li>Reduced concurrency</li>
+<li>Poor user experience (long waits)</li>
+<li>Not suitable for web applications</li>
+</ul>
+<p><strong>Verdict:</strong> <strong>Rejected</strong> - Performance and scalability concerns</p>
+<h3>Option 3: Optimistic Concurrency Control with RowVersion</h3>
+<p><strong>Description:</strong> Use SQL Server&#x27;s <code>ROWVERSION</code> (timestamp) columns to detect concurrent modifications.</p>
+<p><strong>Implementation:</strong></p>
+<pre><code class="language-csharp">// Domain Entity
+public abstract class AggregateRoot&lt;TId&gt; : AuditableEntity&lt;TId&gt;, IAggregateRoot
+{
+    [Timestamp]
+    public byte[] RowVersion { get; protected set; } = default!;
+}
+
+// Entity Configuration
+builder.Property(e =&gt; e.RowVersion)
+    .IsRowVersion()
+    .IsConcurrencyToken();</code></pre>
+<p><strong>Pros:</strong></p>
+<ul>
+<li>Excellent performance and scalability</li>
+<li>No deadlocks</li>
+<li>Industry standard pattern</li>
+<li>Clear conflict detection</li>
+<li>Works well with web applications</li>
+</ul>
+<p><strong>Cons:</strong></p>
+<ul>
+<li>Requires retry logic for conflicts</li>
+<li>Slightly more complex error handling</li>
+</ul>
+<p><strong>Verdict:</strong> <strong>Accepted</strong> - Best balance of performance and consistency</p>
+<h3>Option 4: Application-Level Versioning</h3>
+<p><strong>Description:</strong> Implement custom versioning using integer counters or GUIDs.</p>
+<p><strong>Pros:</strong></p>
+<ul>
+<li>Database agnostic</li>
+<li>Custom conflict resolution logic</li>
+</ul>
+<p><strong>Cons:</strong></p>
+<ul>
+<li>More complex implementation</li>
+<li>Requires manual version management</li>
+<li>Potential for version conflicts</li>
+<li>Not leveraging database optimizations</li>
+</ul>
+<p><strong>Verdict:</strong> <strong>Rejected</strong> - Unnecessary complexity when database provides native support</p>
+<h2>Decision</h2>
+<p><strong>Chosen Approach:</strong> Optimistic Concurrency Control with SQL Server RowVersion</p>
+<p>This approach provides the optimal balance between data consistency, performance, and maintainability for a CMMS system with concurrent user operations.</p>
+<h2>Implementation Details</h2>
+<h3>1. Domain Layer - Aggregate Root Configuration</h3>
+<p>All aggregate roots inherit concurrency control:</p>
+<pre><code class="language-csharp">// src/CleanArchitecture.Cmms.Domain/Abstractions/AggregateRoot.cs
+using System.ComponentModel.DataAnnotations;
+
+namespace CleanArchitecture.Cmms.Domain.Abstractions
+{
+    internal abstract class AggregateRoot&lt;TId&gt; : AuditableEntity&lt;TId&gt;, IAggregateRoot
+    {
+        [Timestamp]
+        public byte[] RowVersion { get; protected set; } = default!;
+
+        protected AggregateRoot() { }
+        protected AggregateRoot(TId id) : base(id) { }
+    }
+}</code></pre>
+<h3>2. Infrastructure Layer - Entity Configuration</h3>
+<p>RowVersion is configured as a concurrency token:</p>
+<pre><code class="language-csharp">// src/CleanArchitecture.Cmms.Infrastructure/Persistence/Configurations/AuditableEntityConfiguration.cs
+internal abstract class AuditableEntityConfiguration&lt;TEntity, TId&gt; : IEntityTypeConfiguration&lt;TEntity&gt;
+    where TEntity : AggregateRoot&lt;TId&gt;
+{
+    public void Configure(EntityTypeBuilder&lt;TEntity&gt; builder)
+    {
+        builder.Property(e =&gt; e.RowVersion)
+            .IsRowVersion()
+            .IsConcurrencyToken();
+        
+        // ... other audit properties
+        ConfigureCore(builder);
+    }
+    
+    protected abstract void ConfigureCore(EntityTypeBuilder&lt;TEntity&gt; builder);
+}</code></pre>
+<h3>3. Application Layer - Error Definition</h3>
+<p>Concurrency conflicts are represented as domain errors:</p>
+<pre><code class="language-csharp">// src/CleanArchitecture.Cmms.Application/Assets/AssetErrors.cs
+[ApplicationError]
+public static readonly Error ConcurrencyConflict = Error.Conflict(
+    &quot;Asset.ConcurrencyConflict&quot;,
+    &quot;Asset was modified by another user. Please refresh and try again.&quot;);</code></pre>
+<h3>4. API Layer - Exception Handling</h3>
+<p>Concurrency exceptions are handled globally:</p>
+<pre><code class="language-csharp">// src/CleanArchitecture.Cmms.Api/Middlewares/ExceptionHandlingMiddleware.cs
+private async Task HandleExceptionAsync(HttpContext context, Exception ex)
+{
+    switch (ex)
+    {
+        case DbUpdateConcurrencyException concurrencyEx:
+            await WriteConcurrencyResponseAsync(context, concurrencyEx);
+            break;
+        // ... other cases
+    }
+}
+
+private async Task WriteConcurrencyResponseAsync(HttpContext context, DbUpdateConcurrencyException ex)
+{
+    _logger.LogWarning(ex, &quot;Concurrency conflict occurred.&quot;);
+    
+    var result = Result.Failure(AssetErrors.ConcurrencyConflict);
+
+    context.Response.ContentType = &quot;application/json&quot;;
+    context.Response.StatusCode = (int)HttpStatusCode.Conflict;
+
+    await context.Response.WriteAsync(JsonSerializer.Serialize(result, _jsonOptions));
+}</code></pre>
+<h2>How It Works</h2>
+<h3>Race Condition Prevention</h3>
+<ol>
+<li><strong>Read Phase:</strong> Entity loaded with current RowVersion</li>
+<li><strong>Business Logic:</strong> Domain rules validated against current state</li>
+<li><strong>Update Phase:</strong> EntityFramework compares RowVersion during SaveChanges()</li>
+<li><strong>Conflict Detection:</strong> If RowVersion changed, <code>DbUpdateConcurrencyException</code> thrown</li>
+<li><strong>Error Handling:</strong> User receives clear conflict message</li>
+</ol>
+<h3>Example: Concurrent Work Order Creation</h3>
+<pre><code class="language-csharp">// Process A and B both execute simultaneously
+public async Task&lt;Result&lt;Guid&gt;&gt; Handle(CreateWorkOrderCommand request, CancellationToken cancellationToken)
+{
+    // 1. Create location from request data
+    var location = Location.Create(request.Building, request.Floor, request.Room);
+    
+    // 2. Create work order
+    var workOrder = WorkOrder.Create(request.AssetId, request.Title, location);
+    await _workOrderRepository.AddAsync(workOrder, cancellationToken);
+    
+    // 3. Return result - SaveChanges happens in TransactionPipeline
+    // WorkOrderCreatedEvent is raised automatically
+    return workOrder.Id;
+}
+
+// Event Handler that runs after work order creation
+public async Task Handle(WorkOrderCreatedEvent notification, CancellationToken cancellationToken)
+{
+    // 1. Load asset (RowVersion: 0x0000000000000123 for both processes)
+    var asset = await _assetRepository.GetByIdAsync(notification.AssetId, cancellationToken);
+    
+    
+    // 2. Set asset under maintenance
+    asset.SetUnderMaintenance(&quot;Work order created&quot;, notification.CreatedBy, DateTime.UtcNow);
+    
+    // 3. No SaveChanges here - handled by TransactionPipeline
+    // Process A succeeds, Process B gets DbUpdateConcurrencyException
+}
+
+// Pipeline execution order:
+// 1. DomainEventsPipeline (runs event handlers)
+// 2. TransactionPipeline (calls SaveChanges)
+// Concurrency conflict occurs during SaveChanges in TransactionPipeline</code></pre>
+<h2>Future Considerations</h2>
+<h3>Microservices Migration</h3>
+<p>When migrating to microservices, consider:</p>
+<ol>
+<li><strong>Event Sourcing:</strong> Replace RowVersion with event versioning</li>
+<li><strong>Distributed Locks:</strong> Use Redis or database locks for critical sections</li>
+<li><strong>Saga Pattern:</strong> Handle distributed transactions across services</li>
+<li><strong>Idempotency:</strong> Ensure operations can be safely retried</li>
+</ol>
+<h3>Alternative Databases</h3>
+<p>For non-SQL Server databases:</p>
+<ol>
+<li><strong>PostgreSQL:</strong> Use <code>xmin</code> system column or custom version fields</li>
+<li><strong>MySQL:</strong> Use custom integer version columns</li>
+<li><strong>NoSQL:</strong> Implement application-level versioning</li>
+</ol>
+<h2>References</h2>
+<ul>
+<li><a href="https://docs.microsoft.com/en-us/sql/t-sql/data-types/rowversion-transact-sql">SQL Server RowVersion Documentation</a></li>
+<li><a href="https://docs.microsoft.com/en-us/ef/core/saving/concurrency">Entity Framework Concurrency Tokens</a></li>
+<li><a href="https://docs.microsoft.com/en-us/ef/core/saving/concurrency">Optimistic vs Pessimistic Locking</a></li>
+<li><a href="https://www.domainlanguage.com/ddd/">Domain-Driven Design by Eric Evans</a></li>
+<li><a href="https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html">Clean Architecture by Robert C. Martin</a></li>
+</ul>
+        </article>
+    </main>
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <ul class="footer-links">
+                <li><a href="https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS">GitHub</a></li>
+                <li><a href="index.html">ADRs</a></li>
+                <li><a href="../patterns.html">Patterns</a></li>
+                <li><a href="https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS/blob/main/LICENSE">License</a></li>
+            </ul>
+            <p class="footer-copy">MIT License &mdash; Built for the .NET community</p>
+        </div>
+    </footer>
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>

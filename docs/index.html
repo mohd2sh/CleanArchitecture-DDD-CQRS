@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>Clean Architecture CMMS DDD + CQRS — .NET 8 Template with Architecture Tests</title>
+    <meta name="description" content="Production-ready .NET 8 Clean Architecture template with DDD, CQRS, outbox pattern, and automated architecture tests. Clone, run with Docker, and build maintainable enterprise apps.">
+    <meta name="keywords" content="clean architecture .NET, CQRS DDD template, .NET 8 template, outbox pattern, architecture tests, domain-driven design, CMMS">
+    <meta name="author" content="Mohammad Shakhtour">
+    <meta name="robots" content="index, follow">
+    <meta name="google-site-verification" content="A6tHTS5FsuxXuWy3LSg5yzVrA7j2R3S2R9he25A0aWs">
+    <link rel="canonical" href="https://mohd2sh.github.io/CleanArchitecture-DDD-CQRS/">
+
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Clean Architecture CMMS DDD + CQRS — .NET 8 Template">
+    <meta property="og:description" content=".NET 8 Clean Architecture template with DDD, CQRS, outbox pattern, and automated architecture tests.">
+    <meta property="og:url" content="https://mohd2sh.github.io/CleanArchitecture-DDD-CQRS/">
+    <meta property="og:image" content="https://mohd2sh.github.io/CleanArchitecture-DDD-CQRS/assets/images/social-preview.png">
+    <meta property="og:site_name" content="Clean Architecture CMMS DDD + CQRS">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Clean Architecture CMMS DDD + CQRS — .NET 8 Template">
+    <meta name="twitter:description" content=".NET 8 Clean Architecture template with DDD, CQRS, outbox pattern, and automated architecture tests.">
+    <meta name="twitter:image" content="https://mohd2sh.github.io/CleanArchitecture-DDD-CQRS/assets/images/social-preview.png">
+
+    <link rel="stylesheet" href="assets/css/style.css">
+
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Clean Architecture CMMS DDD + CQRS",
+        "url": "https://mohd2sh.github.io/CleanArchitecture-DDD-CQRS/",
+        "description": ".NET 8 Clean Architecture template with DDD, CQRS, and automated architecture tests."
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Clean Architecture CMMS DDD + CQRS",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": ".NET 8",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "author": { "@type": "Person", "name": "Mohammad Shakhtour", "url": "https://github.com/mohd2sh" },
+        "codeRepository": "https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS",
+        "programmingLanguage": "C#"
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": "What is Clean Architecture in this .NET template?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "The template separates Domain, Application, Infrastructure, and API layers with strict dependency rules. Automated architecture tests enforce boundaries at compile time so violations are caught in CI."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "How does CQRS work in this template?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Commands use EF Core with write repositories for transactional consistency. Queries use Dapper with read repositories. Architecture tests prevent commands from using read repositories and vice versa."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "How does the outbox pattern work?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Integration events are written to an outbox table in the same database transaction as business data. A background processor delivers them with at-least-once semantics. The IOutboxPublisher abstraction allows swapping to a message bus for microservices."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "How do I run this template locally?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Clone the repository and run docker-compose up for SQL Server and the API with automatic migrations. Or run dotnet run --project src/CleanArchitecture.Cmms.Api with your own SQL Server."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Can this template evolve to microservices?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Yes. The outbox abstraction, event-driven architecture, and bounded context isolation were designed for microservices from the start. See the CleanArchitecture-DDD-CQRS-Microservices repo for the evolved implementation."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "What are architecture tests?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Automated unit tests that enforce DDD and Clean Architecture rules at compile time — immutability of value objects, layer dependencies, CQRS separation, and bounded context isolation."
+                }
+            }
+        ]
+    }
+    </script>
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-inner">
+            <a href="index.html" class="logo"><span class="logo-dotnet">.NET</span> Clean Architecture</a>
+            <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">&#9776;</button>
+            <ul class="nav-links">
+                <li><a href="#features">Features</a></li>
+                <li><a href="#architecture">Architecture</a></li>
+                <li><a href="patterns.html">Patterns</a></li>
+                <li><a href="adrs/index.html">ADRs</a></li>
+            </ul>
+            <div class="nav-actions">
+                <a href="https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS" class="btn btn-primary btn-sm" target="_blank" rel="noopener">Star on GitHub</a>
+            </div>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="hero-content">
+            <span class="hero-badge">.NET 8 Template &middot; Open Source &middot; MIT License</span>
+            <h1>Clean Architecture, CQRS &amp; DDD Template</h1>
+            <p class="hero-subtitle">A complete .NET 8 CMMS starter with automated architecture tests, outbox pattern, and event-driven cross-aggregate coordination — pragmatic DDD without over-engineering.</p>
+
+            <div class="hero-badges">
+                <img src="https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS/actions/workflows/integration-tests.yml/badge.svg" alt="Integration Tests passing">
+                <img src="https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS/actions/workflows/dotnet-test.yml/badge.svg" alt="Unit and Architecture Tests passing">
+                <img src="https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS/actions/workflows/docker-build.yml/badge.svg" alt="Docker Build passing">
+            </div>
+
+            <div class="hero-ctas">
+                <a href="https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS" class="btn btn-hero-primary" target="_blank" rel="noopener">View on GitHub</a>
+                <a href="#quick-start" class="btn btn-hero-secondary">Run with Docker</a>
+            </div>
+
+            <p class="hero-proof">Microservices-ready &middot; Evolved into <a href="https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS-Microservices">CleanArchitecture-DDD-CQRS-Microservices</a></p>
+        </div>
+    </section>
+
+    <section id="features" class="section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Enterprise Patterns, Ready to Use</h2>
+                <p>Everything you need to start a maintainable .NET application — with tests that enforce the rules.</p>
+            </div>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">&#127959;</div>
+                    <h3>Clean Architecture</h3>
+                    <p>Domain, Application, Infrastructure, and API layers with dependency inversion and clear boundaries.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">&#9881;</div>
+                    <h3>DDD Tactical Patterns</h3>
+                    <p>Aggregates, value objects, domain events, and rich domain models with encapsulated business rules.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">&#8644;</div>
+                    <h3>CQRS</h3>
+                    <p>EF Core for writes, Dapper for reads. Flexible read sources — replicas, Redis, Elasticsearch.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">&#128230;</div>
+                    <h3>Outbox Pattern</h3>
+                    <p>Guaranteed integration event delivery. Swap the publisher for message bus when you go microservices.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">&#9889;</div>
+                    <h3>Event-Driven</h3>
+                    <p>Dual handlers: transactional domain events and async integration events via outbox.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">&#128737;</div>
+                    <h3>Architecture Tests</h3>
+                    <p>Automated boundary enforcement at compile time. The key differentiator of this template.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="architecture" class="section section-alt">
+        <div class="container">
+            <div class="section-header">
+                <h2>Architecture Overview</h2>
+                <p>Clean Architecture layers with CQRS write and read paths, domain events, and outbox delivery.</p>
+            </div>
+
+            <div class="diagram-wrapper">
+                <img src="assets/images/Overview.png" alt="System architecture overview showing Clean Architecture layers, CQRS command and query paths, domain events, and outbox pattern in a .NET CMMS application" width="900" loading="lazy">
+                <p class="diagram-caption">High-level system architecture — layers, CQRS, and event flow.</p>
+            </div>
+
+            <div class="diagram-wrapper">
+                <img src="assets/images/CommandFlow.png" alt="CQRS command flow diagram from API through handler, domain events, transactional handlers, integration events, and outbox background worker" width="900" loading="lazy">
+                <p class="diagram-caption">Write path — commands, domain events, integration events, and outbox.</p>
+            </div>
+
+            <div class="diagram-wrapper">
+                <img src="assets/images/QueryFlow.png" alt="CQRS query flow diagram showing flexible read sources including Dapper, read replicas, Redis cache, and Elasticsearch with eventual consistency" width="900" loading="lazy">
+                <p class="diagram-caption">Read path — flexible data sources with eventual consistency.</p>
+            </div>
+
+            <div class="diagram-wrapper">
+                <img src="assets/images/CommandSequenceDiagram.svg" alt="Sequence diagram showing command execution flow through API, mediator, handler, domain, and event handlers" width="900" loading="lazy">
+                <p class="diagram-caption">Command sequence — end-to-end request flow.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Core Patterns</h2>
+                <p>See the <a href="patterns.html">patterns deep dive</a> and <a href="adrs/index.html">ADRs</a> for details.</p>
+            </div>
+            <div class="pattern-grid">
+                <div class="pattern-card">
+                    <h3>Cross-Aggregate Coordination</h3>
+                    <p>Domain events coordinate state across aggregates within ACID transactions. See ADR-001.</p>
+                </div>
+                <div class="pattern-card">
+                    <h3>Optimistic Concurrency</h3>
+                    <p>SQL Server RowVersion prevents lost updates on concurrent writes. See ADR-002.</p>
+                </div>
+                <div class="pattern-card">
+                    <h3>Domain vs Integration Events</h3>
+                    <p>Clear separation between transactional and async side effects. See ADR-003.</p>
+                </div>
+                <div class="pattern-card">
+                    <h3>Structured Error Management</h3>
+                    <p>Result pattern with exportable error codes for frontend localization. See ADR-005.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section section-alt">
+        <div class="container">
+            <div class="section-header">
+                <h2>Who Is This For?</h2>
+            </div>
+            <ul class="audience-list">
+                <li>Teams building enterprise .NET applications with CQRS and DDD</li>
+                <li>Developers learning Clean Architecture with runnable, tested code</li>
+                <li>Architects evaluating DDD and CQRS implementations in .NET</li>
+                <li>Teams planning a path from monolith to microservices</li>
+            </ul>
+        </div>
+    </section>
+
+    <section id="quick-start" class="section">
+        <div class="container container-narrow">
+            <div class="section-header">
+                <h2>Quick Start</h2>
+                <p>Run the full stack with Docker in two commands.</p>
+            </div>
+
+            <div class="code-block">
+                <div class="code-block-header">
+                    <span>Terminal</span>
+                    <button class="copy-btn" type="button">Copy</button>
+                </div>
+                <pre><code>git clone https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS.git
+cd CleanArchitecture-DDD-CQRS
+docker-compose up</code></pre>
+            </div>
+
+            <p><strong>Includes:</strong> SQL Server 2022, API service, automatic migrations and seeding.</p>
+            <p style="margin-top: 1rem;"><strong>Local dev:</strong> <code>dotnet run --project src/CleanArchitecture.Cmms.Api</code></p>
+            <p style="margin-top: 1rem;"><strong>Prerequisites:</strong> .NET 8 SDK, Docker Desktop (recommended)</p>
+        </div>
+    </section>
+
+    <section class="section section-alt">
+        <div class="container">
+            <div class="section-header">
+                <h2>Related Repositories</h2>
+            </div>
+            <div class="related-grid">
+                <div class="related-card">
+                    <h3>CleanArchitecture-DDD-CQRS-Microservices</h3>
+                    <p>This template evolved into four microservices with saga orchestration, MassTransit, and database-per-service.</p>
+                    <a href="https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS-Microservices" class="btn btn-secondary btn-sm" target="_blank" rel="noopener">View Microservices Repo</a>
+                </div>
+                <div class="related-card">
+                    <h3>cqrs-beyond-database</h3>
+                    <p>CDC demo with Debezium streaming SQL Server changes to Elasticsearch for cross-service read models.</p>
+                    <a href="https://github.com/mohd2sh/cqrs-beyond-database" class="btn btn-secondary btn-sm" target="_blank" rel="noopener">View CDC Demo</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="faq" class="section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Frequently Asked Questions</h2>
+            </div>
+            <div class="faq-list">
+                <div class="faq-item">
+                    <button class="faq-question" type="button" aria-expanded="false">What is Clean Architecture in this .NET template?</button>
+                    <div class="faq-answer">
+                        <p>The template separates Domain, Application, Infrastructure, and API layers with strict dependency rules. Automated architecture tests enforce boundaries at compile time.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question" type="button" aria-expanded="false">How does CQRS work in this template?</button>
+                    <div class="faq-answer">
+                        <p>Commands use EF Core with write repositories. Queries use Dapper with read repositories. Architecture tests prevent read/write coupling.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question" type="button" aria-expanded="false">How does the outbox pattern work?</button>
+                    <div class="faq-answer">
+                        <p>Integration events are written to an outbox table in the same transaction as business data. A background processor delivers them with at-least-once semantics.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question" type="button" aria-expanded="false">How do I run this template locally?</button>
+                    <div class="faq-answer">
+                        <p>Run <code>docker-compose up</code> or <code>dotnet run --project src/CleanArchitecture.Cmms.Api</code>. See the <a href="#quick-start">Quick Start</a> section.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question" type="button" aria-expanded="false">Can this template evolve to microservices?</button>
+                    <div class="faq-answer">
+                        <p>Yes. See <a href="https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS-Microservices">CleanArchitecture-DDD-CQRS-Microservices</a> for the evolved implementation with saga orchestration and MassTransit.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question" type="button" aria-expanded="false">What are architecture tests?</button>
+                    <div class="faq-answer">
+                        <p>Automated tests enforcing DDD rules at compile time — value object immutability, layer dependencies, CQRS separation, and bounded context isolation.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <ul class="footer-links">
+                <li><a href="https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS">GitHub</a></li>
+                <li><a href="adrs/index.html">ADRs</a></li>
+                <li><a href="patterns.html">Patterns</a></li>
+                <li><a href="https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS/blob/main/LICENSE">License</a></li>
+            </ul>
+            <p class="footer-copy">MIT License &mdash; Built for the .NET community</p>
+        </div>
+    </footer>
+
+    <script src="assets/js/main.js"></script>
+</body>
+</html>

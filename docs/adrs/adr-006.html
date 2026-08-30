@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADR-006: Unobtrusive Mode Integration Events</title>
+    <meta name="description" content="Publishing integration events without coupling domain logic to infrastructure.">
+    <meta name="robots" content="index, follow">
+    <meta name="google-site-verification" content="A6tHTS5FsuxXuWy3LSg5yzVrA7j2R3S2R9he25A0aWs" />
+    <link rel="canonical" href="https://mohd2sh.github.io/CleanArchitecture-DDD-CQRS/adrs/adr-006.html">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="ADR-006: Unobtrusive Mode Integration Events">
+    <meta property="og:description" content="Publishing integration events without coupling domain logic to infrastructure.">
+    <meta property="og:url" content="https://mohd2sh.github.io/CleanArchitecture-DDD-CQRS/adrs/adr-006.html">
+    <meta property="og:image" content="https://mohd2sh.github.io/CleanArchitecture-DDD-CQRS/assets/images/social-preview.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "TechArticle",
+        "headline": "ADR-006: Unobtrusive Mode Integration Events",
+        "description": "Publishing integration events without coupling domain logic to infrastructure.",
+        "author": {"@type": "Person", "name": "Mohammad Shakhtour"},
+        "url": "https://mohd2sh.github.io/CleanArchitecture-DDD-CQRS/adrs/adr-006.html"
+    }
+    </script>
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-inner">
+            <a href="../index.html" class="logo"><span class="logo-dotnet">.NET</span> Clean Architecture</a>
+            <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">&#9776;</button>
+            <ul class="nav-links">
+                <li><a href="../index.html#features">Features</a></li>
+                <li><a href="../index.html#architecture">Architecture</a></li>
+                <li><a href="../patterns.html">Patterns</a></li>
+                <li><a href="index.html">ADRs</a></li>
+            </ul>
+            <div class="nav-actions">
+                <a href="https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS" class="btn btn-primary btn-sm" target="_blank" rel="noopener">Star on GitHub</a>
+            </div>
+        </div>
+    </header>
+    <main class="container-narrow">
+        <div class="page-header">
+            <h1>ADR-006: Unobtrusive Mode Integration Events</h1>
+            <div class="page-meta">
+                <span>Author: Mohammad Shakhtour</span>
+                <span class="status-badge status-accepted">Accepted</span>
+            </div>
+        </div>
+        <article class="article-content">
+<p><strong>Author:</strong> Mohammad Shakhtour  </p>
+<p><strong>Status:</strong> Accepted</p>
+<h2>Context</h2>
+<h3>The Problem</h3>
+<p>Integration events must implement <code>IDomainEvent</code> to be handled. This causes issues:</p>
+<ul>
+<li>Not all System events come from domain aggregates</li>
+<li>External events from other systems don&#x27;t have the internal marker interfaces.</li>
+<li>Creates unnecessary coupling between integration and domain layers</li>
+</ul>
+<p>We need a way to identify integration events without marker interfaces.</p>
+<p>---</p>
+<h2>Decision Drivers</h2>
+<ol>
+<li><strong>Flexibility</strong> - Support events from any source (domain, system, external)</li>
+<li><strong>Extensibility</strong> - Easy to add new event types without changing interfaces</li>
+<li><strong>Decoupling</strong> - Integration events shouldn&#x27;t depend on domain contracts</li>
+<li><strong>Industry Patterns</strong> - NServiceBus and MassTransit use message conventions (unobtrusive mode - same thing)</li>
+</ol>
+<p>---</p>
+<h2>Options Considered</h2>
+<h3>Option 1: Keep IDomainEvent Constraint</h3>
+<p>Only events implementing <code>IDomainEvent</code> can be integration events.</p>
+<p><strong>Pros:</strong> Already implemented, type safety</p>
+<p><strong>Cons:</strong> Can&#x27;t handle system/external events, couples layers</p>
+<p><strong>Verdict:</strong> Rejected - Too restrictive</p>
+<p>---</p>
+<h3>Option 2: Remove Constraint, Use Object Type</h3>
+<p>Remove constraint, use <code>IIntegrationEventHandler&lt;object&gt;</code>.</p>
+<p><strong>Pros:</strong> Flexible</p>
+<p><strong>Cons:</strong> Loses type safety, messy handler code</p>
+<p><strong>Verdict:</strong> Rejected - Loses type safety</p>
+<p>---</p>
+<h3>Option 3: Message Conventions / Unobtrusive Mode (Chosen)</h3>
+<p>Remove constraint from handler, use conventions to identify event types. Handler stays strongly-typed: <code>IIntegrationEventHandler&lt;MySystemEvent&gt;</code>.</p>
+<p><strong>Pros:</strong> Flexible, still type-safe, backward compatible, extensible</p>
+<p><strong>Cons:</strong> Small runtime overhead</p>
+<p><strong>Verdict:</strong> Chosen</p>
+<p>---</p>
+<h2>Decision</h2>
+<p>Implemented <strong>message conventions</strong> (also called unobtrusive mode - same concept):</p>
+<ol>
+<li>Removed <code>where TEvent : IDomainEvent</code> constraint from <code>IIntegrationEventHandler&lt;TEvent&gt;</code></li>
+<li>Created <code>IIntegrationEventConvention</code> to identify event types</li>
+<li>Default conventions:</li>
+</ol>
+<p>   - Name ends with &quot;Event&quot;</p>
+<p>   - Implements <code>IDomainEvent</code> (backward compatible)</p>
+<p>   - In namespace ending with <code>.Events</code> or <code>.IntegrationEvents</code></p>
+<p>   - Its extendable </p>
+<ol>
+<li>Handlers always use <code>IIntegrationEventHandler&lt;TEvent&gt;</code> for any <code>TEvent</code> matching conventions</li>
+</ol>
+<pre><code class="language-csharp">// Handler - no constraint
+public interface IIntegrationEventHandler&lt;in TEvent&gt;
+{
+    Task Handle(TEvent @event, CancellationToken cancellationToken = default);
+}
+
+// Usage
+public class SystemStartedEvent { }  // Name ends with &quot;Event&quot;
+
+internal sealed class SystemEventHandler : IIntegrationEventHandler&lt;SystemStartedEvent&gt;
+{
+    public async Task Handle(SystemStartedEvent @event, CancellationToken ct) { }
+}</code></pre>
+<p>---</p>
+<h2>Consequences</h2>
+<p><strong>Pros:</strong></p>
+<ul>
+<li>Handles system/external/domain events and future commands</li>
+<li>Still type-safe, backward compatible, extensible</li>
+</ul>
+<p><strong>Cons:</strong></p>
+<ul>
+<li>Small runtime convention check overhead</li>
+</ul>
+<p>---</p>
+<h2>References</h2>
+<ul>
+<li>ADR-003: Domain Events vs Integration Events</li>
+<li>ADR-004: Outbox Pattern</li>
+</ul>
+        </article>
+    </main>
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <ul class="footer-links">
+                <li><a href="https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS">GitHub</a></li>
+                <li><a href="index.html">ADRs</a></li>
+                <li><a href="../patterns.html">Patterns</a></li>
+                <li><a href="https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS/blob/main/LICENSE">License</a></li>
+            </ul>
+            <p class="footer-copy">MIT License &mdash; Built for the .NET community</p>
+        </div>
+    </footer>
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>

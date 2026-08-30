@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADR-004: Outbox Pattern</title>
+    <meta name="description" content="Guaranteed integration event delivery with transactional consistency in .NET.">
+    <meta name="robots" content="index, follow">
+    <meta name="google-site-verification" content="A6tHTS5FsuxXuWy3LSg5yzVrA7j2R3S2R9he25A0aWs" />
+    <link rel="canonical" href="https://mohd2sh.github.io/CleanArchitecture-DDD-CQRS/adrs/adr-004.html">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="ADR-004: Outbox Pattern">
+    <meta property="og:description" content="Guaranteed integration event delivery with transactional consistency in .NET.">
+    <meta property="og:url" content="https://mohd2sh.github.io/CleanArchitecture-DDD-CQRS/adrs/adr-004.html">
+    <meta property="og:image" content="https://mohd2sh.github.io/CleanArchitecture-DDD-CQRS/assets/images/social-preview.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "TechArticle",
+        "headline": "ADR-004: Outbox Pattern",
+        "description": "Guaranteed integration event delivery with transactional consistency in .NET.",
+        "author": {"@type": "Person", "name": "Mohammad Shakhtour"},
+        "url": "https://mohd2sh.github.io/CleanArchitecture-DDD-CQRS/adrs/adr-004.html"
+    }
+    </script>
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-inner">
+            <a href="../index.html" class="logo"><span class="logo-dotnet">.NET</span> Clean Architecture</a>
+            <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">&#9776;</button>
+            <ul class="nav-links">
+                <li><a href="../index.html#features">Features</a></li>
+                <li><a href="../index.html#architecture">Architecture</a></li>
+                <li><a href="../patterns.html">Patterns</a></li>
+                <li><a href="index.html">ADRs</a></li>
+            </ul>
+            <div class="nav-actions">
+                <a href="https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS" class="btn btn-primary btn-sm" target="_blank" rel="noopener">Star on GitHub</a>
+            </div>
+        </div>
+    </header>
+    <main class="container-narrow">
+        <div class="page-header">
+            <h1>ADR-004: Outbox Pattern</h1>
+            <div class="page-meta">
+                <span>Author: Mohammad Shakhtour</span>
+                <span class="status-badge status-accepted">Accepted</span>
+            </div>
+        </div>
+        <article class="article-content">
+<p><strong>Author:</strong> Mohammad Shakhtour  </p>
+<p><strong>Status:</strong> Accepted  </p>
+<h2>Context</h2>
+<h3>The Problem</h3>
+<p>ADR-003 established that we use <code>IIntegrationEventHandler</code> for asynchronous event processing outside the transaction scope and in async way. But we also need to <strong>guarantee that integration events are reliably delivered even in the face of system failures?</strong></p>
+<p>Consider this failure scenario:</p>
+<pre><code>1. Transaction begins
+2. Work order completed (database updated)
+3. Transaction commits successfully
+4. Send email notification via external API
+5. Application crashes before email is sent</code></pre>
+<p><strong>Result:</strong> Work order is completed in the database, but the notification email is never sent and there&#x27;s no record that it should have been.</p>
+<h3>The Dual-Write Problem</h3>
+<p>This is known as the <strong>dual-write problem</strong> in distributed systems:</p>
+<p>&gt; <strong>&quot;If you need to update two different systems (a database and a message broker), you cannot make both updates atomically. One might succeed while the other fails.&quot;</strong>  </p>
+<p>&gt; — Chris Richardson, Microservices Patterns (2018)</p>
+<p><strong>Traditional Approaches Fail:</strong></p>
+<p><strong>Approach 1: Publish then Commit</strong></p>
+<pre><code>1. Publish event to message bus
+2. Commit database transaction
+Problem: If database commit fails, event already published</code></pre>
+<p><strong>Approach 2: Commit then Publish</strong></p>
+<pre><code>1. Commit database transaction  
+2. Publish event to message bus
+Problem: If publish fails or app crashes, event is lost</code></pre>
+<p><strong>Approach 3: Two-Phase Commit</strong></p>
+<pre><code>1. Prepare both database and message bus
+2. Commit both atomically
+Problem: Complex, poor performance, requires distributed transaction coordinator</code></pre>
+<p>None of these approaches guarantee both atomicity and reliable delivery.</p>
+<h3>Why This Matters</h3>
+<p>The Outbox Pattern emerged as the industry-standard solution to this problem, documented by Chris Richardson:</p>
+<p>&gt; <strong>&quot;The Transactional Outbox pattern uses the database as a temporary message queue. Services that send messages insert them into an outbox table as part of the database transaction that updates business entities.&quot;</strong>  </p>
+<p>&gt; — Chris Richardson, Microservices Patterns (2018)</p>
+<p>---</p>
+<h2>Decision Drivers</h2>
+<ol>
+<li><strong>Guaranteed Delivery</strong> - Integration events must not be lost, even during system failures</li>
+<li><strong>Transactional Consistency</strong> - Event publishing must be atomic with business state changes</li>
+<li><strong>System Resilience</strong> - Must survive application crashes and restarts</li>
+<li><strong>At-Least-Once Semantics</strong> - Events delivered at least once (idempotency handled by consumers)</li>
+<li><strong>Retry Capability</strong> - Failed deliveries automatically retried with backoff</li>
+<li><strong>Microservices Readiness</strong> - Supports evolution to distributed architecture with message bus</li>
+</ol>
+<p>---</p>
+<h2>Options Considered</h2>
+<h3>Option 1: Fire-and-Forget (Task.Run)</h3>
+<p><strong>Pattern:</strong></p>
+<p>Execute integration event handlers in background tasks without persistence.</p>
+<p><strong>Pros:</strong></p>
+<ul>
+<li>Simple implementation</li>
+<li>No additional infrastructure</li>
+<li>Low latency</li>
+</ul>
+<p><strong>Cons:</strong></p>
+<ul>
+<li>Events lost on application crash</li>
+<li>No retry mechanism</li>
+<li>No delivery guarantees</li>
+<li>Cannot track processing status</li>
+</ul>
+<p><strong>Verdict:</strong> Rejected - No reliability guarantees</p>
+<p>---</p>
+<h3>Option 2: In-Memory Queue with Background Service</h3>
+<p><strong>Pattern:</strong></p>
+<p>Queue events in memory, background service processes them.</p>
+<p><strong>Pros:</strong></p>
+<ul>
+<li>Better than fire-and-forget</li>
+<li>Controlled processing</li>
+<li>Can implement retry logic</li>
+</ul>
+<p><strong>Cons:</strong></p>
+<ul>
+<li>Queue lost on application restart</li>
+<li>Events in queue not persisted</li>
+<li>Memory constraints for high volume</li>
+<li>Still loses events during crashes</li>
+</ul>
+<p><strong>Verdict:</strong> Rejected - Not restart-safe</p>
+<p>---</p>
+<h3>Option 3: Transactional Outbox Pattern (Chosen)</h3>
+<p><strong>Pattern:</strong></p>
+<p>Write integration events to a database table within the same transaction as the business operation. A separate background process reads from this outbox table and publishes events.</p>
+<pre><code>Business Transaction:
+1. Update work order status
+2. Write integration event to Outbox table
+3. Commit transaction (both updates atomic)
+
+Background Process:
+1. Poll Outbox table for unprocessed events
+2. Publish event to handlers/message bus
+3. Mark event as processed
+4. Retry on failure</code></pre>
+<p><strong>Pros:</strong></p>
+<ul>
+<li>Guaranteed delivery (transactional consistency)</li>
+<li>Survives application restarts (persisted)</li>
+<li>Automatic retry with configurable attempts</li>
+<li>At-least-once delivery semantics</li>
+<li>Can track processing history</li>
+<li>Production-proven pattern</li>
+<li>Supports future message bus integration</li>
+</ul>
+<p><strong>Cons:</strong></p>
+<ul>
+<li>Additional database table</li>
+<li>Eventual consistency (small delay)</li>
+<li>Background processor complexity</li>
+<li>Storage overhead for event history</li>
+</ul>
+<p><strong>Verdict:</strong> Accepted - Industry-standard solution balancing reliability and complexity</p>
+<p>---</p>
+<h2>Decision</h2>
+<p><strong>Implement the Transactional Outbox Pattern with the following design:</strong></p>
+<h3>Core Components</h3>
+<p><strong>1. Outbox Table</strong></p>
+<p>Stores integration events within the same database as business entities</p>
+<p><strong>2. Event Writer (DomainEventsPipeline)</strong></p>
+<p>Writes integration events to outbox within the command&#x27;s transaction</p>
+<p><strong>3. Outbox Processor (Background Service)</strong></p>
+<p>Polls outbox table and processes undelivered events:</p>
+<ul>
+<li>Runs as hosted service (BackgroundService)</li>
+<li>Polls at configurable interval (default: 5 seconds)</li>
+<li>Reads batch of unprocessed events</li>
+<li>Deserializes and invokes integration event handlers</li>
+<li>Marks events as processed or increments retry count</li>
+<li>Handles failures with automatic retry</li>
+</ul>
+<p><strong>4. Outbox Store (Repository)</strong></p>
+<p>Abstracts database operations for the outbox</p>
+<h3>Separate Database Context</h3>
+<p>The outbox uses a dedicated <code>OutboxDbContext</code> separate from the main application context:</p>
+<p><strong>Why Separate?</strong></p>
+<ul>
+<li>Independent lifecycle (outbox processor vs business transactions)</li>
+<li>Different connection string for potential database separation (future)</li>
+<li>Cleaner dependency management</li>
+<li>Separate migrations and schema evolution</li>
+<li>Enables future extraction to dedicated service</li>
+</ul>
+<p>---</p>
+<h3>Key Design Decisions</h3>
+<p><strong>Serialization Strategy:</strong></p>
+<ul>
+<li>JSON serialization with <code>AssemblyQualifiedName</code> for type resolution</li>
+<li>Allows version-tolerant deserialization</li>
+<li>Events should be immutable data contracts</li>
+</ul>
+<p><strong>Polling vs Push:</strong></p>
+<ul>
+<li>Polling chosen for simplicity and reliability</li>
+<li>Configurable interval balances latency vs database load</li>
+<li>Push-based approaches (triggers, change data capture) more complex</li>
+</ul>
+<p><strong>Retry Strategy:</strong></p>
+<ul>
+<li>Configurable max retries per event (default: 3)</li>
+<li>Failed events remain in outbox for investigation</li>
+<li>Future: Exponential backoff, dead letter queue</li>
+</ul>
+<p><strong>Idempotency:</strong></p>
+<ul>
+<li>Handlers must be idempotent (at-least-once delivery)</li>
+<li>Same event may be processed multiple times on retry</li>
+<li>Handler should detect and ignore duplicate processing</li>
+</ul>
+<p>---</p>
+<h2>Future Evolution</h2>
+<h3>Phase 1: Default Implementation (Simple)</h3>
+<p><strong>Characteristics:</strong></p>
+<ul>
+<li>Single application instance</li>
+<li>In-process event handlers</li>
+<li>Shared database for outbox</li>
+<li>Simple deployment</li>
+<li><strong>EF Core-based <code>IOutboxStore</code> implementation</strong> (<code>EfCoreOutboxStore</code>)</li>
+</ul>
+<p><strong>Key Point:</strong> The <code>IOutboxStore</code> abstraction makes this a simple starting point that&#x27;s easy to replace later.</p>
+<h3>Phase 2: Message Bus Integration</h3>
+<p><strong>Changes:</strong></p>
+<ul>
+<li>Outbox processor publishes to RabbitMQ/Azure Service Bus</li>
+<li>Handlers can be in-process or external subscribers</li>
+<li>Events available to external systems</li>
+<li>No changes to business code or handler interfaces</li>
+</ul>
+<h3>Phase 3: Microservices</h3>
+<p><strong>Characteristics:</strong></p>
+<ul>
+<li>Each service has its own outbox</li>
+<li>Cross-service communication via message bus</li>
+<li>Event schema registry for contracts</li>
+<li>Distributed event flow</li>
+</ul>
+<h3>Migration Path</h3>
+<p><strong>No Breaking Changes:</strong></p>
+<ul>
+<li>Handler interfaces remain identical (<code>IIntegrationEventHandler&lt;T&gt;</code>)</li>
+<li>Business code unchanged</li>
+<li>Only infrastructure swapped (in-process → message bus)</li>
+<li>Gradual migration possible (some events in-process, some via bus)</li>
+</ul>
+<p>---</p>
+<h2>Operational Considerations</h2>
+<h3>Monitoring</h3>
+<p><strong>Key Metrics:</strong></p>
+<ul>
+<li>Outbox processing lag (time between created and processed)</li>
+<li>Failed event count</li>
+<li>Retry count distribution</li>
+<li>Processing throughput</li>
+</ul>
+<p><strong>Alerts:</strong></p>
+<ul>
+<li>Events exceeding max retries</li>
+<li>Processing lag exceeding threshold</li>
+<li>Outbox table growth rate</li>
+</ul>
+<h3>Maintenance</h3>
+<p><strong>Cleanup Strategy:</strong></p>
+<p>Successfully processed events should be archived/deleted:</p>
+<ul>
+<li>Keep recent history for debugging (e.g., 30 days)</li>
+<li>Archive older events to separate table</li>
+<li>Regular cleanup job prevents unbounded growth</li>
+</ul>
+<p><strong>Dead Letter Queue (Future):</strong></p>
+<p>Events exceeding max retries moved to dead letter table:</p>
+<ul>
+<li>Manual investigation required</li>
+<li>Can be replayed after fixing issues</li>
+<li>Separate from active processing</li>
+</ul>
+<p>---</p>
+<h2>Guidelines</h2>
+<h3>Writing Integration Event Handlers</h3>
+<p><strong>Handler Requirements:</strong></p>
+<ul>
+<li>Must be idempotent (same event processed multiple times has same effect)</li>
+<li>Should not throw exceptions for expected failures (return gracefully)</li>
+<li>Should log errors for investigation</li>
+<li>Should not access repositories (read-only operations acceptable)</li>
+</ul>
+<h3>Event Design</h3>
+<p><strong>Best Practices:</strong></p>
+<ul>
+<li>Events are immutable data contracts</li>
+<li>Include all necessary data (avoid requiring database lookups)</li>
+<li>Use semantic versioning for schema changes</li>
+<li>Include correlation/causation IDs for tracing</li>
+</ul>
+<p>---</p>
+        </article>
+    </main>
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <ul class="footer-links">
+                <li><a href="https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS">GitHub</a></li>
+                <li><a href="index.html">ADRs</a></li>
+                <li><a href="../patterns.html">Patterns</a></li>
+                <li><a href="https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS/blob/main/LICENSE">License</a></li>
+            </ul>
+            <p class="footer-copy">MIT License &mdash; Built for the .NET community</p>
+        </div>
+    </footer>
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>

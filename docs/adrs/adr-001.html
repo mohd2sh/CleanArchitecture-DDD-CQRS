@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADR-001: Cross-Aggregate Coordination Pattern</title>
+    <meta name="description" content="How to coordinate operations across aggregate roots while maintaining DDD boundaries and ACID guarantees.">
+    <meta name="robots" content="index, follow">
+    <meta name="google-site-verification" content="A6tHTS5FsuxXuWy3LSg5yzVrA7j2R3S2R9he25A0aWs" />
+    <link rel="canonical" href="https://mohd2sh.github.io/CleanArchitecture-DDD-CQRS/adrs/adr-001.html">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="ADR-001: Cross-Aggregate Coordination Pattern">
+    <meta property="og:description" content="How to coordinate operations across aggregate roots while maintaining DDD boundaries and ACID guarantees.">
+    <meta property="og:url" content="https://mohd2sh.github.io/CleanArchitecture-DDD-CQRS/adrs/adr-001.html">
+    <meta property="og:image" content="https://mohd2sh.github.io/CleanArchitecture-DDD-CQRS/assets/images/social-preview.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "TechArticle",
+        "headline": "ADR-001: Cross-Aggregate Coordination Pattern",
+        "description": "How to coordinate operations across aggregate roots while maintaining DDD boundaries and ACID guarantees.",
+        "author": {"@type": "Person", "name": "Mohammad Shakhtour"},
+        "url": "https://mohd2sh.github.io/CleanArchitecture-DDD-CQRS/adrs/adr-001.html"
+    }
+    </script>
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-inner">
+            <a href="../index.html" class="logo"><span class="logo-dotnet">.NET</span> Clean Architecture</a>
+            <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">&#9776;</button>
+            <ul class="nav-links">
+                <li><a href="../index.html#features">Features</a></li>
+                <li><a href="../index.html#architecture">Architecture</a></li>
+                <li><a href="../patterns.html">Patterns</a></li>
+                <li><a href="index.html">ADRs</a></li>
+            </ul>
+            <div class="nav-actions">
+                <a href="https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS" class="btn btn-primary btn-sm" target="_blank" rel="noopener">Star on GitHub</a>
+            </div>
+        </div>
+    </header>
+    <main class="container-narrow">
+        <div class="page-header">
+            <h1>ADR-001: Cross-Aggregate Coordination Pattern</h1>
+            <div class="page-meta">
+                <span>Author: Mohammad Shakhtour</span>
+                <span class="status-badge status-accepted">Accepted</span>
+            </div>
+        </div>
+        <article class="article-content">
+<p><strong>Author:</strong> Mohammad Shakhtour  </p>
+<p><strong>Status:</strong> Accepted  </p>
+<h2>Context</h2>
+<h3>The Problem</h3>
+<p>In a CMMS (Computerized Maintenance Management System), operations frequently span multiple aggregate roots across different bounded contexts. Consider the <code>CompleteWorkOrder</code> command:</p>
+<ol>
+<li><strong>WorkOrder aggregate</strong> must be marked as completed</li>
+<li><strong>Asset aggregate</strong> must transition from &quot;Under Maintenance&quot; to &quot;Operational&quot;  </li>
+<li><strong>Technician aggregate</strong> must record the completed assignment and free up capacity</li>
+</ol>
+<p><strong>Challenge:</strong> How do we coordinate these operations while maintaining:</p>
+<ul>
+<li>Aggregate boundary integrity (DDD principle)</li>
+<li>ACID transaction guarantees</li>
+<li>Clean architecture separation</li>
+<li>Ability to evolve toward microservices</li>
+</ul>
+<h3>Why This Matters</h3>
+<p>Eric Evans defines aggregates as *“a cluster of associated objects that we treat as a unit for the purpose of data changes”*  </p>
+<p>(*Domain-Driven Design*).</p>
+<p>He explains that an aggregate must maintain its own invariants independently —  </p>
+<p><strong>one aggregate should not depend on the state of another to remain consistent.</strong>  </p>
+<p>This principle ensures each aggregate forms a clear consistency boundary and can evolve or persist independently without requiring coordination with others.</p>
+<p>Vaughn Vernon reinforces this in Implementing Domain-Driven Design:</p>
+<p>&gt; <strong>Vaughn Vernon (paraphrased): Aggregates should be kept small. When a business operation requires coordination across multiple aggregates, handle it through a Domain Service or an Application Service.</strong>  </p>
+<p>The question becomes: <strong>Which coordination pattern best maintains these principles while remaining pragmatic?</strong></p>
+<p>---</p>
+<h2>Decision Drivers</h2>
+<ol>
+<li><strong>DDD Principles</strong> - Respect aggregate boundaries and invariants</li>
+<li><strong>Clean Architecture</strong> - Dependency rules, layer separation  </li>
+<li><strong>Testability</strong> - Easy to unit test in isolation</li>
+<li><strong>Maintainability</strong> - Clear, understandable coordination</li>
+<li><strong>Microservices-Ready</strong> - Can evolve to distributed system</li>
+<li><strong>Transaction Consistency</strong> - ACID guarantees when needed</li>
+<li><strong>Simplicity</strong> - Occam&#x27;s Razor - simplest solution that works</li>
+</ol>
+<p>---</p>
+<h2>Options Considered</h2>
+<h3>Option 1: Command Handler Orchestration </h3>
+<p><strong>Pattern:</strong></p>
+<pre><code class="language-csharp">public class CompleteWorkOrderCommandHandler
+{
+    private readonly IRepository&lt;WorkOrder, Guid&gt; _workOrderRepo;
+    private readonly IRepository&lt;Asset, Guid&gt; _assetRepo;
+    private readonly IRepository&lt;Technician, Guid&gt; _technicianRepo;
+    
+    public async Task&lt;Result&gt; Handle(CompleteWorkOrderCommand request, CancellationToken ct)
+    {
+        var workOrder = await _workOrderRepo.GetByIdAsync(request.WorkOrderId, ct);
+        var asset = await _assetRepo.GetByIdAsync(workOrder.AssetId, ct);
+        var technician = await _technicianRepo.GetByIdAsync(workOrder.TechnicianId, ct);
+        
+        // Handler orchestrates all aggregates directly
+        workOrder.Complete();
+        asset.CompleteMaintenance();
+        technician.CompleteAssignment(workOrder.Id);
+        
+        return Result.Success();
+    }
+}</code></pre>
+<p><strong>Analysis:</strong></p>
+<p>The command handler coordinates multiple aggregates to complete a workflow.</p>
+<p>This approach is acceptable when the logic is straightforward and each aggregate can perform its work independently.</p>
+<p>However, it can become problematic if the handler needs data from one aggregate to compute or validate something in another.</p>
+<p>That usually means the aggregate boundaries are off, and the logic likely belongs inside a domain service or a single, larger aggregate.</p>
+<p><strong>Problems:</strong></p>
+<ul>
+<li> Tight coupling to multiple repositories</li>
+<li> Harder to evolve</li>
+<li> Cross-aggregate lookups often indicate poor domain design</li>
+<li> Hard to test (requires mocking multiple repositories)</li>
+<li> Business logic might leaks into application layer</li>
+</ul>
+<p><strong>Verdict:</strong>  Acceptable for simple use cases within one bounded context.</p>
+<p>---</p>
+<h3>Option 2: Mediator.Send(Command) from Handler </h3>
+<p><strong>Pattern:</strong></p>
+<pre><code class="language-csharp">public class CompleteWorkOrderCommandHandler
+{
+    private readonly IRepository&lt;WorkOrder, Guid&gt; _workOrderRepo;
+    private readonly IMediator _mediator;
+    
+    public async Task&lt;Result&gt; Handle(CompleteWorkOrderCommand request, CancellationToken ct)
+    {
+        var workOrder = await _workOrderRepo.GetByIdAsync(request.WorkOrderId, ct);
+        workOrder.Complete();
+        
+        // Send commands to other contexts
+        await _mediator.Send(new CompleteAssetMaintenanceCommand(workOrder.AssetId), ct);
+        await _mediator.Send(new CompleteAssignmentCommand(workOrder.TechnicianId, workOrder.Id), ct);
+        
+        return Result.Success();
+    }
+}</code></pre>
+<p><strong>Analysis:</strong></p>
+<p>This creates <strong>tight command-level coupling</strong> between bounded contexts.</p>
+<p><strong>Problems:</strong></p>
+<ul>
+<li> Violates bounded context autonomy</li>
+<li> Creates synchronous coupling at command level</li>
+<li> Handler must know about other contexts&#x27; command contracts</li>
+<li> Difficult to evolve to async style microservices</li>
+<li> Commands are meant for external requests, not internal coordination</li>
+<li> Unclear transaction boundaries (who commits what?)</li>
+</ul>
+<p><strong>Verdict:</strong>  <strong>Not Recommended</strong> - Violates bounded context independence</p>
+<p>---</p>
+<h3>Option 3: Mediator.Send(Query) from Handler </h3>
+<p><strong>Pattern:</strong></p>
+<pre><code class="language-csharp">public class AssignTechnicianCommandHandler
+{
+    private readonly IRepository&lt;WorkOrder, Guid&gt; _workOrderRepo;
+    private readonly IMediator _mediator;
+    
+    public async Task&lt;Result&gt; Handle(AssignTechnicianCommand request, CancellationToken ct)
+    {
+        // Query another context for validation (read-only)
+        var technicianAvailability = await _mediator.Send(
+            new GetTechnicianAvailabilityQuery(request.TechnicianId), ct);
+        
+        if (!technicianAvailability.IsAvailable)
+            return Result.Failure(TechnicianErrors.NotAvailable);
+        
+        var workOrder = await _workOrderRepo.GetByIdAsync(request.WorkOrderId, ct);
+        workOrder.AssignTechnician(request.TechnicianId);
+        
+        return Result.Success();
+    }
+}</code></pre>
+<p><strong>Analysis:</strong></p>
+<p>This is <strong>more acceptable</strong> than sending commands, but still introduces runtime coupling and potential consistency risks between bounded contexts.</p>
+<p><strong>Problems:</strong></p>
+<ul>
+<li> Still couples at query level</li>
+<li> Potential race condition (data might change between query and command)</li>
+</ul>
+<p><strong>Verdict:</strong>  <strong>Acceptable but not ideal</strong> - Creates read coupling</p>
+<p>---</p>
+<h3>Option 4: Domain Service </h3>
+<p><strong>Pattern:</strong></p>
+<pre><code class="language-csharp">// Domain/Application Service Interface
+public interface IWorkOrderCompletionService
+{
+    Task&lt;Result&gt; CompleteWorkOrderAsync(Guid workOrderId, string notes);
+}
+
+// Implementation
+internal class WorkOrderCompletionService : IWorkOrderCompletionService
+{
+    private readonly IRepository&lt;WorkOrder, Guid&gt; _workOrderRepo;
+    private readonly IRepository&lt;Asset, Guid&gt; _assetRepo;
+    private readonly IRepository&lt;Technician, Guid&gt; _technicianRepo;
+    private readonly IUnitOfWork _unitOfWork;
+    
+    public async Task&lt;Result&gt; CompleteWorkOrderAsync(Guid workOrderId, string notes)
+    {
+        // Load all aggregates
+        var workOrder = await _workOrderRepo.GetByIdAsync(workOrderId);
+        if (workOrder is null) return Result.Failure(WorkOrderErrors.NotFound);
+        
+        var asset = await _assetRepo.GetByIdAsync(workOrder.AssetId);
+        var technician = await _technicianRepo.GetByIdAsync(workOrder.TechnicianId.Value);
+        
+        // Orchestrate the operation
+        var result = workOrder.Complete(notes);
+        if (result.IsFailure) return result;
+        
+        asset.CompleteMaintenance(DateTime.UtcNow, notes);
+        technician.CompleteAssignment(workOrder.Id, DateTime.UtcNow);
+        
+        // Single transaction commits all changes
+        await _unitOfWork.SaveChangesAsync();
+        
+        return Result.Success();
+    }
+}
+
+// Command Handler delegates to service
+public class CompleteWorkOrderCommandHandler
+{
+    private readonly IWorkOrderCompletionService _completionService;
+    
+    public async Task&lt;Result&gt; Handle(CompleteWorkOrderCommand request, CancellationToken ct)
+    {
+        return await _completionService.CompleteWorkOrderAsync(
+            request.WorkOrderId, 
+            request.Notes);
+    }
+}</code></pre>
+<p><strong>Analysis:</strong></p>
+<p>This is <strong>explicitly endorsed</strong> by DDD authorities.</p>
+<p><strong>Eric Evans on Domain Services:</strong></p>
+<p>&gt; <strong>&quot;Some concepts from the domain aren&#x27;t natural to model as objects. Forcing the required domain functionality to be the responsibility of an ENTITY or VALUE either distorts the definition of a model-based object or adds meaningless artificial objects. A SERVICE is an operation offered as an interface that stands alone in the model, without encapsulating state... When a significant process or transformation in the domain is not a natural responsibility of an ENTITY or VALUE OBJECT, add an operation to the model as a standalone interface declared as a SERVICE.&quot;</strong>  </p>
+<p>&gt; — Eric Evans, Domain-Driven Design, Chapter 5</p>
+<p><strong>Pros:</strong></p>
+<ul>
+<li> DDD-legitimate pattern (endorsed by Evans &amp; Vernon)</li>
+<li> Single ACID transaction</li>
+<li> Explicit orchestration logic</li>
+<li> Can handle complex coordination</li>
+<li> Testable in isolation</li>
+<li> Command handlers stay thin</li>
+</ul>
+<p><strong>Cons:</strong></p>
+<ul>
+<li> Couples bounded contexts in the service</li>
+<li> Service depends on multiple aggregates</li>
+<li> Harder to extract to microservices (need to split service)</li>
+<li> Can become a &quot;transaction script&quot; if not careful</li>
+<li> Requires careful modeling to avoid cross-context leakage</li>
+</ul>
+<p><strong>When to Use:</strong></p>
+<ul>
+<li>Complex orchestration logic (if-then-else across aggregates)</li>
+<li>Operations requiring bidirectional data flow</li>
+<li>Pragmatic exception for tightly coupled operations</li>
+</ul>
+<p><strong> Design Smell Warning:</strong></p>
+<p>If you find yourself needing a computed value from one aggregate to create or modify another aggregate, this is a strong indicator of poor domain modeling.</p>
+<p><strong>Better Approaches:</strong></p>
+<ul>
+<li>Include necessary data in the command (denormalization)</li>
+<li>Use domain events</li>
+<li>Rethink your aggregate boundaries</li>
+</ul>
+<p><strong>Verdict:</strong>  <strong>Legitimate DDD Pattern</strong> - Use for complex cases, but re-examine your model if you need cross-aggregate computed values</p>
+<p>---</p>
+<h3>Option 5: Domain Events (Synchronous And Asynchronous) </h3>
+<p><strong>Pattern:</strong></p>
+<pre><code class="language-csharp">// Command Handler - Only touches own aggregate
+public class CompleteWorkOrderCommandHandler
+{
+    private readonly IRepository&lt;WorkOrder, Guid&gt; _workOrderRepo;
+    
+    public async Task&lt;Result&gt; Handle(CompleteWorkOrderCommand request, CancellationToken ct)
+    {
+        var workOrder = await _workOrderRepo.GetByIdAsync(request.WorkOrderId, ct);
+        if (workOrder is null) return Result.Failure(WorkOrderErrors.NotFound);
+        
+        workOrder.Complete(request.Notes); // Raises WorkOrderCompletedEvent
+        
+        return Result.Success();
+    }
+}
+
+// Event Handlers in other bounded contexts
+namespace Application.Assets.Events
+{
+    
+    internal class WorkOrderCompletedEventHandler 
+        : INotificationHandler&lt;DomainEventNotification&lt;WorkOrderCompletedEvent&gt;&gt;
+    {
+        private readonly IRepository&lt;Asset, Guid&gt; _assetRepo;
+        
+        public async Task Handle(
+            DomainEventNotification&lt;WorkOrderCompletedEvent&gt; notification, 
+            CancellationToken ct)
+        {
+            var asset = await _assetRepo.GetByIdAsync(notification.DomainEvent.AssetId, ct);
+            if (asset is null) 
+                throw new DomainException(AssetErrors.NotFound);
+            
+            asset.CompleteMaintenance(DateTime.UtcNow, notification.DomainEvent.Notes);
+            // Saved by transaction pipeline
+        }
+    }
+}
+
+namespace Application.Technicians.Events
+{
+    
+    internal class WorkOrderCompletedEventHandler 
+        : INotificationHandler&lt;DomainEventNotification&lt;WorkOrderCompletedEvent&gt;&gt;
+    {
+        private readonly IRepository&lt;Technician, Guid&gt; _technicianRepo;
+        
+        public async Task Handle(
+            DomainEventNotification&lt;WorkOrderCompletedEvent&gt; notification, 
+            CancellationToken ct)
+        {
+            if (!notification.DomainEvent.TechnicianId.HasValue) return;
+            
+            var technician = await _technicianRepo.GetByIdAsync(
+                notification.DomainEvent.TechnicianId.Value, ct);
+            
+            if (technician is null) return; // Idempotent
+            
+            technician.CompleteAssignment(
+                notification.DomainEvent.WorkOrderId, 
+                DateTime.UtcNow);
+        }
+    }
+}</code></pre>
+<p><strong>Pipeline Execution:</strong></p>
+<pre><code>1. TransactionCommandPipeline opens transaction
+2. DomainEventsPipeline executes
+3. Command handler: workOrder.Complete() → raises event
+4. Domain events published (inside transaction)
+5. Asset event handler executes
+6. Technician event handler executes
+7. SaveChanges() commits all changes
+8. Transaction commits
+   
+If any handler fails → entire transaction rolls back </code></pre>
+<p><strong>Analysis:</strong></p>
+<p>This is the <strong>core DDD event-driven pattern</strong>.</p>
+<p><strong>Eric Evans on Domain Events:</strong></p>
+<p>&gt; <strong>&quot;Model information about activity in the domain as a series of discrete events. Represent each event as a domain object... A domain event is a full-fledged part of the domain model, a representation of something that happened in the domain. Ignore irrelevant domain activity while making explicit the events that the domain experts want to track or be notified of, or which are associated with state change in other model objects.&quot;</strong>  </p>
+<p>&gt; — Eric Evans, Domain-Driven Design Reference (2014)</p>
+<p><strong>Vaughn Vernon on Domain Events:</strong></p>
+<p>&gt; <strong>&quot;Modeling events explicitly in the domain helps the team understand the business domain better. Use Domain Events to capture an occurrence of something that happened in the domain. Design events as immutable objects. Publish events from aggregates that undergo state changes. Other aggregates in the same Bounded Context can subscribe to these events.&quot;</strong>  </p>
+<p>&gt; — Vaughn Vernon, IDDD, Chapter 8</p>
+<p><strong>Pros:</strong></p>
+<ul>
+<li> <strong>Maintains aggregate boundaries</strong> - Each aggregate only modifies itself</li>
+<li> <strong>Clean separation of concerns</strong> - Each context reacts independently</li>
+<li> <strong>Single ACID transaction</strong> - All handlers in same transaction</li>
+<li> <strong>Automatic rollback</strong> - If any handler fails, entire operation rolls back</li>
+<li> <strong>Easy to test</strong> - Mock event handlers independently</li>
+<li> <strong>Microservices-ready</strong> - Just change to Integration Events + Outbox</li>
+<li> <strong>DDD-endorsed</strong> - Explicitly recommended by Evans &amp; Vernon</li>
+<li> <strong>Scalable</strong> - Easy to add/remove event handlers</li>
+<li> <strong>Enforces design boundaries</strong> - Prevents cross-aggregate computed value anti-pattern by making data flow explicit through events rather than queries</li>
+</ul>
+<p><strong>Cons:</strong></p>
+<ul>
+<li> More files (one handler per context)</li>
+<li> Requires understanding event flow</li>
+</ul>
+<p><strong>When to Use:</strong></p>
+<ul>
+<li>Default pattern for cross-aggregate coordination</li>
+<li>Operations that are independent side-effects</li>
+<li>When ACID consistency is required</li>
+<li>When bounded context boundaries must remain clean</li>
+</ul>
+<p><strong>Verdict:</strong>  <strong>Recommended Primary Pattern</strong></p>
+<p>---</p>
+<h2>Decision</h2>
+<h3>Primary Pattern: Domain Events (Synchronous/Transactional)</h3>
+<p><strong>choose Domain Events as the primary coordination pattern.</strong></p>
+<h3>Rationale</h3>
+<ol>
+<li><strong>DDD-Aligned:</strong> Explicitly endorsed by Eric Evans and Vaughn Vernon</li>
+<li><strong>Clean Boundaries:</strong> Each bounded context modifies only its own aggregates</li>
+<li><strong>ACID Guarantees:</strong> All operations in single transaction</li>
+<li><strong>Testable:</strong> Easy to unit test handlers independently</li>
+<li><strong>Microservices-Ready:</strong> Natural evolution to Integration Events + Outbox</li>
+<li><strong>Maintainable:</strong> Clear event flow, easy to understand</li>
+<li><strong>Scalable:</strong> Easy to add new event handlers without changing core logic</li>
+</ol>
+<h3>Exception: Domain Services for Complex Cases</h3>
+<p>For operations with <strong>complex orchestration logic</strong> or <strong>bidirectional data flow</strong>, we allow Domain Services as a pragmatic exception:</p>
+<pre><code class="language-csharp">workOrder.Complete(); // → Event → Handlers</code></pre>
+<h3>Future Evolution</h3>
+<p><strong>Default Implementation (Single-Process Deployment):</strong></p>
+<ul>
+<li>Synchronous domain events</li>
+<li>Single ACID transaction</li>
+<li>All handlers in same process</li>
+</ul>
+<p><strong>Microservices Evolution:</strong></p>
+<ul>
+<li>Outbox published to Bus</li>
+<li>Saga introduced if necessary</li>
+<li>Eventual consistency between services</li>
+</ul>
+<p><strong>Note:</strong> The template is designed to work seamlessly in both architectures.</p>
+<p><strong>Migration Path:</strong></p>
+<pre><code class="language-csharp">// Transactional
+internal sealed class WorkOrderCompletedEventHandler : IDomainEventHandler&lt;WorkOrderCompletedEvent&gt;
+
+// Tomorrow (microservices)
+internal sealed class WorkOrderCompletedHandler
+    : IIntegrationEventHandler&lt;WorkOrderCompletedEvent&gt;
+// Infrastructure automatically uses Outbox + Message Bus</code></pre>
+<h3>Related Decisions</h3>
+<ul>
+<li>ADR-003: Domain Events vs Integration Events — distinction between <code>IDomainEventHandler</code> and <code>IIntegrationEventHandler</code>.</li>
+</ul>
+<p>---</p>
+<h2>Architecture Tests</h2>
+<p>To enforce this decision, we implement architecture tests:</p>
+<pre><code class="language-csharp">[Fact]
+public void CommandHandlers_Should_Use_Repository_From_Same_BoundedContext()
+{
+    
+}</code></pre>
+<p>This test ensures handlers don&#x27;t inject repositories from other contexts, forcing the use of events or services.</p>
+<p>---</p>
+<h2>Notes</h2>
+<p>This decision prioritizes <strong>clean boundaries and microservices-readiness</strong> over immediate simplicity. While handler orchestration might seem simpler initially, the event-driven approach provides:</p>
+<ol>
+<li>Better long-term maintainability</li>
+<li>Clear bounded context boundaries</li>
+<li>Natural evolution path to distributed architecture</li>
+<li>Testability and extensibility</li>
+</ol>
+<p>---</p>
+        </article>
+    </main>
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <ul class="footer-links">
+                <li><a href="https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS">GitHub</a></li>
+                <li><a href="index.html">ADRs</a></li>
+                <li><a href="../patterns.html">Patterns</a></li>
+                <li><a href="https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS/blob/main/LICENSE">License</a></li>
+            </ul>
+            <p class="footer-copy">MIT License &mdash; Built for the .NET community</p>
+        </div>
+    </footer>
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>

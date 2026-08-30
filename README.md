@@ -5,6 +5,8 @@
 ![Unit & Architecture Tests](https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS/actions/workflows/dotnet-test.yml/badge.svg)
 ![Docker Build](https://github.com/mohd2sh/CleanArchitecture-DDD-CQRS/actions/workflows/docker-build.yml/badge.svg)
 
+**Documentation:** [mohd2sh.github.io/CleanArchitecture-DDD-CQRS](https://mohd2sh.github.io/CleanArchitecture-DDD-CQRS/)
+
 A .NET 8 application demonstrating Clean Architecture, Domain-Driven Design (DDD), and CQRS with automated architecture tests, integration tests, and event-driven cross-aggregate coordination. This template provides a solid foundation for building maintainable, testable, and scalable applications.
 
 ## Introduction
@@ -76,25 +78,25 @@ This application includes implementations of enterprise patterns:
 
 ## Architecture Overview
 
-![System Architecture Overview](docs/diagrams/Overview.png)
+![System Architecture Overview](docs/assets/images/Overview.png)
 
 ### CQRS Flow with Events
 
 **Write Path (Commands):**
 
-![Command Flow](docs/diagrams/CommandFlow.png)
+![Command Flow](docs/assets/images/CommandFlow.png)
 
 Shows a write path from command through handler, domain events, transactional handlers, integration event handlers, outbox pattern, and background worker.
 
 **Read Path (Queries):**
 
-![Query Flow](docs/diagrams/QueryFlow.png)
+![Query Flow](docs/assets/images/QueryFlow.png)
 
 Shows the flexible read path supporting multiple data sources (Read Replica, Redis Cache, Elasticsearch, Dapper) with eventual consistency.
 
 **Command Sequence Diagram:**
 
-![Command Sequence Diagram](docs/diagrams/CommandSequenceDiagram.svg)
+![Command Sequence Diagram](docs/assets/images/CommandSequenceDiagram.svg)
 
 ## Core Patterns Explained
 

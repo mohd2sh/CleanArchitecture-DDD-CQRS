@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://mohd2sh.github.io/CleanArchitecture-DDD-CQRS/sitemap.xml
