@@ -1,6 +1,6 @@
 # CleanArchitecture-DDD-CQRS
 
-> .NET 8 Clean Architecture template with DDD, CQRS, outbox pattern, and automated architecture tests.
+> .NET 10 Clean Architecture template with DDD, CQRS, outbox pattern, and automated architecture tests.
 
 ## Summary
 

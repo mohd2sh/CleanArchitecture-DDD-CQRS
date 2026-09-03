@@ -19,7 +19,7 @@ Thank you for your interest in contributing to this Clean Architecture template!
 
 ### Setup
 1. Fork and clone the repository
-2. Install .NET 8 SDK
+2. Install .NET 10 SDK
 3. Run `dotnet restore`
 4. Run `dotnet test` to verify everything works
 
