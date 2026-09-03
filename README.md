@@ -7,7 +7,7 @@
 
 **Documentation:** [mohd2sh.github.io/CleanArchitecture-DDD-CQRS](https://mohd2sh.github.io/CleanArchitecture-DDD-CQRS/)
 
-A .NET 8 application demonstrating Clean Architecture, Domain-Driven Design (DDD), and CQRS with automated architecture tests, integration tests, and event-driven cross-aggregate coordination. This template provides a solid foundation for building maintainable, testable, and scalable applications.
+A .NET 10 application demonstrating Clean Architecture, Domain-Driven Design (DDD), and CQRS with automated architecture tests, integration tests, and event-driven cross-aggregate coordination. This template provides a solid foundation for building maintainable, testable, and scalable applications.
 
 ## Introduction
 
@@ -544,9 +544,9 @@ These ADRs document the "why" behind architectural decisions, with implementatio
 ## Quick Start
 
 ### Prerequisites
-- .NET 8 SDK
+- .NET 10 SDK
 - Docker (recommended) or SQL Server (LocalDB, Express, or full)
-- Visual Studio 2022 or VS Code
+- Visual Studio 2026 or VS Code
 
 ### Option 1: Docker Compose (Recommended)
 
