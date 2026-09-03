@@ -16,6 +16,11 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     
     <PackageTags>clean-architecture;ddd;domain-driven-design;cqrs</PackageTags>
+    <PackageIcon>nuget-icon.png</PackageIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)nuget-icon.png" Pack="true" PackagePath="\" />
+  </ItemGroup>
 </Project>
 
