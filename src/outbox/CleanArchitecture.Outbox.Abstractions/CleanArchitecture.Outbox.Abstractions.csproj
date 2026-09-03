@@ -20,9 +20,11 @@
     <Description>Abstractions for the outbox pattern implementation. Provides interfaces for storing and publishing integration events with guaranteed delivery, supporting transactional outbox pattern for reliable event-driven architectures.</Description>
     <PackageTags>clean-architecture;ddd;domain-driven-design;cqrs;outbox;outbox-pattern;integration-events;event-driven</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>nuget-icon.png</PackageIcon>
   </PropertyGroup>
 
   <ItemGroup>
     <None Include="README.md" Pack="true" PackagePath="\" />
+    <None Include="..\..\core\nuget-icon.png" Pack="true" PackagePath="\" />
   </ItemGroup>
 </Project>
